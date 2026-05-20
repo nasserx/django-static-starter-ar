@@ -3,12 +3,9 @@
   box-sizing: border-box;
   border: none !important;
   outline: none !important;
-}
-* { margin: 0; padding: 0; }
-
-*, *::before, *::after {
   font-family: var(--font);
 }
+* { margin: 0; padding: 0; }
 
 html {
   scroll-behavior: smooth;

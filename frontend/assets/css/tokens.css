@@ -8,21 +8,14 @@
 
   --ink:          #202124;
   --ink-2:        #5F6368;
-  --ink-3:        #80868B;
+  --ink-3:        #646970;
 
-  --color-accent:        #000000;
-  --color-accent-hover:  #1A1A1A;
-  --color-accent-subtle: rgba(0, 0, 0, 0.08);
-
-  --accent:       var(--color-accent);
-  --accent-2:     var(--color-accent-hover);
-  --accent-soft:  var(--color-accent-subtle);
+  --accent:       #000000;
+  --accent-2:     #1A1A1A;
+  --accent-soft:  rgba(0, 0, 0, 0.08);
   --icon-color:   #000000;
 
-  --nav-active-bg: var(--accent);
-  --nav-active-fg: #FFFFFF;
-
-  --error:         #d93025;
+  --error:         #B3261E;
   --on-accent:     #FFFFFF;
 
   --overlay:       rgba(32, 33, 36, 0.32);
@@ -44,8 +37,8 @@
 
   --nav-bg:                 var(--bg);
   --nav-link-hover-bg:      var(--surface-3);
-  --nav-link-active-bg:     var(--nav-active-bg);
-  --nav-link-active-fg:     var(--nav-active-fg);
+  --nav-link-active-bg:     var(--accent);
+  --nav-link-active-fg:     #FFFFFF;
 
   --logo-bg:   #000000;
   --logo-icon: #FFFFFF;
@@ -88,19 +81,17 @@
   --ink-2:        #bdc1c6;
   --ink-3:        #9aa0a6;
 
-  --color-accent:        #E2E8F0;
-  --color-accent-hover:  #F8FAFC;
-  --color-accent-subtle: rgba(226, 232, 240, 0.12);
+  --accent:       #E2E8F0;
+  --accent-2:     #F8FAFC;
+  --accent-soft:  rgba(226, 232, 240, 0.12);
   --icon-color:          #F8FAFC;
 
   --error:         #f28b82;
 
-  --nav-active-fg: #0B0F19;
-
   --on-accent:     #0B0F19;
 
   --overlay:       rgba(0, 0, 0, 0.58);
-  --modal-bg:      var(--bg);
+  --modal-bg:      var(--surface);
 
   --line:              rgba(255, 255, 255, 0.10);
   --line-soft:         rgba(255, 255, 255, 0.07);
@@ -108,10 +99,7 @@
   --line-accent:       rgba(226, 232, 240, 0.22);
   --line-on-accent:    rgba(11, 15, 25, 0.18);
 
-  --nav-bg:                 var(--bg);
-  --nav-link-hover-bg:      var(--surface-3);
-  --nav-link-active-bg:     var(--nav-active-bg);
-  --nav-link-active-fg:     var(--nav-active-fg);
+  --nav-link-active-fg:     #0B0F19;
 
   --logo-bg:   #F8FAFC;
   --logo-icon: #0B0F19;
@@ -134,19 +122,17 @@
     --ink-2:        #bdc1c6;
     --ink-3:        #9aa0a6;
 
-    --color-accent:        #E2E8F0;
-    --color-accent-hover:  #F8FAFC;
-    --color-accent-subtle: rgba(226, 232, 240, 0.12);
+    --accent:       #E2E8F0;
+    --accent-2:     #F8FAFC;
+    --accent-soft:  rgba(226, 232, 240, 0.12);
     --icon-color:          #F8FAFC;
 
     --error:         #f28b82;
 
-    --nav-active-fg: #0B0F19;
-
     --on-accent:     #0B0F19;
 
     --overlay:       rgba(0, 0, 0, 0.58);
-    --modal-bg:      var(--bg);
+    --modal-bg:      var(--surface);
 
     --line:              rgba(255, 255, 255, 0.10);
     --line-soft:         rgba(255, 255, 255, 0.07);
@@ -154,10 +140,7 @@
     --line-accent:       rgba(226, 232, 240, 0.22);
     --line-on-accent:    rgba(11, 15, 25, 0.18);
 
-    --nav-bg:                 var(--bg);
-    --nav-link-hover-bg:      var(--surface-3);
-    --nav-link-active-bg:     var(--nav-active-bg);
-    --nav-link-active-fg:     var(--nav-active-fg);
+    --nav-link-active-fg:     #0B0F19;
 
     --logo-bg:   #F8FAFC;
     --logo-icon: #0B0F19;

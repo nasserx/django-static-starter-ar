@@ -769,9 +769,6 @@ section.section { padding: 56px 0; }
   cursor: pointer;
   font-family: inherit;
 }
-.price-cta:hover {
-  background: var(--surface-3);
-}
 .price-card.featured .price-cta {
   background: var(--accent);
   color: var(--on-accent);
@@ -1032,14 +1029,6 @@ section.section { padding: 56px 0; }
 .preview-card { opacity: 0; animation: rise 0.8s 0.25s forwards ease; }
 @keyframes rise { to { opacity: 1; } }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 /* ============================================================================
  * AUTH MODAL — flat, solid-surface panel
  * ========================================================================= */
@@ -1087,12 +1076,16 @@ body.auth-modal-open { overflow: hidden; }
 .auth-modal__close {
   width: 32px;
   height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius);
-  color: var(--ink-3);
+  color: var(--ink-2);
   background: var(--surface-3);
   cursor: pointer;
   font: inherit;
   font-size: 20px;
+  padding: 0;
   line-height: 1;
 }
 .auth-modal__close:hover,
@@ -1156,10 +1149,6 @@ body.auth-modal-open { overflow: hidden; }
   transition:
     background var(--quick-transition),
     color var(--quick-transition);
-}
-.auth-option-button:hover,
-.auth-option-button:focus-visible {
-  background: var(--surface-3);
 }
 .auth-option-button:disabled { cursor: wait; color: var(--ink-3); }
 
