@@ -1,0 +1,10 @@
+<svg width="150" height="150" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="brand mark">
+  <style>
+    :root { --mark-bg: #000000; --mark-fg: #FFFFFF; }
+    @media (prefers-color-scheme: dark) {
+      :root { --mark-bg: #F8FAFC; --mark-fg: #0B0F19; }
+    }
+  </style>
+  <rect width="64" height="64" rx="6" fill="var(--mark-bg)" />
+  <path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="var(--mark-fg)" />
+</svg>

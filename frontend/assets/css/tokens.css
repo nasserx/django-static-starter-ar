@@ -1,0 +1,171 @@
+/* Design tokens: colors, spacing, typography, and theme overrides. */
+
+:root {
+  --bg:           #EEF2F6;
+  --surface:      #FFFFFF;
+  --surface-3:    #E4EAF1;
+  --surface-4:    #D9E1EA;
+
+  --ink:          #202124;
+  --ink-2:        #5F6368;
+  --ink-3:        #80868B;
+
+  --color-accent:        #000000;
+  --color-accent-hover:  #1A1A1A;
+  --color-accent-subtle: rgba(0, 0, 0, 0.08);
+
+  --accent:       var(--color-accent);
+  --accent-2:     var(--color-accent-hover);
+  --accent-soft:  var(--color-accent-subtle);
+  --icon-color:   #000000;
+
+  --nav-active-bg: var(--accent);
+  --nav-active-fg: #FFFFFF;
+
+  --error:         #d93025;
+  --on-accent:     #FFFFFF;
+
+  --overlay:       rgba(32, 33, 36, 0.32);
+  --modal-bg:      var(--bg);
+
+  --line:              rgba(32, 33, 36, 0.12);
+  --line-soft:         rgba(32, 33, 36, 0.085);
+  --line-softer:       rgba(32, 33, 36, 0.06);
+  --line-accent:       rgba(0, 0, 0, 0.16);
+  --line-on-accent:    rgba(255, 255, 255, 0.18);
+
+  --input-bg:          #FCFDFE;
+  --input-bg-dark:     #333539;
+  --input-border:      var(--line-soft);
+  --input-focus-border: #000000;
+  --input-error-border: #d93025;
+  --form-bg:           var(--input-bg);
+  --form-disabled-bg:  #ECEFF1;
+
+  --nav-bg:                 var(--bg);
+  --nav-link-hover-bg:      var(--surface-3);
+  --nav-link-active-bg:     var(--nav-active-bg);
+  --nav-link-active-fg:     var(--nav-active-fg);
+
+  --logo-bg:   #000000;
+  --logo-icon: #FFFFFF;
+
+  --radius: 8px;
+
+  --page-pad-x:    5%;
+  --page-pad-x-lg: 4%;
+  --page-pad-x-xl: 32px;
+  --page-max-w:    1400px;
+  --page-top-offset:    70px;
+  --page-top-offset-lg: 74px;
+
+  --font: 'Tajawal', system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-light:   300;
+  --font-regular: 400;
+  --font-medium:  500;
+  --font-bold:    700;
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+
+  --theme-transition:  0.18s ease;
+  --quick-transition:  0.2s ease;
+
+  --z-nav:   1000;
+  --z-modal: 3000;
+}
+
+:root[data-theme="dark"] {
+  --bg:           #0B0F19;
+  --surface:      #121826;
+  --surface-3:    #1B2433;
+  --surface-4:    #263244;
+
+  --ink:          #e8eaed;
+  --ink-2:        #bdc1c6;
+  --ink-3:        #9aa0a6;
+
+  --color-accent:        #E2E8F0;
+  --color-accent-hover:  #F8FAFC;
+  --color-accent-subtle: rgba(226, 232, 240, 0.12);
+  --icon-color:          #F8FAFC;
+
+  --error:         #f28b82;
+
+  --nav-active-fg: #0B0F19;
+
+  --on-accent:     #0B0F19;
+
+  --overlay:       rgba(0, 0, 0, 0.58);
+  --modal-bg:      var(--bg);
+
+  --line:              rgba(255, 255, 255, 0.10);
+  --line-soft:         rgba(255, 255, 255, 0.07);
+  --line-softer:       rgba(255, 255, 255, 0.045);
+  --line-accent:       rgba(226, 232, 240, 0.22);
+  --line-on-accent:    rgba(11, 15, 25, 0.18);
+
+  --nav-bg:                 var(--bg);
+  --nav-link-hover-bg:      var(--surface-3);
+  --nav-link-active-bg:     var(--nav-active-bg);
+  --nav-link-active-fg:     var(--nav-active-fg);
+
+  --logo-bg:   #F8FAFC;
+  --logo-icon: #0B0F19;
+
+  --form-bg:           var(--input-bg-dark);
+  --input-border:      var(--line-soft);
+  --input-focus-border: #E2E8F0;
+  --input-error-border: #f28b82;
+  --form-disabled-bg:  var(--surface-4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:           #0B0F19;
+    --surface:      #121826;
+    --surface-3:    #1B2433;
+    --surface-4:    #263244;
+
+    --ink:          #e8eaed;
+    --ink-2:        #bdc1c6;
+    --ink-3:        #9aa0a6;
+
+    --color-accent:        #E2E8F0;
+    --color-accent-hover:  #F8FAFC;
+    --color-accent-subtle: rgba(226, 232, 240, 0.12);
+    --icon-color:          #F8FAFC;
+
+    --error:         #f28b82;
+
+    --nav-active-fg: #0B0F19;
+
+    --on-accent:     #0B0F19;
+
+    --overlay:       rgba(0, 0, 0, 0.58);
+    --modal-bg:      var(--bg);
+
+    --line:              rgba(255, 255, 255, 0.10);
+    --line-soft:         rgba(255, 255, 255, 0.07);
+    --line-softer:       rgba(255, 255, 255, 0.045);
+    --line-accent:       rgba(226, 232, 240, 0.22);
+    --line-on-accent:    rgba(11, 15, 25, 0.18);
+
+    --nav-bg:                 var(--bg);
+    --nav-link-hover-bg:      var(--surface-3);
+    --nav-link-active-bg:     var(--nav-active-bg);
+    --nav-link-active-fg:     var(--nav-active-fg);
+
+    --logo-bg:   #F8FAFC;
+    --logo-icon: #0B0F19;
+
+    --form-bg:           var(--input-bg-dark);
+    --input-border:      var(--line-soft);
+    --input-focus-border: #E2E8F0;
+    --input-error-border: #f28b82;
+    --form-disabled-bg:  var(--surface-4);
+  }
+}
