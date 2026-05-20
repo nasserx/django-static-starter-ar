@@ -1,47 +1,48 @@
 /* Design tokens: colors, spacing, typography, and theme overrides. */
 
 :root {
-  --bg:           #EEF2F6;
-  --surface:      #FFFFFF;
-  --surface-3:    #E4EAF1;
-  --surface-4:    #D9E1EA;
+  --bg:           #F4F4F5;
+  --surface:      #FAFAFA;
+  --surface-2:    #F4F4F5;
+  --surface-3:    #F0F0F1;
+  --surface-4:    #E8E8EA;
 
   --ink:          #202124;
   --ink-2:        #5F6368;
   --ink-3:        #646970;
 
-  --accent:       #000000;
-  --accent-2:     #1A1A1A;
-  --accent-soft:  rgba(0, 0, 0, 0.08);
-  --icon-color:   #000000;
+  --accent:       #18181B;
+  --accent-2:     #27272A;
+  --accent-soft:  rgba(24, 24, 27, 0.045);
+  --icon-color:   #18181B;
 
   --error:         #B3261E;
-  --on-accent:     #FFFFFF;
+  --on-accent:     #FAFAFA;
 
-  --overlay:       rgba(32, 33, 36, 0.32);
+  --overlay:       rgba(244, 244, 245, 0.72);
   --modal-bg:      var(--bg);
 
-  --line:              rgba(32, 33, 36, 0.12);
-  --line-soft:         rgba(32, 33, 36, 0.085);
-  --line-softer:       rgba(32, 33, 36, 0.06);
-  --line-accent:       rgba(0, 0, 0, 0.16);
+  --line:              #E4E4E7;
+  --line-soft:         #E5E7EB;
+  --line-softer:       rgba(228, 228, 231, 0.72);
+  --line-accent:       rgba(24, 24, 27, 0.14);
   --line-on-accent:    rgba(255, 255, 255, 0.18);
 
-  --input-bg:          #FCFDFE;
-  --input-bg-dark:     #333539;
+  --input-bg:          #FAFAFA;
+  --input-bg-dark:     #121214;
   --input-border:      var(--line-soft);
-  --input-focus-border: #000000;
+  --input-focus-border: #A1A1AA;
   --input-error-border: #d93025;
   --form-bg:           var(--input-bg);
   --form-disabled-bg:  #ECEFF1;
 
   --nav-bg:                 var(--bg);
-  --nav-link-hover-bg:      var(--surface-3);
+  --nav-link-hover-bg:      transparent;
   --nav-link-active-bg:     var(--accent);
-  --nav-link-active-fg:     #FFFFFF;
+  --nav-link-active-fg:     #FAFAFA;
 
-  --logo-bg:   #000000;
-  --logo-icon: #FFFFFF;
+  --logo-bg:   #18181B;
+  --logo-icon: #FAFAFA;
 
   --radius: 8px;
 
@@ -72,82 +73,84 @@
 }
 
 :root[data-theme="dark"] {
-  --bg:           #0B0F19;
-  --surface:      #121826;
-  --surface-3:    #1B2433;
-  --surface-4:    #263244;
+  --bg:           #09090B;
+  --surface:      #121214;
+  --surface-2:    #151518;
+  --surface-3:    #18181B;
+  --surface-4:    #1F1F23;
 
   --ink:          #e8eaed;
   --ink-2:        #bdc1c6;
   --ink-3:        #9aa0a6;
 
-  --accent:       #E2E8F0;
-  --accent-2:     #F8FAFC;
-  --accent-soft:  rgba(226, 232, 240, 0.12);
-  --icon-color:          #F8FAFC;
+  --accent:       #E4E4E7;
+  --accent-2:     #F4F4F5;
+  --accent-soft:  rgba(255, 255, 255, 0.055);
+  --icon-color:          #E4E4E7;
 
   --error:         #f28b82;
 
-  --on-accent:     #0B0F19;
+  --on-accent:     #09090B;
 
-  --overlay:       rgba(0, 0, 0, 0.58);
-  --modal-bg:      var(--surface);
+  --overlay:       rgba(9, 9, 11, 0.66);
+  --modal-bg:      var(--bg);
 
-  --line:              rgba(255, 255, 255, 0.10);
-  --line-soft:         rgba(255, 255, 255, 0.07);
-  --line-softer:       rgba(255, 255, 255, 0.045);
-  --line-accent:       rgba(226, 232, 240, 0.22);
-  --line-on-accent:    rgba(11, 15, 25, 0.18);
+  --line:              #27272A;
+  --line-soft:         rgba(255, 255, 255, 0.10);
+  --line-softer:       rgba(255, 255, 255, 0.065);
+  --line-accent:       rgba(255, 255, 255, 0.14);
+  --line-on-accent:    rgba(9, 9, 11, 0.18);
 
-  --nav-link-active-fg:     #0B0F19;
+  --nav-link-active-fg:     #09090B;
 
-  --logo-bg:   #F8FAFC;
-  --logo-icon: #0B0F19;
+  --logo-bg:   #E4E4E7;
+  --logo-icon: #09090B;
 
   --form-bg:           var(--input-bg-dark);
   --input-border:      var(--line-soft);
-  --input-focus-border: #E2E8F0;
+  --input-focus-border: #52525B;
   --input-error-border: #f28b82;
   --form-disabled-bg:  var(--surface-4);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:           #0B0F19;
-    --surface:      #121826;
-    --surface-3:    #1B2433;
-    --surface-4:    #263244;
+    --bg:           #09090B;
+    --surface:      #121214;
+    --surface-2:    #151518;
+    --surface-3:    #18181B;
+    --surface-4:    #1F1F23;
 
     --ink:          #e8eaed;
     --ink-2:        #bdc1c6;
     --ink-3:        #9aa0a6;
 
-    --accent:       #E2E8F0;
-    --accent-2:     #F8FAFC;
-    --accent-soft:  rgba(226, 232, 240, 0.12);
-    --icon-color:          #F8FAFC;
+    --accent:       #E4E4E7;
+    --accent-2:     #F4F4F5;
+    --accent-soft:  rgba(255, 255, 255, 0.055);
+    --icon-color:          #E4E4E7;
 
     --error:         #f28b82;
 
-    --on-accent:     #0B0F19;
+    --on-accent:     #09090B;
 
-    --overlay:       rgba(0, 0, 0, 0.58);
-    --modal-bg:      var(--surface);
+    --overlay:       rgba(9, 9, 11, 0.66);
+    --modal-bg:      var(--bg);
 
-    --line:              rgba(255, 255, 255, 0.10);
-    --line-soft:         rgba(255, 255, 255, 0.07);
-    --line-softer:       rgba(255, 255, 255, 0.045);
-    --line-accent:       rgba(226, 232, 240, 0.22);
-    --line-on-accent:    rgba(11, 15, 25, 0.18);
+    --line:              #27272A;
+    --line-soft:         rgba(255, 255, 255, 0.10);
+    --line-softer:       rgba(255, 255, 255, 0.065);
+    --line-accent:       rgba(255, 255, 255, 0.14);
+    --line-on-accent:    rgba(9, 9, 11, 0.18);
 
-    --nav-link-active-fg:     #0B0F19;
+    --nav-link-active-fg:     #09090B;
 
-    --logo-bg:   #F8FAFC;
-    --logo-icon: #0B0F19;
+    --logo-bg:   #E4E4E7;
+    --logo-icon: #09090B;
 
     --form-bg:           var(--input-bg-dark);
     --input-border:      var(--line-soft);
-    --input-focus-border: #E2E8F0;
+    --input-focus-border: #52525B;
     --input-error-border: #f28b82;
     --form-disabled-bg:  var(--surface-4);
   }

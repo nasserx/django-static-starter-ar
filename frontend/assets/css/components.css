@@ -19,6 +19,13 @@
 
 body { padding-top: var(--page-top-offset); }
 body.menu-locked { overflow: hidden; }
+button,
+a,
+input,
+textarea,
+select {
+  box-shadow: none;
+}
 
 /* ============================================================================
  * NAV — Compact Control Center
@@ -35,10 +42,10 @@ body.menu-locked { overflow: hidden; }
   width: 100%;
   background: var(--nav-bg);
   z-index: var(--z-nav);
-  box-shadow: inset 0 -1px 0 var(--line-softer);
+  border-bottom: 1px solid var(--line-softer);
   transition:
     background var(--quick-transition),
-    box-shadow var(--quick-transition);
+    border-color var(--quick-transition);
 }
 .nav-inner {
   display: grid;
@@ -84,13 +91,16 @@ body.menu-locked { overflow: hidden; }
   flex-direction: column;
   gap: 4px;
   padding: 6px;
-  background: transparent;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
+  backdrop-filter: blur(12px);
 }
 .nav.menu-open .nav-links { display: flex; }
 
 .nav-link {
   color: var(--ink-2);
+  border: 1px solid transparent;
   text-decoration: none;
   font-size: 15px;
   font-weight: var(--font-medium);
@@ -106,10 +116,12 @@ body.menu-locked { overflow: hidden; }
 .nav-link:hover {
   color: var(--ink);
   background: var(--nav-link-hover-bg);
+  border-color: var(--line);
 }
 .nav-link.is-active {
   color: var(--nav-link-active-fg);
   background: var(--nav-link-active-bg);
+  border-color: var(--accent);
 }
 
 .nav-action-link {
@@ -124,6 +136,7 @@ body.menu-locked { overflow: hidden; }
   white-space: nowrap;
   border-radius: var(--radius);
   background: var(--nav-link-active-bg);
+  border: 1px solid var(--accent);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease-in-out;
@@ -138,6 +151,7 @@ body.menu-locked { overflow: hidden; }
   height: 38px;
   border-radius: var(--radius);
   background: transparent;
+  border: 1px solid transparent;
   color: var(--icon-color);
   cursor: pointer;
   display: flex;
@@ -150,6 +164,7 @@ body.menu-locked { overflow: hidden; }
 .theme-toggle:hover {
   color: var(--icon-color);
   background: transparent;
+  border-color: var(--line);
   opacity: 0.72;
 }
 .theme-toggle svg { width: 22px; height: 22px; }
@@ -166,6 +181,7 @@ body.menu-locked { overflow: hidden; }
   height: 38px;
   border-radius: var(--radius);
   background: var(--surface);
+  border: 1px solid var(--line);
   color: var(--ink-2);
   cursor: pointer;
   display: flex;
@@ -178,7 +194,7 @@ body.menu-locked { overflow: hidden; }
     background var(--quick-transition),
     color var(--quick-transition);
 }
-.nav-toggle:hover { background: var(--surface-3); color: var(--ink); }
+.nav-toggle:hover { background: var(--surface); color: var(--ink); border-color: var(--line-accent); }
 .nav-toggle span {
   width: 16px;
   height: 1.5px;
@@ -207,6 +223,8 @@ body.menu-locked { overflow: hidden; }
     gap: 6px;
     padding: 0;
     background: transparent;
+    border-color: transparent;
+    backdrop-filter: none;
     border-radius: var(--radius);
   }
   .nav-actions { justify-self: end; }
@@ -263,10 +281,10 @@ body.menu-locked { overflow: hidden; }
   padding: 6px 13px;
   background: var(--accent-soft);
   color: var(--accent);
+  border: 1px solid var(--line-accent);
   border-radius: var(--radius);
   font-size: 12.5px;
   font-weight: var(--font-medium);
-  box-shadow: inset 0 0 0 1px var(--line-accent);
 }
 .hero-tag-dot {
   width: 6px; height: 6px;
@@ -310,6 +328,7 @@ body.menu-locked { overflow: hidden; }
   gap: 6px;
   background: var(--bg);
   padding: 6px;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   max-width: 500px;
   width: 100%;
@@ -328,6 +347,7 @@ body.menu-locked { overflow: hidden; }
 .email-form button {
   background: var(--accent);
   color: var(--on-accent);
+  border: 1px solid var(--accent);
   padding: 13px 22px;
   border-radius: var(--radius);
   font-family: inherit;
@@ -369,12 +389,12 @@ body.menu-locked { overflow: hidden; }
 /* ---------- Hero showcase card — rotating model messages ---------------- */
 .preview-card {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .preview-top {
   padding: 12px 18px;
@@ -396,11 +416,11 @@ body.menu-locked { overflow: hidden; }
 .preview-top .preview-badge {
   background: var(--accent-soft);
   color: var(--accent);
+  border: 1px solid var(--line-accent);
   font-size: 12px;
   font-weight: var(--font-medium);
   padding: 4px 11px;
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px var(--line-accent);
 }
 .preview-body {
   padding: 24px;
@@ -442,10 +462,12 @@ body.menu-locked { overflow: hidden; }
   height: 7px;
   border-radius: var(--radius);
   background: var(--surface-4);
+  border: 1px solid var(--line-softer);
   transition: background var(--quick-transition), width var(--quick-transition);
 }
 .showcase-dot.is-active {
   background: var(--accent);
+  border-color: var(--accent);
   width: 22px;
   border-radius: var(--radius);
 }
@@ -494,8 +516,8 @@ section.section { padding: 56px 0; }
   margin-bottom: 12px;
   padding: 5px 12px;
   background: var(--accent-soft);
+  border: 1px solid var(--line-accent);
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px var(--line-accent);
 }
 .section-title {
   font-size: clamp(28px, 3.4vw, 38px);
@@ -530,12 +552,12 @@ section.section { padding: 56px 0; }
 
 .feature-card {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 28px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .feature-icon {
   width: 44px;
@@ -543,9 +565,9 @@ section.section { padding: 56px 0; }
   border-radius: var(--radius);
   background: var(--accent-soft);
   color: var(--accent);
+  border: 1px solid var(--line-accent);
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 1px var(--line-accent);
 }
 .feature-icon svg { width: 22px; height: 22px; }
 
@@ -565,8 +587,8 @@ section.section { padding: 56px 0; }
  * STATS
  * ========================================================================= */
 .stats {
-  background: var(--surface);
-  box-shadow: inset 0 1px 0 var(--line-softer), inset 0 -1px 0 var(--line-softer);
+  background: var(--bg);
+  border-block: 1px solid var(--line-softer);
 }
 .stats-grid {
   display: grid;
@@ -579,7 +601,7 @@ section.section { padding: 56px 0; }
   text-align: center;
   padding: 8px 4px;
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px var(--line-softer);
+  border: 1px solid var(--line-softer);
 }
 .stat-num {
   font-size: clamp(32px, 4.4vw, 44px);
@@ -607,12 +629,12 @@ section.section { padding: 56px 0; }
 
 .testimonial-card {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 22px;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .testimonial-quote {
   font-size: 16.5px;
@@ -641,10 +663,10 @@ section.section { padding: 56px 0; }
   color: var(--accent);
   display: grid;
   place-items: center;
+  border: 1px solid var(--line-accent);
   font-weight: var(--font-bold);
   font-size: 16px;
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px var(--line-accent);
 }
 .testimonial-name {
   font-size: 15px;
@@ -671,12 +693,12 @@ section.section { padding: 56px 0; }
 
 .price-card {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 32px 24px 24px;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .price-tag {
   position: absolute;
@@ -684,11 +706,11 @@ section.section { padding: 56px 0; }
   inset-inline-start: 30px;
   background: var(--accent);
   color: var(--on-accent);
+  border: 1px solid var(--line-on-accent);
   font-size: 12px;
   font-weight: var(--font-bold);
   padding: 5px 12px;
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px var(--line-on-accent);
 }
 .price-name {
   font-family: var(--font);
@@ -715,7 +737,7 @@ section.section { padding: 56px 0; }
   gap: 10px;
   margin-bottom: 22px;
   padding-bottom: 22px;
-  box-shadow: inset 0 -1px 0 var(--line-softer);
+  border-bottom: 1px solid var(--line-softer);
 }
 .price-amount .num {
   font-size: clamp(34px, 10vw, 44px);
@@ -759,6 +781,7 @@ section.section { padding: 56px 0; }
   min-height: 48px;
   background: var(--surface-3);
   color: var(--ink);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   text-decoration: none;
   font-weight: var(--font-bold);
@@ -771,6 +794,7 @@ section.section { padding: 56px 0; }
 }
 .price-card.featured .price-cta {
   background: var(--accent);
+  border-color: var(--accent);
   color: var(--on-accent);
 }
 .price-card.featured .price-cta:hover {
@@ -801,9 +825,9 @@ section.section { padding: 56px 0; }
 }
 .faq-item {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .faq-item summary {
   list-style: none;
@@ -816,7 +840,7 @@ section.section { padding: 56px 0; }
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  box-shadow: inset 0 -1px 0 transparent;
+  border-bottom: 1px solid transparent;
 }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after {
@@ -840,7 +864,7 @@ section.section { padding: 56px 0; }
   color: var(--ink-2);
   font-size: 15px;
   line-height: 1.85;
-  box-shadow: inset 0 1px 0 var(--line-softer);
+  border-top: 1px solid var(--line-softer);
 }
 
 .help-contact {
@@ -854,7 +878,7 @@ section.section { padding: 56px 0; }
   text-align: center;
   max-width: 760px;
   margin-inline: auto;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
+  border: 1px solid var(--line);
 }
 @media (min-width: 700px) {
   .help-contact {
@@ -883,6 +907,7 @@ section.section { padding: 56px 0; }
   min-height: 44px;
   background: var(--accent);
   color: var(--on-accent);
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
   font-family: inherit;
   font-size: 14.5px;
@@ -898,10 +923,10 @@ section.section { padding: 56px 0; }
 .final-cta { padding: 56px 0; background: var(--bg); }
 .final-cta-inner {
   background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 48px 22px;
   text-align: center;
-  box-shadow: inset 0 0 0 1px var(--line-soft);
 }
 .final-cta h2 {
   font-size: clamp(28px, 3.6vw, 40px);
@@ -925,6 +950,7 @@ section.section { padding: 56px 0; }
   gap: 10px;
   background: var(--accent);
   color: var(--on-accent);
+  border: 1px solid var(--accent);
   padding: 15px 30px;
   min-height: 50px;
   border-radius: var(--radius);
@@ -947,7 +973,7 @@ section.section { padding: 56px 0; }
 .site-footer {
   background: var(--bg);
   padding: 40px 0 20px;
-  box-shadow: inset 0 1px 0 var(--line-softer);
+  border-top: 1px solid var(--line-softer);
 }
 .footer-grid {
   display: grid;
@@ -987,7 +1013,7 @@ section.section { padding: 56px 0; }
   gap: 10px;
   font-size: 13px;
   color: var(--ink-3);
-  box-shadow: inset 0 1px 0 var(--line-softer);
+  border-top: 1px solid var(--line-softer);
 }
 .footer-brand-mini {
   display: flex;
@@ -1042,6 +1068,7 @@ body.auth-modal-open { overflow: hidden; }
   place-items: center;
   padding: var(--space-4);
   background: var(--overlay);
+  backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--quick-transition);
@@ -1053,9 +1080,10 @@ body.auth-modal-open { overflow: hidden; }
   width: min(360px, 100%);
   color: var(--ink);
   background: var(--modal-bg);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: var(--space-5);
-  box-shadow: inset 0 0 0 1px var(--line-soft);
+  box-shadow: none;
   transform: scale(0.98);
   transition: transform var(--quick-transition);
 }
@@ -1081,7 +1109,8 @@ body.auth-modal-open { overflow: hidden; }
   justify-content: center;
   border-radius: var(--radius);
   color: var(--ink-2);
-  background: var(--surface-3);
+  background: transparent;
+  border: 1px solid var(--line);
   cursor: pointer;
   font: inherit;
   font-size: 20px;
@@ -1091,7 +1120,8 @@ body.auth-modal-open { overflow: hidden; }
 .auth-modal__close:hover,
 .auth-modal__close:focus-visible {
   color: var(--ink);
-  background: var(--surface-4);
+  background: var(--surface);
+  border-color: var(--line-accent);
 }
 
 .auth-modal__providers { display: grid; gap: var(--space-2); }
@@ -1109,14 +1139,15 @@ body.auth-modal-open { overflow: hidden; }
   padding: var(--space-1);
   margin-bottom: var(--space-4);
   border-radius: var(--radius);
-  background: var(--surface-3);
-  box-shadow: inset 0 0 0 1px var(--line-soft);
+  background: transparent;
+  border: 1px solid var(--line);
 }
 .auth-tab {
   min-height: 34px;
   border-radius: var(--radius);
   color: var(--ink-2);
   background: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   font: inherit;
   font-size: 14px;
@@ -1130,6 +1161,7 @@ body.auth-modal-open { overflow: hidden; }
 .auth-tab.is-active {
   color: var(--ink);
   background: var(--surface);
+  border-color: var(--line);
 }
 
 .auth-option-button {
@@ -1141,14 +1173,20 @@ body.auth-modal-open { overflow: hidden; }
   gap: var(--space-3);
   border-radius: var(--radius);
   color: var(--ink);
-  background: var(--surface-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
   cursor: pointer;
   font: inherit;
   font-size: 15px;
   font-weight: var(--font-bold);
   transition:
+    border-color var(--quick-transition),
     background var(--quick-transition),
     color var(--quick-transition);
+}
+.auth-option-button:hover,
+.auth-option-button:focus-visible {
+  border-color: var(--line-accent);
 }
 .auth-option-button:disabled { cursor: wait; color: var(--ink-3); }
 

@@ -1,7 +1,7 @@
 /* Base layout, typography, and form primitives. */
 *, *::before, *::after {
   box-sizing: border-box;
-  border: none !important;
+  border: 0;
   outline: none !important;
   font-family: var(--font);
 }
@@ -79,13 +79,16 @@ svg { flex-shrink: 0; }
   white-space: nowrap;
   transition:
     background-color var(--quick-transition),
+    border-color var(--quick-transition),
     color var(--quick-transition);
+  border: 1px solid var(--line) !important;
 }
 .btn:disabled,
 .btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
 
 .btn-primary {
   background: var(--accent);
+  border-color: var(--accent) !important;
   color: var(--on-accent);
 }
 .btn-primary:hover { background: var(--accent-2); }
