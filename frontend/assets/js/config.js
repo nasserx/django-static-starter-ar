@@ -15,6 +15,7 @@ window.APP_CONFIG = window.APP_CONFIG || {
     trialSignup: '/api/trial',
     login: '/api/auth/login',
     register: '/api/auth/register',
+    forgotPassword: '/api/auth/forgot-password',
     oauthGoogle: '/api/auth/google',
   },
 };

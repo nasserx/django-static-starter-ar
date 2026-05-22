@@ -40,12 +40,12 @@ select {
   left: 0;
   inset-block-start: 0;
   width: 100%;
-  background: var(--nav-bg);
+  background: var(--bg);
   z-index: var(--z-nav);
-  border-bottom: 1px solid var(--line-softer);
+  border-bottom: none !important;
+  box-shadow: none !important;
   transition:
-    background var(--quick-transition),
-    border-color var(--quick-transition);
+    background var(--quick-transition);
 }
 .nav-inner {
   display: grid;
@@ -325,23 +325,42 @@ select {
 .email-form {
   margin-top: 28px;
   display: flex;
+  align-items: center;
   gap: 6px;
-  background: var(--bg);
+  background: var(--form-bg);
   padding: 6px;
-  border: 1px solid var(--line);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius);
   max-width: 500px;
   width: 100%;
+  box-shadow: none;
+  transition: border-color var(--quick-transition);
+}
+.email-form:focus-within {
+  border-color: var(--input-focus-border);
+  box-shadow: none;
+}
+.email-form.is-error {
+  border-color: var(--input-error-border);
+  box-shadow: none;
 }
 .email-form input {
   flex: 1;
+  width: auto;
   border-radius: var(--radius);
   padding: 13px 16px;
   font-family: inherit;
   font-size: 16px;
-  background: var(--form-bg);
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none;
   color: var(--ink);
   min-width: 0;
+}
+.email-form input:focus {
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none;
 }
 .email-form input::placeholder { color: var(--ink-3); }
 .email-form button {
@@ -1139,29 +1158,98 @@ body.auth-modal-open { overflow: hidden; }
   padding: var(--space-1);
   margin-bottom: var(--space-4);
   border-radius: var(--radius);
-  background: transparent;
-  border: 1px solid var(--line);
+  background: var(--modal-bg);
+  border: var(--border-width) solid var(--line);
 }
 .auth-tab {
   min-height: 34px;
   border-radius: var(--radius);
   color: var(--ink-2);
+  opacity: var(--opacity-muted);
   background: transparent;
-  border: 1px solid transparent;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
   cursor: pointer;
   font: inherit;
   font-size: 14px;
   font-weight: var(--font-bold);
   transition:
     background var(--quick-transition),
-    color var(--quick-transition);
+    color var(--quick-transition),
+    opacity var(--quick-transition);
 }
 .auth-tab:hover,
-.auth-tab:focus-visible,
+.auth-tab.is-active {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.auth-tab:hover:not(.is-active) {
+  color: var(--ink);
+  opacity: 0.72;
+  background: transparent;
+}
+.auth-tab:not(.is-active) {
+  background: transparent;
+}
 .auth-tab.is-active {
   color: var(--ink);
-  background: var(--surface);
-  border-color: var(--line);
+  opacity: 1;
+  background: var(--auth-tab-active-bg);
+  border: none !important;
+  font-weight: var(--font-bold);
+}
+.auth-tab:focus-visible {
+  color: var(--accent);
+  background: transparent;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.auth-tab.is-active:focus-visible {
+  color: var(--ink);
+  background: var(--auth-tab-active-bg);
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:root[data-theme="dark"] .auth-tabs {
+  background: var(--modal-bg);
+}
+
+:root[data-theme="dark"] .auth-tab.is-active {
+  color: var(--ink);
+  background: var(--auth-tab-active-bg);
+  border: none !important;
+}
+:root[data-theme="dark"] .auth-tab.is-active:focus-visible {
+  color: var(--ink);
+  background: var(--auth-tab-active-bg);
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .auth-tabs {
+    background: var(--modal-bg);
+  }
+
+  :root:not([data-theme="light"]) .auth-tab.is-active {
+    color: var(--ink);
+    background: var(--auth-tab-active-bg);
+    border: none !important;
+  }
+
+  :root:not([data-theme="light"]) .auth-tab.is-active:focus-visible {
+    color: var(--ink);
+    background: var(--auth-tab-active-bg);
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
 }
 
 .auth-option-button {
@@ -1173,8 +1261,8 @@ body.auth-modal-open { overflow: hidden; }
   gap: var(--space-3);
   border-radius: var(--radius);
   color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--surface-white);
+  border: var(--border-width) solid var(--line);
   cursor: pointer;
   font: inherit;
   font-size: 15px;
@@ -1189,6 +1277,16 @@ body.auth-modal-open { overflow: hidden; }
   border-color: var(--line-accent);
 }
 .auth-option-button:disabled { cursor: wait; color: var(--ink-3); }
+
+:root[data-theme="dark"] .auth-option-button {
+  background: var(--card-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .auth-option-button {
+    background: var(--card-bg);
+  }
+}
 
 .provider-icon { width: 18px; height: 18px; flex: 0 0 auto; }
 
@@ -1213,6 +1311,35 @@ body.auth-modal-open { overflow: hidden; }
   font-weight: var(--font-bold);
 }
 
+.auth-forgot-link {
+  justify-self: start;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: var(--space-1) 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--font-bold);
+  line-height: 1.4;
+  text-align: right;
+  text-decoration: none;
+  transition:
+    color var(--quick-transition),
+    opacity var(--quick-transition);
+}
+.auth-forgot-link:hover,
+.auth-forgot-link:focus-visible {
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.82;
+}
+.auth-forgot-link:disabled {
+  cursor: wait;
+  color: var(--ink-3);
+}
+
 .auth-submit {
   width: 100%;
   margin-top: var(--space-1);
@@ -1224,6 +1351,7 @@ body.auth-modal-open { overflow: hidden; }
   line-height: 1.5;
   text-align: start;
 }
+.auth-modal__error.is-success { color: var(--ink-2); }
 
 @media (max-width: 420px) {
   .auth-modal { align-items: end; padding: var(--space-3); }

@@ -18,7 +18,7 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-size: 15.5px;
+  font-size: var(--font-size-body);
   font-weight: var(--font-regular);
   line-height: 1.65;
   letter-spacing: 0;
@@ -62,16 +62,34 @@ svg { flex-shrink: 0; }
   .container { padding-inline: var(--page-pad-x-xl); }
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--space-4));
+}
+
+.cluster {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, var(--space-3));
+}
+
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--space-4));
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 22px;
-  min-height: 44px;
+  gap: var(--control-gap);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  min-height: var(--control-min-h);
   border-radius: var(--radius);
   font-family: inherit;
-  font-size: 15px;
+  font-size: var(--font-size-control);
   font-weight: var(--font-bold);
   line-height: 1;
   text-decoration: none;
@@ -81,10 +99,10 @@ svg { flex-shrink: 0; }
     background-color var(--quick-transition),
     border-color var(--quick-transition),
     color var(--quick-transition);
-  border: 1px solid var(--line) !important;
+  border: var(--border-width) solid var(--line) !important;
 }
 .btn:disabled,
-.btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
+.btn[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
 
 .btn-primary {
   background: var(--accent);
@@ -99,13 +117,13 @@ textarea,
 select {
   width: 100%;
   font-family: inherit;
-  font-size: 16px;
+  font-size: var(--font-size-input);
   color: var(--ink);
   background: var(--form-bg);
   border-radius: var(--radius);
-  padding: 12px 14px;
-  min-height: 44px;
-  border: 1px solid var(--input-border) !important;
+  padding: var(--input-pad-y) var(--input-pad-x);
+  min-height: var(--input-min-h);
+  border: var(--border-width) solid var(--input-border) !important;
   box-shadow: none;
   transition:
     background-color var(--quick-transition),
@@ -155,9 +173,9 @@ select:disabled {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: var(--reduced-motion-duration) !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: var(--reduced-motion-duration) !important;
     scroll-behavior: auto !important;
   }
 }

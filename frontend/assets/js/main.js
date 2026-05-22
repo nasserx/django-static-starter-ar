@@ -1,5 +1,6 @@
 (function () {
   const CONFIG = window.APP_CONFIG || {};
+  const ENDPOINTS = CONFIG.endpoints || {};
   const CONTENT = window.APP_CONTENT || {};
   const CONSTANTS = window.APP_CONSTANTS || {};
   const AUTH_PROVIDERS = window.AUTH_PROVIDERS || [];
@@ -37,8 +38,9 @@
     rings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>',
   };
 
+  /* App regions: Django/Jinja can replace any [data-region] slot server-side. */
   function renderInto(name, markup) {
-    const slot = $('[data-component="' + name + '"]');
+    const slot = $('[data-region="' + name + '"]') || $('[data-component="' + name + '"]');
     if (slot) slot.outerHTML = markup;
   }
 
@@ -92,7 +94,7 @@
       '<div class="hero-tag"><span class="hero-tag-dot"></span>' + hero.eyebrow + '</div>',
       '<h1><span class="accent">' + hero.titlePrefix + '</span>' + hero.titleSuffix + '</h1>',
       '<p class="lead">' + hero.lead + '</p>',
-      '<form class="email-form" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
+      '<form class="email-form input-group" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
       '<input type="email" name="' + form.inputName + '" placeholder="' + form.inputPlaceholder + '" aria-label="' + form.inputLabel + '" autocomplete="email" inputmode="email" required dir="ltr">',
       '<button type="submit" data-loading-label="' + form.loadingLabel + '" data-success-label="' + form.successLabel + '">' + form.submitLabel + svg.arrow + '</button>',
       '</form>',
@@ -242,9 +244,11 @@
 
   async function apiPost(endpointKey, body) {
     const base = CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS[endpointKey];
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: ' + endpointKey);
     if (!base || base === '#') return { ok: true, stub: true };
 
-    const response = await fetch(base + CONFIG.endpoints[endpointKey], {
+    const response = await fetch(base + endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -304,6 +308,7 @@
     return (
       '<form class="auth-form' + (hidden ? '' : ' is-active') + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
       fieldMarkup +
+      (name === 'login' ? '<button class="auth-forgot-link" type="button" data-auth-forgot>نسيت كلمة المرور؟</button>' : '') +
       '<div class="auth-modal__error" data-auth-error="' + name + '" hidden></div>' +
       '<button class="btn btn-primary auth-submit" type="submit">' + submitLabel + '</button>' +
       '</form>'
@@ -402,19 +407,24 @@
     const button = $('button[type="submit"]', form);
     if (!input || !button) return;
 
-    input.addEventListener('input', () => setInvalid(input, false));
+    const setFormError = (error) => {
+      form.classList.toggle('is-error', error);
+      setInvalid(input, error);
+    };
+
+    input.addEventListener('input', () => setFormError(false));
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const email = (input.value || '').trim().toLowerCase();
 
       if (!isEmail(email)) {
-        setInvalid(input, true);
+        setFormError(true);
         input.focus();
         return;
       }
 
-      setInvalid(input, false);
+      setFormError(false);
       setBusy(button, true, button.dataset.loadingLabel || 'جارٍ التحضير...');
 
       try {
@@ -423,7 +433,7 @@
         if (!result.ok) throw new Error(result.error || 'trial failed');
         button.textContent = button.dataset.successLabel || 'تحقّق من بريدك';
       } catch (_) {
-        setInvalid(input, true);
+        setFormError(true);
         input.focus();
         setBusy(button, false);
       }
@@ -478,12 +488,17 @@
       if (!slot) return;
       slot.textContent = '';
       slot.hidden = true;
+      slot.classList.remove('is-success');
     };
-    const showError = (panelName, message) => {
+    const showMessage = (panelName, message, state) => {
       const slot = errorSlot(panelName);
       if (!slot) return;
       slot.textContent = message;
       slot.hidden = false;
+      slot.classList.toggle('is-success', state === 'success');
+    };
+    const showError = (panelName, message) => {
+      showMessage(panelName, message, 'error');
     };
 
     const switchTab = (target) => {
@@ -598,6 +613,37 @@
         }
       });
     });
+
+    const forgotButton = $('[data-auth-forgot]', modal);
+    if (forgotButton) {
+      forgotButton.addEventListener('click', async () => {
+        const form = $('[data-auth-panel="login"]', modal);
+        const emailInput = form ? $('input[name="email"]', form) : null;
+        const email = emailInput ? (emailInput.value || '').trim().toLowerCase() : '';
+
+        clearError('login');
+        setInputState(emailInput, null);
+
+        if (!isEmail(email)) {
+          showError('login', 'أدخل بريدك الإلكتروني أولًا لإرسال رابط إعادة التعيين.');
+          setInputState(emailInput, 'error');
+          if (emailInput) emailInput.focus();
+          return;
+        }
+
+        setBusy(forgotButton, true, 'جارٍ الإرسال...');
+
+        try {
+          const result = await apiPost('forgotPassword', { email });
+          if (!result.ok) throw new Error(result.error || 'forgot password failed');
+          setBusy(forgotButton, false);
+          showMessage('login', 'أرسلنا رابط إعادة التعيين إن كان البريد مسجلًا.', 'success');
+        } catch (_) {
+          setBusy(forgotButton, false);
+          showError('login', 'تعذّر إرسال رابط إعادة التعيين. حاول مرة أخرى.');
+        }
+      });
+    }
 
     bindAuthForm(modal, 'login', {
       loadingLabel: 'جارٍ الدخول...',

@@ -6,6 +6,8 @@
   --surface-2:    #F4F4F5;
   --surface-3:    #F0F0F1;
   --surface-4:    #E8E8EA;
+  --surface-white: #FFFFFF;
+  --card-bg:       var(--surface);
 
   --ink:          #202124;
   --ink-2:        #5F6368;
@@ -22,10 +24,10 @@
   --overlay:       rgba(244, 244, 245, 0.72);
   --modal-bg:      var(--bg);
 
-  --line:              #E4E4E7;
-  --line-soft:         #E5E7EB;
-  --line-softer:       rgba(228, 228, 231, 0.72);
-  --line-accent:       rgba(24, 24, 27, 0.14);
+  --line:              #D1D5DB;
+  --line-soft:         #D8DCE2;
+  --line-softer:       rgba(209, 213, 219, 0.72);
+  --line-accent:       rgba(24, 24, 27, 0.20);
   --line-on-accent:    rgba(255, 255, 255, 0.18);
 
   --input-bg:          #FAFAFA;
@@ -45,6 +47,10 @@
   --logo-icon: #FAFAFA;
 
   --radius: 8px;
+  --radius-none: 0;
+  --border-width: 1px;
+  --opacity-disabled: 0.6;
+  --opacity-muted: 0.7;
 
   --page-pad-x:    5%;
   --page-pad-x-lg: 4%;
@@ -52,21 +58,40 @@
   --page-max-w:    1400px;
   --page-top-offset:    70px;
   --page-top-offset-lg: 74px;
+  --break-md: 769px;
+  --break-lg: 1024px;
 
   --font: 'Tajawal', system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --font-light:   300;
   --font-regular: 400;
   --font-medium:  500;
   --font-bold:    700;
+  --font-size-body:    15.5px;
+  --font-size-control: 15px;
+  --font-size-input:   16px;
 
   --space-1:  4px;
   --space-2:  8px;
   --space-3:  12px;
   --space-4:  16px;
   --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+
+  --control-gap: 8px;
+  --control-pad-y: 12px;
+  --control-pad-x: 22px;
+  --control-min-h: 44px;
+  --input-pad-y: 12px;
+  --input-pad-x: 14px;
+  --input-min-h: 44px;
+  --auth-tab-active-bg: #FFFFFF;
+  --auth-tab-active-bg-dark: #292A2D;
 
   --theme-transition:  0.18s ease;
   --quick-transition:  0.2s ease;
+  --reduced-motion-duration: 0.01ms;
 
   --z-nav:   1000;
   --z-modal: 3000;
@@ -78,6 +103,8 @@
   --surface-2:    #151518;
   --surface-3:    #18181B;
   --surface-4:    #1F1F23;
+  --surface-white: #FAFAFA;
+  --card-bg:       #292A2D;
 
   --ink:          #e8eaed;
   --ink-2:        #bdc1c6;
@@ -95,10 +122,10 @@
   --overlay:       rgba(9, 9, 11, 0.66);
   --modal-bg:      var(--bg);
 
-  --line:              #27272A;
-  --line-soft:         rgba(255, 255, 255, 0.10);
-  --line-softer:       rgba(255, 255, 255, 0.065);
-  --line-accent:       rgba(255, 255, 255, 0.14);
+  --line:              #3C4043;
+  --line-soft:         #34383B;
+  --line-softer:       rgba(60, 64, 67, 0.72);
+  --line-accent:       rgba(255, 255, 255, 0.22);
   --line-on-accent:    rgba(9, 9, 11, 0.18);
 
   --nav-link-active-fg:     #09090B;
@@ -111,6 +138,7 @@
   --input-focus-border: #52525B;
   --input-error-border: #f28b82;
   --form-disabled-bg:  var(--surface-4);
+  --auth-tab-active-bg: var(--card-bg);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -120,6 +148,8 @@
     --surface-2:    #151518;
     --surface-3:    #18181B;
     --surface-4:    #1F1F23;
+    --surface-white: #FAFAFA;
+    --card-bg:       #292A2D;
 
     --ink:          #e8eaed;
     --ink-2:        #bdc1c6;
@@ -137,10 +167,10 @@
     --overlay:       rgba(9, 9, 11, 0.66);
     --modal-bg:      var(--bg);
 
-    --line:              #27272A;
-    --line-soft:         rgba(255, 255, 255, 0.10);
-    --line-softer:       rgba(255, 255, 255, 0.065);
-    --line-accent:       rgba(255, 255, 255, 0.14);
+    --line:              #3C4043;
+    --line-soft:         #34383B;
+    --line-softer:       rgba(60, 64, 67, 0.72);
+    --line-accent:       rgba(255, 255, 255, 0.22);
     --line-on-accent:    rgba(9, 9, 11, 0.18);
 
     --nav-link-active-fg:     #09090B;
@@ -153,5 +183,6 @@
     --input-focus-border: #52525B;
     --input-error-border: #f28b82;
     --form-disabled-bg:  var(--surface-4);
+    --auth-tab-active-bg: var(--card-bg);
   }
 }
