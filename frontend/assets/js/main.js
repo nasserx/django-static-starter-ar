@@ -27,7 +27,6 @@
     checkCircle: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
     check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
     mail: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
-    preview: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6v6H9z"/></svg>',
     moon: '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
     sun: '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
   };
@@ -102,7 +101,6 @@
       '</div>',
       '<div class="hero-visual">',
       '<div class="preview-card">',
-      '<div class="preview-top"><div class="label">' + svg.preview + hero.preview.label + '</div><span class="preview-badge">' + hero.preview.badge + '</span></div>',
       '<div class="preview-body">',
       '<div class="showcase-step" id="showcaseStep">١ / ' + toArabicNumeral(dotCount) + '</div>',
       '<div class="showcase-message" id="showcaseMessage">' + hero.preview.messages[0] + '</div>',
@@ -275,14 +273,14 @@
   function setBusy(button, busy, label) {
     if (!button) return;
     if (busy) {
-      button.dataset.idleLabel = button.textContent;
+      button.dataset.idleHtml = button.innerHTML;
       button.disabled = true;
       button.textContent = label;
       return;
     }
     button.disabled = false;
-    if (button.dataset.idleLabel) button.textContent = button.dataset.idleLabel;
-    delete button.dataset.idleLabel;
+    if (button.dataset.idleHtml) button.innerHTML = button.dataset.idleHtml;
+    delete button.dataset.idleHtml;
   }
 
   function buildProviderButtons() {
@@ -295,6 +293,8 @@
   }
 
   function buildAuthForm(name, submitLabel, fields, hidden = false) {
+    const panelId = name === 'login' ? 'authPanelLogin' : 'authPanelRegister';
+    const tabId = name === 'login' ? 'authTabLogin' : 'authTabRegister';
     const fieldMarkup = fields.map(([fieldName, label, type, autocomplete]) => (
       '<label class="auth-field">' +
       '<span>' + label + '</span>' +
@@ -306,7 +306,7 @@
     )).join('');
 
     return (
-      '<form class="auth-form' + (hidden ? '' : ' is-active') + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
+      '<form class="auth-form' + (hidden ? '' : ' is-active') + '" id="' + panelId + '" role="tabpanel" aria-labelledby="' + tabId + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
       fieldMarkup +
       (name === 'login' ? '<button class="auth-forgot-link" type="button" data-auth-forgot>نسيت كلمة المرور؟</button>' : '') +
       '<div class="auth-modal__error" data-auth-error="' + name + '" hidden></div>' +
@@ -323,10 +323,10 @@
       '<button class="auth-modal__close" type="button" data-auth-close aria-label="إغلاق">×</button>' +
       '</div>' +
       '<div class="auth-modal__providers">' + buildProviderButtons() + '</div>' +
-      '<div class="auth-divider" aria-hidden="true"><span></span></div>' +
+      '<div class="auth-divider" aria-hidden="true"><span></span><strong>أو</strong><span></span></div>' +
       '<div class="auth-tabs" role="tablist" aria-label="خيارات الدخول">' +
-      '<button class="auth-tab is-active" type="button" role="tab" aria-selected="true" data-auth-tab="login">تسجيل الدخول</button>' +
-      '<button class="auth-tab" type="button" role="tab" aria-selected="false" data-auth-tab="register">إنشاء حساب</button>' +
+      '<button class="auth-tab is-active" id="authTabLogin" type="button" role="tab" aria-selected="true" aria-controls="authPanelLogin" data-auth-tab="login">تسجيل الدخول</button>' +
+      '<button class="auth-tab" id="authTabRegister" type="button" role="tab" aria-selected="false" aria-controls="authPanelRegister" data-auth-tab="register">إنشاء حساب</button>' +
       '</div>' +
       buildAuthForm('login', 'دخول', [
         ['email', 'البريد الإلكتروني', 'email', 'email'],
@@ -476,6 +476,7 @@
   function bindAuthModal() {
     const modal = ensureAuthModal();
     const panel = $('.auth-modal__panel', modal);
+    const title = $('#authModalTitle', modal);
     const closeButton = $('[data-auth-close]', modal);
     const tabs = $$('[data-auth-tab]', modal);
     const forms = $$('[data-auth-panel]', modal);
@@ -501,7 +502,7 @@
       showMessage(panelName, message, 'error');
     };
 
-    const switchTab = (target) => {
+    const switchTab = (target, shouldFocus = true) => {
       tabs.forEach((tab) => {
         const active = tab.dataset.authTab === target;
         tab.classList.toggle('is-active', active);
@@ -512,8 +513,11 @@
         form.hidden = !active;
         form.classList.toggle('is-active', active);
       });
+      if (title) title.textContent = target === 'register' ? 'إنشاء حساب' : 'دخول';
+      ['login', 'register'].forEach(clearError);
+      $$('.input', modal).forEach((input) => setInputState(input, null));
       const firstInput = $('[data-auth-panel="' + target + '"] input', modal);
-      if (firstInput) window.setTimeout(() => firstInput.focus(), 0);
+      if (shouldFocus && firstInput) window.setTimeout(() => firstInput.focus(), 0);
     };
 
     const close = () => {
@@ -528,7 +532,7 @@
           slot.hidden = true;
         });
         $$('.input', modal).forEach((input) => setInputState(input, null));
-        switchTab('login');
+        switchTab('login', false);
         if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
       }, CONSTANTS.modalCloseDelay);
     };

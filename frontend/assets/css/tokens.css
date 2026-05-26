@@ -1,12 +1,11 @@
 /* Design tokens: colors, spacing, typography, and theme overrides. */
 
 :root {
-  --bg:           #F4F4F5;
-  --surface:      #FAFAFA;
-  --surface-2:    #F4F4F5;
-  --surface-3:    #F0F0F1;
-  --surface-4:    #E8E8EA;
-  --surface-white: #FFFFFF;
+  --bg:           #FFFFFF;
+  --surface:      #FFFFFF;
+  --surface-2:    #F9FAFB;
+  --surface-3:    #F3F4F6;
+  --surface-4:    #E5E7EB;
   --card-bg:       var(--surface);
 
   --ink:          #202124;
@@ -15,33 +14,38 @@
 
   --accent:       #18181B;
   --accent-2:     #27272A;
-  --accent-soft:  rgba(24, 24, 27, 0.045);
   --icon-color:   #18181B;
+
+  --primary-action-bg:       #111827;
+  --primary-action-fg:       #FFFFFF;
+  --primary-action-border:   #111827;
+  --primary-action-hover-bg: #000000;
 
   --error:         #B3261E;
   --on-accent:     #FAFAFA;
 
-  --overlay:       rgba(244, 244, 245, 0.72);
-  --modal-bg:      var(--bg);
+  --overlay:       rgba(17, 24, 39, 0.36);
+  --modal-bg:      #FFFFFF;
+  --modal-shadow:  0 24px 80px rgba(15, 23, 42, 0.16);
 
-  --line:              #D1D5DB;
-  --line-soft:         #D8DCE2;
-  --line-softer:       rgba(209, 213, 219, 0.72);
-  --line-accent:       rgba(24, 24, 27, 0.20);
+  --line:              #C4CAD3;
+  --line-soft:         #CBD1DA;
+  --line-softer:       #D7DCE4;
+  --line-accent:       #7D8490;
   --line-on-accent:    rgba(255, 255, 255, 0.18);
 
-  --input-bg:          #FAFAFA;
-  --input-bg-dark:     #121214;
+  --input-bg:          #FFFFFF;
+  --input-bg-dark:     #111827;
   --input-border:      var(--line-soft);
-  --input-focus-border: #A1A1AA;
+  --input-focus-border: #18181B;
   --input-error-border: #d93025;
   --form-bg:           var(--input-bg);
   --form-disabled-bg:  #ECEFF1;
 
   --nav-bg:                 var(--bg);
   --nav-link-hover-bg:      transparent;
-  --nav-link-active-bg:     var(--accent);
-  --nav-link-active-fg:     #FAFAFA;
+  --nav-link-active-bg:     transparent;
+  --nav-link-state-border:  #C4CAD3;
 
   --logo-bg:   #18181B;
   --logo-icon: #FAFAFA;
@@ -86,8 +90,10 @@
   --input-pad-y: 12px;
   --input-pad-x: 14px;
   --input-min-h: 44px;
+  --auth-tabs-bg: #F3F4F6;
   --auth-tab-active-bg: #FFFFFF;
-  --auth-tab-active-bg-dark: #292A2D;
+  --auth-tab-active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --auth-tab-border: #D7DCE4;
 
   --theme-transition:  0.18s ease;
   --quick-transition:  0.2s ease;
@@ -98,13 +104,12 @@
 }
 
 :root[data-theme="dark"] {
-  --bg:           #09090B;
-  --surface:      #121214;
-  --surface-2:    #151518;
-  --surface-3:    #18181B;
-  --surface-4:    #1F1F23;
-  --surface-white: #FAFAFA;
-  --card-bg:       #292A2D;
+  --bg:           #050505;
+  --surface:      #050505;
+  --surface-2:    #0A0A0A;
+  --surface-3:    #0F0F0F;
+  --surface-4:    #18181B;
+  --card-bg:       var(--surface);
 
   --ink:          #e8eaed;
   --ink-2:        #bdc1c6;
@@ -112,44 +117,54 @@
 
   --accent:       #E4E4E7;
   --accent-2:     #F4F4F5;
-  --accent-soft:  rgba(255, 255, 255, 0.055);
   --icon-color:          #E4E4E7;
+
+  --primary-action-bg:       #FFFFFF;
+  --primary-action-fg:       #050505;
+  --primary-action-border:   #FFFFFF;
+  --primary-action-hover-bg: #E5E7EB;
 
   --error:         #f28b82;
 
-  --on-accent:     #09090B;
+  --on-accent:     #050505;
 
-  --overlay:       rgba(9, 9, 11, 0.66);
-  --modal-bg:      var(--bg);
+  --overlay:       rgba(0, 0, 0, 0.62);
+  --modal-bg:      #050505;
+  --modal-shadow:  none;
 
-  --line:              #3C4043;
-  --line-soft:         #34383B;
-  --line-softer:       rgba(60, 64, 67, 0.72);
-  --line-accent:       rgba(255, 255, 255, 0.22);
-  --line-on-accent:    rgba(9, 9, 11, 0.18);
+  --line:              #3F3F46;
+  --line-soft:         #3F3F46;
+  --line-softer:       #2A2A2E;
+  --line-accent:       #71717A;
+  --line-on-accent:    rgba(5, 5, 5, 0.18);
 
-  --nav-link-active-fg:     #09090B;
+  --nav-link-hover-bg:      transparent;
+  --nav-link-active-bg:     transparent;
+  --nav-link-state-border:  #52525B;
 
   --logo-bg:   #E4E4E7;
-  --logo-icon: #09090B;
+  --logo-icon: #050505;
 
   --form-bg:           var(--input-bg-dark);
+  --input-bg-dark:     #050505;
   --input-border:      var(--line-soft);
-  --input-focus-border: #52525B;
+  --input-focus-border: #FFFFFF;
   --input-error-border: #f28b82;
   --form-disabled-bg:  var(--surface-4);
-  --auth-tab-active-bg: var(--card-bg);
+  --auth-tabs-bg: #050505;
+  --auth-tab-active-bg: #18181B;
+  --auth-tab-active-shadow: none;
+  --auth-tab-border: #3F3F46;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:           #09090B;
-    --surface:      #121214;
-    --surface-2:    #151518;
-    --surface-3:    #18181B;
-    --surface-4:    #1F1F23;
-    --surface-white: #FAFAFA;
-    --card-bg:       #292A2D;
+    --bg:           #050505;
+    --surface:      #050505;
+    --surface-2:    #0A0A0A;
+    --surface-3:    #0F0F0F;
+    --surface-4:    #18181B;
+    --card-bg:       var(--surface);
 
     --ink:          #e8eaed;
     --ink-2:        #bdc1c6;
@@ -157,32 +172,43 @@
 
     --accent:       #E4E4E7;
     --accent-2:     #F4F4F5;
-    --accent-soft:  rgba(255, 255, 255, 0.055);
     --icon-color:          #E4E4E7;
+
+    --primary-action-bg:       #FFFFFF;
+    --primary-action-fg:       #050505;
+    --primary-action-border:   #FFFFFF;
+    --primary-action-hover-bg: #E5E7EB;
 
     --error:         #f28b82;
 
-    --on-accent:     #09090B;
+    --on-accent:     #050505;
 
-    --overlay:       rgba(9, 9, 11, 0.66);
-    --modal-bg:      var(--bg);
+    --overlay:       rgba(0, 0, 0, 0.62);
+    --modal-bg:      #050505;
+    --modal-shadow:  none;
 
-    --line:              #3C4043;
-    --line-soft:         #34383B;
-    --line-softer:       rgba(60, 64, 67, 0.72);
-    --line-accent:       rgba(255, 255, 255, 0.22);
-    --line-on-accent:    rgba(9, 9, 11, 0.18);
+    --line:              #3F3F46;
+    --line-soft:         #3F3F46;
+    --line-softer:       #2A2A2E;
+    --line-accent:       #71717A;
+    --line-on-accent:    rgba(5, 5, 5, 0.18);
 
-    --nav-link-active-fg:     #09090B;
+    --nav-link-hover-bg:      transparent;
+    --nav-link-active-bg:     transparent;
+    --nav-link-state-border:  #52525B;
 
     --logo-bg:   #E4E4E7;
-    --logo-icon: #09090B;
+    --logo-icon: #050505;
 
     --form-bg:           var(--input-bg-dark);
+    --input-bg-dark:     #050505;
     --input-border:      var(--line-soft);
-    --input-focus-border: #52525B;
+    --input-focus-border: #FFFFFF;
     --input-error-border: #f28b82;
     --form-disabled-bg:  var(--surface-4);
-    --auth-tab-active-bg: var(--card-bg);
+    --auth-tabs-bg: #050505;
+    --auth-tab-active-bg: #18181B;
+    --auth-tab-active-shadow: none;
+    --auth-tab-border: #3F3F46;
   }
 }

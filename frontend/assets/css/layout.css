@@ -2,7 +2,6 @@
 *, *::before, *::after {
   box-sizing: border-box;
   border: 0;
-  outline: none !important;
   font-family: var(--font);
 }
 * { margin: 0; padding: 0; }
@@ -46,7 +45,11 @@ svg { flex-shrink: 0; }
 
 :focus,
 :focus-visible {
-  outline: none !important;
+  outline: none;
+}
+
+:focus-visible {
+  box-shadow: none !important;
 }
 
 .container {
@@ -105,11 +108,11 @@ svg { flex-shrink: 0; }
 .btn[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
 
 .btn-primary {
-  background: var(--accent);
-  border-color: var(--accent) !important;
-  color: var(--on-accent);
+  background: var(--primary-action-bg);
+  border-color: var(--primary-action-border) !important;
+  color: var(--primary-action-fg);
 }
-.btn-primary:hover { background: var(--accent-2); }
+.btn-primary:hover { background: var(--primary-action-hover-bg); }
 
 .input,
 input,
@@ -141,8 +144,28 @@ textarea:focus,
 select:focus {
   background: var(--form-bg);
   border-color: var(--input-focus-border) !important;
-  box-shadow: none;
+  box-shadow: none !important;
   outline: none !important;
+}
+.input:not(:placeholder-shown),
+input:not(:placeholder-shown),
+textarea:not(:placeholder-shown) {
+  background: var(--form-bg);
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border-color: var(--input-border) !important;
+  -webkit-text-fill-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--form-bg) inset !important;
+  caret-color: var(--ink);
+  transition: background-color 9999s ease-out;
 }
 .input[aria-invalid="true"],
 input[aria-invalid="true"],
@@ -160,7 +183,7 @@ select[aria-invalid="true"]:focus,
 .input.is-error:focus {
   background: var(--form-bg);
   border-color: var(--input-error-border) !important;
-  box-shadow: none;
+  box-shadow: none !important;
   outline: none !important;
 }
 input:disabled,
