@@ -33,7 +33,7 @@
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-theme-source', source || (readStoredTheme() ? 'user' : 'system'));
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#050505' : '#FFFFFF');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#09090B' : '#F4F4F5');
     var favicon = document.getElementById('themeFavicon');
     if (favicon) {
       favicon.setAttribute('href', theme === 'dark' ? favicon.dataset.darkHref : favicon.dataset.lightHref);
