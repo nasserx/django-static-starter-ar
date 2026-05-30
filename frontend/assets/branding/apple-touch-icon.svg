@@ -1,4 +1,11 @@
-<svg width="180" height="180" viewBox="0 0 64 64" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="6" />
-  <path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="var(--logo-cutout, Canvas)" />
+<svg width="180" height="180" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root { --mark-bg: #18181B; --mark-fg: #FAFAFA; }
+    @media (prefers-color-scheme: dark) {
+      :root { --mark-bg: #E4E4E7; --mark-fg: #09090B; }
+    }
+  </style>
+  <rect width="64" height="64" rx="6" fill="var(--mark-bg)" />
+  <circle cx="31" cy="30" r="18" stroke="var(--mark-fg)" stroke-width="5.5" />
+  <path d="M39 39L51 51" stroke="var(--mark-fg)" stroke-width="5.5" stroke-linecap="round" />
 </svg>

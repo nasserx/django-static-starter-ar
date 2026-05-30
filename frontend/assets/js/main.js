@@ -9,6 +9,17 @@
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const isEmail = (value) => CONSTANTS.emailPattern.test((value || '').trim().toLowerCase());
   const toArabicNumeral = (value) => String(value).replace(/\d/g, (digit) => '٠١٢٣٤٥٦٧٨٩'[digit]);
+  const getHashId = (href) => {
+    if (!href || !href.includes('#')) return '';
+    return href.split('#')[1] || '';
+  };
+
+  const brandMark = {
+    viewBox: '0 0 64 64',
+    radius: 6,
+    ring: { cx: 31, cy: 30, r: 18, width: 5.5 },
+    tail: 'M39 39L51 51',
+  };
 
   const svg = {
     assetIcon(path, className, label) {
@@ -16,10 +27,12 @@
       return '<span class="svg-icon ' + className + '" style="--icon-url: url(\'' + path + '\');"' + aria + '></span>';
     },
     logo(className = 'brand-mark') {
+      const ring = brandMark.ring;
       return [
-        '<svg class="' + className + '" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + CONTENT.brand.name + '">',
-        '<rect width="64" height="64" rx="6" fill="var(--logo-bg)" />',
-        '<path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="var(--logo-icon)" />',
+        '<svg class="' + className + '" viewBox="' + brandMark.viewBox + '" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + CONTENT.brand.name + '">',
+        '<rect width="64" height="64" rx="' + brandMark.radius + '" fill="var(--logo-bg)" />',
+        '<circle cx="' + ring.cx + '" cy="' + ring.cy + '" r="' + ring.r + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" />',
+        '<path d="' + brandMark.tail + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" stroke-linecap="round" />',
         '</svg>',
       ].join('');
     },
@@ -56,16 +69,19 @@
   function renderNavbar() {
     const nav = CONTENT.navigation;
     const brand = CONTENT.brand;
-    const links = nav.links.map((link) => (
-      '<a href="' + link.href + '" class="nav-link' + (link.active ? ' is-active' : '') + '" data-section-link' + (link.active ? ' aria-current="true"' : '') + '>' +
+    const links = nav.links.map((link) => {
+      const sectionId = link.sectionId || getHashId(link.href);
+      return (
+      '<a href="' + link.href + '" class="nav-link' + (link.active ? ' is-active' : '') + '" data-section-link data-section-id="' + sectionId + '"' + (link.active ? ' aria-current="true"' : '') + '>' +
         link.label +
       '</a>'
-    )).join('');
+      );
+    }).join('');
 
     return [
       '<nav class="nav" id="nav">',
       '<div class="container nav-inner">',
-      '<a href="index.html#hero" class="brand">',
+      '<a href="' + (brand.href || 'index.html') + '" class="brand">',
       svg.logo('brand-mark'),
       '<span class="brand-name">' + brand.name + '</span>',
       '</a>',
@@ -90,7 +106,6 @@
       '<section class="hero" id="' + hero.id + '">',
       '<div class="container hero-grid">',
       '<div class="hero-text">',
-      '<div class="hero-tag"><span class="hero-tag-dot"></span>' + hero.eyebrow + '</div>',
       '<h1><span class="accent">' + hero.titlePrefix + '</span>' + hero.titleSuffix + '</h1>',
       '<p class="lead">' + hero.lead + '</p>',
       '<form class="email-form input-group" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
@@ -701,7 +716,7 @@
 
     const linkById = new Map();
     const sections = links.map((link) => {
-      const id = link.getAttribute('href').split('#')[1];
+      const id = link.dataset.sectionId || getHashId(link.getAttribute('href'));
       const section = id ? document.getElementById(id) : null;
       if (id && section) linkById.set(id, link);
       return section;
@@ -724,6 +739,11 @@
     }, { rootMargin: '-30% 0px -55% 0px', threshold: [0.1, 0.25, 0.5, 0.75] });
 
     sections.forEach((section) => observer.observe(section));
+  }
+
+  function cleanInitialHeroHash() {
+    if (window.location.hash !== '#hero' || !window.history.replaceState) return;
+    window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
   }
 
   function bindRevealAnimations() {
@@ -796,6 +816,7 @@
   }
 
   function init() {
+    cleanInitialHeroHash();
     renderApp();
     bindThemeToggle();
     bindNavigation();
