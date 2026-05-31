@@ -1195,6 +1195,46 @@ git diff --check
 
 Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. Logout destroys the current session authentication state. The frontend keeps the current auth state in memory only. No flow stores tokens, issues JWTs, redirects, persists frontend auth state, adds route guards, protects pages, or sends email.
 
+## Environment Documentation Branch
+
+Branch: `feature/template-env-docs`
+
+Goal:
+
+* Document environment configuration for the reusable Django + static frontend starter template.
+
+Scope:
+
+* Documentation and safe config examples only.
+* No runtime behavior changes.
+* No frontend design changes.
+* No auth behavior changes.
+* No secret commits.
+
+Notes:
+
+* `backend/config/settings.py` currently does not parse `.env` or environment variables.
+* `frontend/src/js/config.js` currently uses static `window.APP_CONFIG`; `frontend/.env` is not consumed by browser JavaScript.
+* `.env.example` is a tracked safe placeholder only.
+* Local `.env` files remain ignored and untracked.
+
+Checks for this branch:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe -m unittest app.tests
+
+cd frontend
+node --check src\js\main.js
+node --check src\js\config.js
+npx --yes html-validate@9 "*.html" "partials/*.html"
+
+git diff --check
+git status
+```
+
 ## Backend Development Rules
 
 When backend development starts:

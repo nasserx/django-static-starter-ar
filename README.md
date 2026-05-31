@@ -8,6 +8,9 @@ the template is generalized.
 For the current structure audit and future cleanup notes, see
 [`docs/template-structure.md`](./docs/template-structure.md).
 
+For environment file usage and current config behavior, see
+[`docs/environment.md`](./docs/environment.md).
+
 ## Frontend Template
 
 The frontend is a **flat, generic, production-ready Arabic SaaS landing

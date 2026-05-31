@@ -25,6 +25,7 @@ The base template should stay generic. App-specific product logic should be adde
 * `CODEX.md` - AI-agent working notes and long-running implementation history.
 * `CLAUDE.md` - older AI-agent guidance; currently describes an earlier frontend-only state and should be reconciled later.
 * `BACKEND_INTEGRATION.md` - older backend integration guide; useful context, but some paths still reflect the previous frontend-only structure.
+* `docs/environment.md` - current environment/configuration audit and future env cleanup notes.
 * `.env.example` - tracked environment example placeholder.
 * `.gitignore` - local/cache/generated file ignore rules.
 
