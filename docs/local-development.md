@@ -151,6 +151,8 @@ For the full auth flow locally:
 
 Registration does not auto-login. Login creates the session.
 
+For exact endpoint response shapes and CSRF/session notes, see [api.md](./api.md).
+
 ## Standard Checks
 
 Backend:

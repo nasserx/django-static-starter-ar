@@ -14,6 +14,9 @@ For environment file usage and current config behavior, see
 For local setup and day-to-day development commands, see
 [`docs/local-development.md`](./docs/local-development.md).
 
+For the current backend API contract, see
+[`docs/api.md`](./docs/api.md).
+
 ## Frontend Template
 
 The frontend is a **flat, generic, production-ready Arabic SaaS landing

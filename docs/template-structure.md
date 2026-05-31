@@ -27,6 +27,7 @@ The base template should stay generic. App-specific product logic should be adde
 * `BACKEND_INTEGRATION.md` - older backend integration guide; useful context, but some paths still reflect the previous frontend-only structure.
 * `docs/environment.md` - current environment/configuration audit and future env cleanup notes.
 * `docs/local-development.md` - local setup, run, check, and troubleshooting guide.
+* `docs/api.md` - current health and session-auth API contract.
 * `.env.example` - tracked environment example placeholder.
 * `.gitignore` - local/cache/generated file ignore rules.
 

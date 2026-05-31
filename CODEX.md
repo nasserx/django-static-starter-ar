@@ -1276,6 +1276,46 @@ git diff --check
 git status
 ```
 
+## API Documentation Branch
+
+Branch: `feature/template-api-docs`
+
+Goal:
+
+* Document the current backend API contract for the reusable Django + static frontend starter template.
+
+Scope:
+
+* Documentation only.
+* No runtime behavior changes.
+* No frontend design changes.
+* No auth behavior changes.
+* No endpoint changes.
+* No new dependencies or tooling.
+
+Notes:
+
+* `docs/api.md` documents the implemented health and session-auth endpoints.
+* Current auth remains Django session/cookie based.
+* JWTs, tokens, redirects, route guards, protected pages, and persistent frontend auth storage remain out of scope.
+
+Checks for this branch:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe -m unittest app.tests
+
+cd frontend
+node --check src\js\main.js
+node --check src\js\config.js
+npx --yes html-validate@9 "*.html" "partials/*.html"
+
+git diff --check
+git status
+```
+
 ## Backend Development Rules
 
 When backend development starts:
