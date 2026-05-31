@@ -242,6 +242,111 @@ Example invalid credentials response:
 }
 ```
 
+## Authentication Strategy Decision
+
+Current auth state:
+
+* Register creates Django built-in users.
+* Register uses Django password hashing through `create_user(...)`.
+* Login currently validates credentials only.
+* Login checks the stored Django password hash but does not call Django `login(...)`.
+* No real authenticated session exists yet.
+* There is no JWT, token issuing, logout, frontend auth persistence, or email confirmation.
+
+The next implementation step requires choosing the real authentication strategy.
+
+### Option 1: Django Session/Cookie Authentication
+
+Django session/cookie authentication uses Django's built-in session framework. The server stores session state, and the browser stores a session cookie. Unsafe requests must include correct CSRF handling.
+
+This works well for browser-based frontends. Because the current frontend and backend are separate origins during local development, this approach needs careful CORS, CSRF, `SameSite`, and credentials configuration. It is a good fit if we want classic web authentication with HttpOnly cookies and no token handling in JavaScript.
+
+Pros:
+
+* Built into Django.
+* Password and session handling are mature.
+* HttpOnly session cookies reduce token exposure to JavaScript.
+* Logout and session invalidation are straightforward server-side.
+
+Cons:
+
+* Cross-origin local development needs careful setup.
+* CSRF must be implemented correctly.
+* Mobile or native clients may be less convenient later.
+* Frontend fetch requests must use credentials when the real session flow is added.
+
+### Option 2: JWT/Token Authentication
+
+JWT/token authentication has the backend issue access and refresh tokens. The frontend sends a token with API requests. This is common for SPAs, mobile apps, and non-browser API clients.
+
+This strategy requires careful token storage, expiry, refresh, and revocation handling. Storing tokens in `localStorage` or `sessionStorage` increases XSS impact. Safer token patterns often use HttpOnly cookies, which brings back cookie and CSRF considerations.
+
+Pros:
+
+* Common for decoupled APIs.
+* Convenient for mobile clients and non-browser clients.
+* Stateless access token verification can scale well.
+
+Cons:
+
+* Token storage is easy to get wrong.
+* Logout and revocation are more complex.
+* Refresh token rotation and expiry handling add complexity.
+* More moving parts than the project currently needs.
+
+### Chosen Strategy
+
+Use Django session/cookie authentication first.
+
+Rationale:
+
+* The project is Django-based.
+* The backend already uses Django's built-in user system.
+* We are building incrementally and want the smallest secure next step.
+* The project does not currently need mobile or native token auth.
+* HttpOnly cookies avoid storing auth tokens in JavaScript.
+* This keeps the next implementation focused on real login, logout, current-user state, and CSRF handling.
+
+Decision:
+
+* Use Django session/cookie authentication.
+* Do not use JWT for now.
+* Do not store tokens in `localStorage` or `sessionStorage`.
+* Add CSRF handling before or during real session login work.
+* Keep cross-origin local development settings explicit.
+
+### Proposed Auth Roadmap
+
+Phase 1:
+
+* Add a CSRF endpoint if needed, for example `GET /api/auth/csrf/`.
+* Configure frontend fetch credentials behavior.
+* Confirm CORS and CSRF settings.
+
+Phase 2:
+
+* Convert `POST /api/auth/login/` from validation-only into real session login.
+* Call Django `login(...)` only after credential validation passes.
+* Return safe user data.
+
+Phase 3:
+
+* Add `GET /api/auth/me/`.
+* Return authenticated user data or an anonymous state.
+
+Phase 4:
+
+* Add `POST /api/auth/logout/`.
+* Call Django `logout(...)`.
+
+Phase 5:
+
+* Connect frontend authenticated UI state.
+* Show logged-in UI after `/api/auth/me/`.
+* Do not store tokens.
+* Do not store passwords.
+* Use `credentials: "include"` only when the real session flow is ready.
+
 ## Register Manual Test Checklist
 
 The frontend register form calls the backend register endpoint through:
