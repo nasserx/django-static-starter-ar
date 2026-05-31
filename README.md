@@ -1,10 +1,35 @@
-# منصتك — Flat, Minimalist SaaS Master Template (Arabic, RTL)
+# Django + Static Frontend Starter Template
 
-A **flat, generic, production-ready Arabic SaaS landing template**.
-Plain HTML, CSS, and JavaScript — no framework, no bundler, no build
-step. Drop it into any future application: tweak the copy in clearly
-marked `LIVING CONTENT BLOCK` regions, point the API config at your
-backend, and you have a polished landing page.
+This repository is being prepared as a reusable Django backend + static
+frontend starter template. It includes a Django session-auth foundation
+and a static Arabic RTL frontend design that should remain stable while
+the template is generalized.
+
+For the current structure audit and future cleanup notes, see
+[`docs/template-structure.md`](./docs/template-structure.md).
+
+For environment file usage and current config behavior, see
+[`docs/environment.md`](./docs/environment.md).
+
+For local setup and day-to-day development commands, see
+[`docs/local-development.md`](./docs/local-development.md).
+
+For the current backend API contract, see
+[`docs/api.md`](./docs/api.md).
+
+For guidance on using this repository as a reusable starter, see
+[`docs/template-usage.md`](./docs/template-usage.md).
+
+For the starter-template readiness checklist, see
+[`docs/template-release-checklist.md`](./docs/template-release-checklist.md).
+
+## Frontend Template
+
+The frontend is a **flat, generic, production-ready Arabic SaaS landing
+template**. Plain HTML, CSS, and JavaScript — no frontend framework, no
+bundler, no build step. Drop it into any future application: tweak the
+copy/config, point the API config at your backend, and you have a polished
+landing page.
 
 Highlights:
 

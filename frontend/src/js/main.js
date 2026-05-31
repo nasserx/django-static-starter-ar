@@ -7,8 +7,81 @@
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-  const isEmail = (value) => CONSTANTS.emailPattern.test((value || '').trim().toLowerCase());
+  const hasValue = (value) => (value || '').trim().length > 0;
   const toArabicNumeral = (value) => String(value).replace(/\d/g, (digit) => '٠١٢٣٤٥٦٧٨٩'[digit]);
+  const getHashId = (href) => {
+    if (!href || !href.includes('#')) return '';
+    return href.split('#')[1] || '';
+  };
+
+  const AUTH_COPY = {
+    titles: {
+      login: 'دخول',
+      register: 'إنشاء حساب',
+    },
+    tabs: {
+      login: 'تسجيل الدخول',
+      register: 'إنشاء حساب',
+    },
+    forgotPassword: {
+      label: 'نسيت كلمة المرور؟',
+      loading: 'جارٍ الإرسال...',
+      missingEmail: 'أدخل بريدك الإلكتروني أولًا لإرسال رابط إعادة التعيين.',
+      success: 'أرسلنا رابط إعادة التعيين إن كان البريد مسجلًا.',
+      failure: 'تعذّر إرسال رابط إعادة التعيين. حاول مرة أخرى.',
+    },
+    validation: {
+      emailRequired: 'أدخل البريد الإلكتروني.',
+      passwordRequired: 'أدخل كلمة المرور.',
+      passwordMismatch: 'كلمتا المرور غير متطابقتين.',
+    },
+    loading: {
+      login: 'جارٍ الدخول...',
+      register: 'جارٍ الإنشاء...',
+    },
+    success: {
+      login: 'تم تسجيل الدخول بنجاح.',
+      register: 'تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.',
+    },
+    fallbackError: {
+      login: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
+      register: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
+      logout: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
+    },
+    logout: {
+      label: 'خروج',
+      loading: 'جارٍ الخروج...',
+      success: 'تم تسجيل الخروج بنجاح.',
+    },
+    passwordToggle: {
+      show: 'إظهار كلمة المرور',
+      hide: 'إخفاء كلمة المرور',
+    },
+  };
+
+  const AUTH_FIELDS = {
+    login: [
+      { name: 'email', label: 'البريد الإلكتروني', type: 'email', autocomplete: 'email' },
+      { name: 'password', label: 'كلمة المرور', type: 'password', autocomplete: 'current-password' },
+    ],
+    register: [
+      { name: 'email', label: 'البريد الإلكتروني', type: 'email', autocomplete: 'email' },
+      { name: 'password', label: 'كلمة المرور', type: 'password', autocomplete: 'new-password' },
+      { name: 'password_confirm', label: 'تأكيد كلمة المرور', type: 'password', autocomplete: 'new-password' },
+    ],
+  };
+
+  const AUTH_PANEL = {
+    login: { panelId: 'authPanelLogin', tabId: 'authTabLogin', errorId: 'authErrorLogin' },
+    register: { panelId: 'authPanelRegister', tabId: 'authTabRegister', errorId: 'authErrorRegister' },
+  };
+
+  const brandMark = {
+    viewBox: '0 0 64 64',
+    radius: 6,
+    ring: { cx: 31, cy: 30, r: 18, width: 5.5 },
+    tail: 'M39 39L51 51',
+  };
 
   const svg = {
     assetIcon(path, className, label) {
@@ -16,10 +89,12 @@
       return '<span class="svg-icon ' + className + '" style="--icon-url: url(\'' + path + '\');"' + aria + '></span>';
     },
     logo(className = 'brand-mark') {
+      const ring = brandMark.ring;
       return [
-        '<svg class="' + className + '" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + CONTENT.brand.name + '">',
-        '<rect width="64" height="64" rx="6" fill="var(--logo-bg)" />',
-        '<path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="var(--logo-icon)" />',
+        '<svg class="' + className + '" viewBox="' + brandMark.viewBox + '" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + CONTENT.brand.name + '">',
+        '<rect width="64" height="64" rx="' + brandMark.radius + '" fill="var(--logo-bg)" />',
+        '<circle cx="' + ring.cx + '" cy="' + ring.cy + '" r="' + ring.r + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" />',
+        '<path d="' + brandMark.tail + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" stroke-linecap="round" />',
         '</svg>',
       ].join('');
     },
@@ -29,6 +104,8 @@
     mail: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
     moon: '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
     sun: '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+    eye: '<svg class="auth-password-icon auth-password-icon--eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeOff: '<svg class="auth-password-icon auth-password-icon--eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3l18 18"/><path d="M10.6 10.6A2 2 0 0 0 13.4 13.4"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a17.5 17.5 0 0 1-3.1 4.1"/><path d="M6.1 6.8C3.5 8.6 2 12 2 12s3.5 7 10 7c1.4 0 2.7-.3 3.9-.8"/></svg>',
   };
 
   const featureIcons = {
@@ -56,22 +133,28 @@
   function renderNavbar() {
     const nav = CONTENT.navigation;
     const brand = CONTENT.brand;
-    const links = nav.links.map((link) => (
-      '<a href="' + link.href + '" class="nav-link' + (link.active ? ' is-active' : '') + '" data-section-link' + (link.active ? ' aria-current="true"' : '') + '>' +
+    const links = nav.links.map((link) => {
+      const sectionId = link.sectionId || getHashId(link.href);
+      return (
+      '<a href="' + link.href + '" class="nav-link' + (link.active ? ' is-active' : '') + '" data-section-link data-section-id="' + sectionId + '"' + (link.active ? ' aria-current="true"' : '') + '>' +
         link.label +
       '</a>'
-    )).join('');
+      );
+    }).join('');
 
     return [
       '<nav class="nav" id="nav">',
       '<div class="container nav-inner">',
-      '<a href="index.html#hero" class="brand">',
+      '<a href="' + (brand.href || 'index.html') + '" class="brand">',
       svg.logo('brand-mark'),
       '<span class="brand-name">' + brand.name + '</span>',
       '</a>',
-      '<div class="nav-links" id="primaryNav">' + links + '</div>',
+      '<div class="nav-links" id="primaryNav"><span class="nav-active-indicator" data-nav-indicator aria-hidden="true"></span>' + links + '</div>',
       '<div class="nav-actions">',
-      '<button class="nav-action-link" type="button" data-auth-open>' + nav.loginLabel + '</button>',
+      '<button class="nav-action-link" type="button" data-auth-open data-auth-anonymous>' + nav.loginLabel + '</button>',
+      '<span class="nav-user-email" data-auth-user-email hidden></span>',
+      '<button class="nav-action-link nav-action-link--muted" type="button" data-auth-logout hidden>' + AUTH_COPY.logout.label + '</button>',
+      '<span class="nav-auth-status" data-auth-status hidden></span>',
       '<button class="theme-toggle" id="themeToggle" type="button" aria-label="' + nav.themeToggleLabel + '" title="' + nav.themeToggleLabel + '">' + svg.moon + svg.sun + '</button>',
       '<button class="nav-toggle" id="navToggle" type="button" aria-label="' + nav.menuToggleLabel + '" aria-controls="primaryNav" aria-expanded="false"><span></span><span></span><span></span></button>',
       '</div>',
@@ -90,10 +173,9 @@
       '<section class="hero" id="' + hero.id + '">',
       '<div class="container hero-grid">',
       '<div class="hero-text">',
-      '<div class="hero-tag"><span class="hero-tag-dot"></span>' + hero.eyebrow + '</div>',
       '<h1><span class="accent">' + hero.titlePrefix + '</span>' + hero.titleSuffix + '</h1>',
       '<p class="lead">' + hero.lead + '</p>',
-      '<form class="email-form input-group" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
+      '<form class="email-form" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
       '<input type="email" name="' + form.inputName + '" placeholder="' + form.inputPlaceholder + '" aria-label="' + form.inputLabel + '" autocomplete="email" inputmode="email" required dir="ltr">',
       '<button type="submit" data-loading-label="' + form.loadingLabel + '" data-success-label="' + form.successLabel + '">' + form.submitLabel + svg.arrow + '</button>',
       '</form>',
@@ -240,15 +322,16 @@
     setInvalid(input, state === 'error');
   }
 
-  async function apiPost(endpointKey, body) {
-    const base = CONFIG.API_BASE_URL;
+  async function apiPost(endpointKey, body, options = {}) {
+    const base = options.baseUrl || CONFIG.API_BASE_URL;
     const endpoint = ENDPOINTS[endpointKey];
     if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: ' + endpointKey);
     if (!base || base === '#') return { ok: true, stub: true };
 
     const response = await fetch(base + endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: options.credentials || 'same-origin',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       body: JSON.stringify(body),
     });
 
@@ -257,10 +340,96 @@
     return { ok: response.ok, status: response.status, ...data };
   }
 
+  function getCookie(name) {
+    const cookie = document.cookie
+      .split(';')
+      .map((item) => item.trim())
+      .find((item) => item.startsWith(name + '='));
+    return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : '';
+  }
+
+  async function requestCsrfCookie(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.csrf;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: csrf');
+    if (!base || base === '#') return { ok: true, stub: true };
+
+    const response = await fetch(base + endpoint, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
+  async function getCurrentUser(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.me;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: me');
+    if (!base || base === '#') return { ok: true, stub: true, authenticated: false, user: null };
+
+    const response = await fetch(base + endpoint, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
+  async function logout(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.logout;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: logout');
+    if (!base || base === '#') return { ok: true, stub: true, authenticated: false, session_destroyed: true };
+
+    await requestCsrfCookie({ baseUrl: base });
+    const csrfToken = getCookie('csrftoken');
+    if (!csrfToken) throw new Error('Missing CSRF token');
+
+    const response = await fetch(base + endpoint, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: JSON.stringify({}),
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
+  window.AuthApi = window.AuthApi || {};
+  window.AuthApi.requestCsrfCookie = window.AuthApi.requestCsrfCookie || requestCsrfCookie;
+  window.AuthApi.getCsrfToken = window.AuthApi.getCsrfToken || (() => getCookie('csrftoken'));
+  window.AuthApi.getCurrentUser = window.AuthApi.getCurrentUser || getCurrentUser;
+  window.AuthApi.logout = window.AuthApi.logout || logout;
+
+  function getApiErrorMessage(result, fallback) {
+    if (result && Array.isArray(result.errors)) {
+      const messages = result.errors.map((error) => error && error.message).filter(Boolean);
+      if (messages.length) return messages.join(' ');
+    }
+    if (result && typeof result.error === 'string' && result.error) return result.error;
+    if (result && typeof result.message === 'string' && result.message) return result.message;
+    return fallback;
+  }
+
   const AuthSession = {
-    state: { status: 'anonymous', provider: null, user: null },
+    state: { authenticated: false, status: 'anonymous', provider: null, user: null },
     set(nextState) {
-      this.state = { ...this.state, ...nextState };
+      const authenticated = nextState.authenticated !== undefined
+        ? nextState.authenticated === true
+        : nextState.status !== undefined
+          ? nextState.status === 'authenticated'
+          : this.state.authenticated === true;
+      this.state = { ...this.state, ...nextState, authenticated };
       document.dispatchEvent(new CustomEvent('auth:state', { detail: this.state }));
     },
     get() {
@@ -269,6 +438,92 @@
   };
 
   window.AuthSession = window.AuthSession || AuthSession;
+
+  function setAuthStateFromResponse(result) {
+    const authenticated = Boolean(result && result.authenticated === true && result.user);
+    window.AuthSession.set({
+      authenticated,
+      status: authenticated ? 'authenticated' : 'anonymous',
+      provider: authenticated ? 'session' : null,
+      user: authenticated ? result.user : null,
+    });
+  }
+
+  function updateAuthUi(state = window.AuthSession.get()) {
+    const authenticated = state.authenticated === true || state.status === 'authenticated';
+    const user = authenticated && state.user ? state.user : null;
+
+    $$('[data-auth-anonymous]').forEach((element) => {
+      element.hidden = authenticated;
+      if ('disabled' in element) element.disabled = authenticated;
+    });
+
+    $$('[data-auth-user-email]').forEach((element) => {
+      element.textContent = user && user.email ? user.email : '';
+      element.hidden = !user || !user.email;
+    });
+
+    $$('[data-auth-logout]').forEach((button) => {
+      button.hidden = !authenticated;
+      button.disabled = !authenticated;
+    });
+  }
+
+  async function checkCurrentAuthState() {
+    try {
+      const result = await window.AuthApi.getCurrentUser();
+      if (!result || result.ok === false) {
+        window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+        return;
+      }
+      setAuthStateFromResponse(result);
+    } catch (_) {
+      window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+    }
+  }
+
+  let authStatusTimer = null;
+
+  function showAuthStatus(message) {
+    if (!message) return;
+    window.clearTimeout(authStatusTimer);
+    $$('[data-auth-status]').forEach((element) => {
+      element.textContent = message;
+      element.hidden = false;
+    });
+    authStatusTimer = window.setTimeout(() => {
+      $$('[data-auth-status]').forEach((element) => {
+        element.textContent = '';
+        element.hidden = true;
+      });
+    }, 3600);
+  }
+
+  function bindAuthStateControls() {
+    document.addEventListener('auth:state', (event) => {
+      updateAuthUi(event.detail);
+    });
+
+    updateAuthUi();
+
+    $$('[data-auth-logout]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        setBusy(button, true, AUTH_COPY.logout.loading);
+
+        try {
+          const result = await window.AuthApi.logout();
+          if (!result || result.ok === false) throw new Error('logout failed');
+
+          setBusy(button, false);
+          window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+          showAuthStatus(result.message || AUTH_COPY.logout.success);
+        } catch (_) {
+          setBusy(button, false);
+          showAuthStatus(AUTH_COPY.fallbackError.logout);
+        }
+      });
+    });
+  }
 
   function setBusy(button, busy, label) {
     if (!button) return;
@@ -292,25 +547,37 @@
     )).join('');
   }
 
-  function buildAuthForm(name, submitLabel, fields, hidden = false) {
-    const panelId = name === 'login' ? 'authPanelLogin' : 'authPanelRegister';
-    const tabId = name === 'login' ? 'authTabLogin' : 'authTabRegister';
-    const fieldMarkup = fields.map(([fieldName, label, type, autocomplete]) => (
-      '<label class="auth-field">' +
-      '<span>' + label + '</span>' +
-      '<input class="input" type="' + type + '" name="' + fieldName + '" autocomplete="' + autocomplete + '"' +
-      (type === 'email' ? ' inputmode="email" dir="ltr"' : '') +
-      (type === 'password' ? ' minlength="8"' : '') +
-      ' required>' +
-      '</label>'
-    )).join('');
+  function buildAuthField(panelName, field) {
+    const fieldId = 'auth-' + panelName + '-' + field.name;
+    const describedBy = AUTH_PANEL[panelName].errorId;
+    const isPassword = field.type === 'password';
+    const inputMarkup = (
+      '<input class="input" id="' + fieldId + '" type="' + field.type + '" name="' + field.name + '" autocomplete="' + field.autocomplete + '" aria-describedby="' + describedBy + '"' +
+      (field.type === 'email' ? ' inputmode="email" dir="ltr"' : '') +
+      (isPassword ? ' dir="ltr"' : '') +
+      ' required>'
+    );
 
     return (
-      '<form class="auth-form' + (hidden ? '' : ' is-active') + '" id="' + panelId + '" role="tabpanel" aria-labelledby="' + tabId + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
+      '<label class="auth-field">' +
+      '<span>' + field.label + '</span>' +
+      (isPassword
+        ? '<span class="auth-password-control">' + inputMarkup + '<button class="auth-password-toggle" type="button" aria-label="' + AUTH_COPY.passwordToggle.show + '" data-password-toggle aria-pressed="false" hidden>' + svg.eye + svg.eyeOff + '</button></span>'
+        : inputMarkup) +
+      '</label>'
+    );
+  }
+
+  function buildAuthForm(name, hidden = false) {
+    const panel = AUTH_PANEL[name];
+    const fieldMarkup = AUTH_FIELDS[name].map((field) => buildAuthField(name, field)).join('');
+
+    return (
+      '<form class="auth-form' + (hidden ? '' : ' is-active') + '" id="' + panel.panelId + '" role="tabpanel" aria-labelledby="' + panel.tabId + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
       fieldMarkup +
-      (name === 'login' ? '<button class="auth-forgot-link" type="button" data-auth-forgot>نسيت كلمة المرور؟</button>' : '') +
-      '<div class="auth-modal__error" data-auth-error="' + name + '" hidden></div>' +
-      '<button class="btn btn-primary auth-submit" type="submit">' + submitLabel + '</button>' +
+      (name === 'login' ? '<button class="auth-forgot-link" type="button" data-auth-forgot>' + AUTH_COPY.forgotPassword.label + '</button>' : '') +
+      '<div class="auth-modal__error" id="' + panel.errorId + '" data-auth-error="' + name + '" hidden></div>' +
+      '<button class="btn btn-primary auth-submit" type="submit">' + AUTH_COPY.titles[name] + '</button>' +
       '</form>'
     );
   }
@@ -319,24 +586,17 @@
     return (
       '<div class="auth-modal__panel" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">' +
       '<div class="auth-modal__head">' +
-      '<h2 id="authModalTitle">دخول</h2>' +
+      '<h2 id="authModalTitle">' + AUTH_COPY.titles.login + '</h2>' +
       '<button class="auth-modal__close" type="button" data-auth-close aria-label="إغلاق">×</button>' +
       '</div>' +
       '<div class="auth-modal__providers">' + buildProviderButtons() + '</div>' +
       '<div class="auth-divider" aria-hidden="true"><span></span><strong>أو</strong><span></span></div>' +
       '<div class="auth-tabs" role="tablist" aria-label="خيارات الدخول">' +
-      '<button class="auth-tab is-active" id="authTabLogin" type="button" role="tab" aria-selected="true" aria-controls="authPanelLogin" data-auth-tab="login">تسجيل الدخول</button>' +
-      '<button class="auth-tab" id="authTabRegister" type="button" role="tab" aria-selected="false" aria-controls="authPanelRegister" data-auth-tab="register">إنشاء حساب</button>' +
+      '<button class="auth-tab is-active" id="' + AUTH_PANEL.login.tabId + '" type="button" role="tab" aria-selected="true" aria-controls="' + AUTH_PANEL.login.panelId + '" data-auth-tab="login">' + AUTH_COPY.tabs.login + '</button>' +
+      '<button class="auth-tab" id="' + AUTH_PANEL.register.tabId + '" type="button" role="tab" aria-selected="false" aria-controls="' + AUTH_PANEL.register.panelId + '" data-auth-tab="register">' + AUTH_COPY.tabs.register + '</button>' +
       '</div>' +
-      buildAuthForm('login', 'دخول', [
-        ['email', 'البريد الإلكتروني', 'email', 'email'],
-        ['password', 'كلمة المرور', 'password', 'current-password'],
-      ]) +
-      buildAuthForm('register', 'إنشاء حساب', [
-        ['email', 'البريد الإلكتروني', 'email', 'email'],
-        ['password', 'كلمة المرور', 'password', 'new-password'],
-        ['password_confirm', 'تأكيد كلمة المرور', 'password', 'new-password'],
-      ], true) +
+      buildAuthForm('login') +
+      buildAuthForm('register', true) +
       '</div>'
     );
   }
@@ -364,7 +624,7 @@
     const button = $('#themeToggle');
     if (!button) return;
     button.addEventListener('click', () => {
-      if (window.AppTheme) window.AppTheme.toggle();
+      if (window.AppTheme) window.AppTheme.toggle(button);
     });
   }
 
@@ -384,6 +644,7 @@
       const open = nav.classList.toggle('menu-open');
       document.body.classList.toggle('menu-locked', open);
       toggle.setAttribute('aria-expanded', String(open));
+      window.requestAnimationFrame(() => document.dispatchEvent(new CustomEvent('nav:layout')));
     });
 
     menu.addEventListener('click', (event) => {
@@ -396,6 +657,7 @@
 
     window.addEventListener('resize', () => {
       if (window.matchMedia(CONSTANTS.desktopQuery).matches) closeMenu();
+      document.dispatchEvent(new CustomEvent('nav:layout'));
     });
   }
 
@@ -418,7 +680,7 @@
       event.preventDefault();
       const email = (input.value || '').trim().toLowerCase();
 
-      if (!isEmail(email)) {
+      if (!hasValue(email)) {
         setFormError(true);
         input.focus();
         return;
@@ -461,8 +723,19 @@
       setBusy(submit, true, options.loadingLabel);
 
       try {
-        const result = await apiPost(options.endpointKey, validation.body);
-        if (!result.ok) throw new Error(result.error || options.endpointKey + ' failed');
+        const requestOptions = { baseUrl: options.baseUrl };
+        if (typeof options.prepareRequest === 'function') {
+          Object.assign(requestOptions, await options.prepareRequest());
+        }
+        const result = await apiPost(options.endpointKey, validation.body, requestOptions);
+        if (!result.ok) {
+          setBusy(submit, false);
+          options.showError(panelName, getApiErrorMessage(result, options.fallbackError));
+          return;
+        }
+        if (typeof options.onSuccess === 'function' && options.onSuccess({ form, result, submit })) {
+          return;
+        }
         window.AuthSession.set({ status: 'authenticated', provider: options.provider, user: result.user || null });
         options.close();
       } catch (_) {
@@ -471,6 +744,76 @@
         options.showError(panelName, options.fallbackError);
       }
     });
+  }
+
+  function bindPasswordToggles(modal) {
+    $$('[data-password-toggle]', modal).forEach((button) => {
+      const control = button.closest('.auth-password-control');
+      const input = control ? $('input', control) : null;
+      if (!input) return;
+
+      const syncVisibility = () => {
+        const hasValue = Boolean(input.value);
+        button.hidden = !hasValue;
+        if (!hasValue && input.type !== 'password') {
+          input.type = 'password';
+          button.classList.remove('is-visible');
+          button.setAttribute('aria-pressed', 'false');
+          button.setAttribute('aria-label', AUTH_COPY.passwordToggle.show);
+        }
+      };
+
+      input.addEventListener('input', syncVisibility);
+      input.addEventListener('change', syncVisibility);
+      window.setTimeout(syncVisibility, 0);
+
+      button.addEventListener('click', () => {
+        const shouldShow = input.type === 'password';
+        input.type = shouldShow ? 'text' : 'password';
+        button.classList.toggle('is-visible', shouldShow);
+        button.setAttribute('aria-pressed', String(shouldShow));
+        button.setAttribute('aria-label', shouldShow ? AUTH_COPY.passwordToggle.hide : AUTH_COPY.passwordToggle.show);
+        input.focus();
+      });
+    });
+  }
+
+  function getAuthFormValues(form) {
+    const emailInput = $('input[name="email"]', form);
+    const passwordInput = $('input[name="password"]', form);
+    const confirmInput = $('input[name="password_confirm"]', form);
+
+    return {
+      emailInput,
+      passwordInput,
+      confirmInput,
+      email: emailInput ? (emailInput.value || '').trim().toLowerCase() : '',
+      password: passwordInput ? passwordInput.value || '' : '',
+      confirm: confirmInput ? confirmInput.value || '' : '',
+    };
+  }
+
+  function resetInputStates(inputs) {
+    inputs.filter(Boolean).forEach((input) => setInputState(input, null));
+  }
+
+  function validateAuthCredentials(form, options = {}) {
+    const values = getAuthFormValues(form);
+    resetInputStates([values.emailInput, values.passwordInput, values.confirmInput]);
+
+    if (!hasValue(values.email)) {
+      return { input: values.emailInput, message: AUTH_COPY.validation.emailRequired };
+    }
+
+    if (!hasValue(values.password)) {
+      return { input: values.passwordInput, message: AUTH_COPY.validation.passwordRequired };
+    }
+
+    if (options.requirePasswordConfirmation && values.password !== values.confirm) {
+      return { input: values.confirmInput, message: AUTH_COPY.validation.passwordMismatch };
+    }
+
+    return { body: { email: values.email, password: values.password } };
   }
 
   function bindAuthModal() {
@@ -501,6 +844,26 @@
     const showError = (panelName, message) => {
       showMessage(panelName, message, 'error');
     };
+    const resetAuthForms = () => {
+      forms.forEach((form) => {
+        if (typeof form.reset === 'function') form.reset();
+      });
+      $$('.auth-modal__error', modal).forEach((slot) => {
+        slot.textContent = '';
+        slot.hidden = true;
+        slot.classList.remove('is-success');
+      });
+      $$('.input', modal).forEach((input) => {
+        setInputState(input, null);
+        if (input.type === 'text' && input.closest('.auth-password-control')) input.type = 'password';
+      });
+      $$('[data-password-toggle]', modal).forEach((button) => {
+        button.hidden = true;
+        button.classList.remove('is-visible');
+        button.setAttribute('aria-pressed', 'false');
+        button.setAttribute('aria-label', AUTH_COPY.passwordToggle.show);
+      });
+    };
 
     const switchTab = (target, shouldFocus = true) => {
       tabs.forEach((tab) => {
@@ -513,7 +876,7 @@
         form.hidden = !active;
         form.classList.toggle('is-active', active);
       });
-      if (title) title.textContent = target === 'register' ? 'إنشاء حساب' : 'دخول';
+      if (title) title.textContent = AUTH_COPY.titles[target];
       ['login', 'register'].forEach(clearError);
       $$('.input', modal).forEach((input) => setInputState(input, null));
       const firstInput = $('[data-auth-panel="' + target + '"] input', modal);
@@ -527,11 +890,7 @@
       closeTimer = window.setTimeout(() => {
         modal.hidden = true;
         modal.setAttribute('aria-hidden', 'true');
-        $$('.auth-modal__error', modal).forEach((slot) => {
-          slot.textContent = '';
-          slot.hidden = true;
-        });
-        $$('.input', modal).forEach((input) => setInputState(input, null));
+        resetAuthForms();
         switchTab('login', false);
         if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
       }, CONSTANTS.modalCloseDelay);
@@ -618,6 +977,8 @@
       });
     });
 
+    bindPasswordToggles(modal);
+
     const forgotButton = $('[data-auth-forgot]', modal);
     if (forgotButton) {
       forgotButton.addEventListener('click', async () => {
@@ -628,67 +989,87 @@
         clearError('login');
         setInputState(emailInput, null);
 
-        if (!isEmail(email)) {
-          showError('login', 'أدخل بريدك الإلكتروني أولًا لإرسال رابط إعادة التعيين.');
+        if (!hasValue(email)) {
+          showError('login', AUTH_COPY.forgotPassword.missingEmail);
           setInputState(emailInput, 'error');
           if (emailInput) emailInput.focus();
           return;
         }
 
-        setBusy(forgotButton, true, 'جارٍ الإرسال...');
+        setBusy(forgotButton, true, AUTH_COPY.forgotPassword.loading);
 
         try {
           const result = await apiPost('forgotPassword', { email });
           if (!result.ok) throw new Error(result.error || 'forgot password failed');
           setBusy(forgotButton, false);
-          showMessage('login', 'أرسلنا رابط إعادة التعيين إن كان البريد مسجلًا.', 'success');
+          showMessage('login', AUTH_COPY.forgotPassword.success, 'success');
         } catch (_) {
           setBusy(forgotButton, false);
-          showError('login', 'تعذّر إرسال رابط إعادة التعيين. حاول مرة أخرى.');
+          showError('login', AUTH_COPY.forgotPassword.failure);
         }
       });
     }
 
     bindAuthForm(modal, 'login', {
-      loadingLabel: 'جارٍ الدخول...',
-      validate(form) {
-        const emailInput = $('input[name="email"]', form);
-        const passwordInput = $('input[name="password"]', form);
-        const email = (emailInput.value || '').trim().toLowerCase();
-        const password = passwordInput.value || '';
-        [emailInput, passwordInput].forEach((input) => setInputState(input, null));
-
-        if (!isEmail(email)) return { input: emailInput, message: 'أدخل بريدًا إلكترونيًا صحيحًا.' };
-        if (password.length < 8) return { input: passwordInput, message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' };
-        return { body: { email, password } };
-      },
+      loadingLabel: AUTH_COPY.loading.login,
+      validate: validateAuthCredentials,
       endpointKey: 'login',
+      baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
-      fallbackError: 'تعذّر الدخول. تحقق من البيانات وحاول مرة أخرى.',
+      fallbackError: AUTH_COPY.fallbackError.login,
+      prepareRequest: async () => {
+        await requestCsrfCookie({ baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL });
+        const csrfToken = getCookie('csrftoken');
+        if (!csrfToken) throw new Error('Missing CSRF token');
+        return {
+          credentials: 'include',
+          headers: { 'X-CSRFToken': csrfToken },
+        };
+      },
+      onSuccess: ({ form, result, submit }) => {
+        setBusy(submit, false);
+        if (!result || result.authenticated !== true || result.session_created !== true) {
+          showError('login', getApiErrorMessage(result, AUTH_COPY.fallbackError.login));
+          return true;
+        }
+        const values = getAuthFormValues(form);
+        if (values.emailInput && result.user && result.user.email) {
+          values.emailInput.value = result.user.email;
+        }
+        if (values.passwordInput) values.passwordInput.value = '';
+        resetInputStates([values.emailInput, values.passwordInput]);
+        setAuthStateFromResponse(result);
+        showMessage('login', result.message || AUTH_COPY.success.login, 'success');
+        return true;
+      },
       showError,
       clearError,
       close,
     });
 
     bindAuthForm(modal, 'register', {
-      loadingLabel: 'جارٍ الإنشاء...',
-      validate(form) {
-        const emailInput = $('input[name="email"]', form);
-        const passwordInput = $('input[name="password"]', form);
-        const confirmInput = $('input[name="password_confirm"]', form);
-        const email = (emailInput.value || '').trim().toLowerCase();
-        const password = passwordInput.value || '';
-        const confirm = confirmInput.value || '';
-        [emailInput, passwordInput, confirmInput].forEach((input) => setInputState(input, null));
-
-        if (!isEmail(email)) return { input: emailInput, message: 'أدخل بريدًا إلكترونيًا صحيحًا.' };
-        if (password.length < 8) return { input: passwordInput, message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' };
-        if (password !== confirm) return { input: confirmInput, message: 'كلمتا المرور غير متطابقتين.' };
-        return { body: { email, password } };
-      },
+      loadingLabel: AUTH_COPY.loading.register,
+      validate: (form) => validateAuthCredentials(form, { requirePasswordConfirmation: true }),
       endpointKey: 'register',
+      baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
-      fallbackError: 'تعذّر إنشاء الحساب. حاول مرة أخرى.',
+      fallbackError: AUTH_COPY.fallbackError.register,
+      onSuccess: ({ form, result, submit }) => {
+        setBusy(submit, false);
+        if (!result || result.is_valid !== true) {
+          showError('register', getApiErrorMessage(result, AUTH_COPY.fallbackError.register));
+          return true;
+        }
+        const values = getAuthFormValues(form);
+        if (values.emailInput && result.normalized && result.normalized.email) {
+          values.emailInput.value = result.normalized.email;
+        }
+        if (values.passwordInput) values.passwordInput.value = '';
+        if (values.confirmInput) values.confirmInput.value = '';
+        resetInputStates([values.emailInput, values.passwordInput, values.confirmInput]);
+        showMessage('register', result.message || AUTH_COPY.success.register, 'success');
+        return true;
+      },
       showError,
       clearError,
       close,
@@ -697,50 +1078,145 @@
 
   function bindSectionNav() {
     const links = $$('[data-section-link]');
-    if (!links.length || !('IntersectionObserver' in window)) return;
+    if (!links.length) return;
+
+    const menu = $('#primaryNav');
+    const indicator = menu ? $('[data-nav-indicator]', menu) : null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let activeId = '';
+    let pendingId = '';
+    let activeTimer = null;
+    let programmaticScroll = false;
+    let scrollEndTimer = null;
 
     const linkById = new Map();
     const sections = links.map((link) => {
-      const id = link.getAttribute('href').split('#')[1];
+      const id = link.dataset.sectionId || getHashId(link.getAttribute('href'));
       const section = id ? document.getElementById(id) : null;
       if (id && section) linkById.set(id, link);
       return section;
     }).filter(Boolean);
 
+    const updateIndicator = () => {
+      if (!menu || !indicator) return;
+      const activeLink = $('.nav-link.is-active', menu);
+      if (!activeLink || activeLink.offsetParent === null) {
+        indicator.style.opacity = '0';
+        return;
+      }
+
+      const menuRect = menu.getBoundingClientRect();
+      const linkRect = activeLink.getBoundingClientRect();
+      const x = linkRect.left - menuRect.left;
+      const y = linkRect.top - menuRect.top;
+
+      indicator.style.width = linkRect.width + 'px';
+      indicator.style.height = linkRect.height + 'px';
+      indicator.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+      indicator.style.opacity = '1';
+    };
+
     const setActive = (id) => {
+      if (!id || id === activeId) {
+        updateIndicator();
+        return;
+      }
+
+      activeId = id;
       links.forEach((link) => {
         const active = link === linkById.get(id);
         link.classList.toggle('is-active', active);
         if (active) link.setAttribute('aria-current', 'true');
         else link.removeAttribute('aria-current');
       });
+      updateIndicator();
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setActive(visible.target.id);
-    }, { rootMargin: '-30% 0px -55% 0px', threshold: [0.1, 0.25, 0.5, 0.75] });
+    const scheduleActive = (id) => {
+      if (programmaticScroll) return;
+      if (!id || id === activeId || id === pendingId) return;
+      pendingId = id;
+      window.clearTimeout(activeTimer);
+      activeTimer = window.setTimeout(() => {
+        setActive(pendingId);
+        pendingId = '';
+      }, reduceMotion ? 0 : 90);
+    };
 
-    sections.forEach((section) => observer.observe(section));
+    const pickSection = () => {
+      const anchor = window.innerHeight * 0.42;
+      return sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= anchor && rect.bottom > anchor;
+      }) || sections[0];
+    };
+
+    const getScrollTargetTop = (section) => {
+      const nav = $('#nav');
+      const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+      return Math.max(0, window.scrollY + section.getBoundingClientRect().top - navHeight);
+    };
+
+    const finishProgrammaticScroll = () => {
+      programmaticScroll = false;
+      const current = pickSection();
+      if (current) setActive(current.id);
+    };
+
+    const scrollToSection = (id) => {
+      const section = document.getElementById(id);
+      if (!section) return;
+
+      window.clearTimeout(activeTimer);
+      window.clearTimeout(scrollEndTimer);
+      pendingId = '';
+      programmaticScroll = true;
+      setActive(id);
+
+      window.scrollTo({
+        top: getScrollTargetTop(section),
+        behavior: 'smooth',
+      });
+
+      scrollEndTimer = window.setTimeout(finishProgrammaticScroll, 900);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => {
+            const anchor = window.innerHeight * 0.42;
+            return Math.abs(a.boundingClientRect.top - anchor) - Math.abs(b.boundingClientRect.top - anchor);
+          })[0];
+        const candidate = visible ? visible.target : pickSection();
+        if (candidate) scheduleActive(candidate.id);
+      }, { rootMargin: '-38% 0px -48% 0px', threshold: [0, 0.2, 0.45, 0.7] });
+
+      sections.forEach((section) => observer.observe(section));
+    }
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const id = link.dataset.sectionId || getHashId(link.getAttribute('href'));
+        if (!id || !document.getElementById(id)) return;
+        event.preventDefault();
+        scrollToSection(id);
+      });
+    });
+    window.addEventListener('scroll', () => {
+      if (!programmaticScroll) return;
+      window.clearTimeout(scrollEndTimer);
+      scrollEndTimer = window.setTimeout(finishProgrammaticScroll, 140);
+    }, { passive: true });
+    document.addEventListener('nav:layout', updateIndicator);
+    window.addEventListener('resize', () => window.requestAnimationFrame(updateIndicator));
+    window.addEventListener('load', updateIndicator);
+    setActive($('.nav-link.is-active')?.dataset.sectionId || sections[0]?.id || '');
   }
 
-  function bindRevealAnimations() {
-    if (!('IntersectionObserver' in window)) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('in');
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.12 });
-
-    $$(CONSTANTS.revealSelector).forEach((element) => {
-      element.classList.add('reveal');
-      observer.observe(element);
-    });
+  function cleanInitialHeroHash() {
+    if (window.location.hash !== '#hero' || !window.history.replaceState) return;
+    window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
   }
 
   function bindShowcase() {
@@ -796,13 +1272,15 @@
   }
 
   function init() {
+    cleanInitialHeroHash();
     renderApp();
     bindThemeToggle();
     bindNavigation();
     bindTrialForm();
     bindAuthModal();
+    bindAuthStateControls();
+    checkCurrentAuthState();
     bindSectionNav();
-    bindRevealAnimations();
     bindShowcase();
   }
 

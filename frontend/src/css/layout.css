@@ -13,10 +13,12 @@ html {
   width: 100%;
   color-scheme: light dark;
   background: var(--bg);
+  background-image: none;
 }
 
 body {
   background: var(--bg);
+  background-image: none;
   color: var(--ink);
   font-size: var(--font-size-body);
   font-weight: var(--font-regular);
@@ -29,6 +31,12 @@ body {
   transition:
     background-color var(--theme-transition),
     color var(--theme-transition);
+}
+
+#main,
+[data-region] {
+  background: var(--bg);
+  background-image: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -47,6 +55,21 @@ svg { flex-shrink: 0; }
 :focus,
 :focus-visible {
   outline: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.theme-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 100);
+  pointer-events: none;
+  background-image: none;
+  will-change: clip-path;
 }
 
 .container {
@@ -118,29 +141,49 @@ select {
   width: 100%;
   font-family: inherit;
   font-size: var(--font-size-input);
-  color: var(--ink);
-  background: var(--form-bg);
+  font-weight: var(--font-regular);
+  line-height: 1.35;
+  color: var(--input-text);
+  background: var(--input-bg);
+  background-color: var(--input-bg);
   border-radius: var(--radius);
   padding: var(--input-pad-y) var(--input-pad-x);
   min-height: var(--input-min-h);
-  border: var(--border-width) solid var(--input-border) !important;
+  border: var(--border-width) solid var(--input-border);
   box-shadow: none;
+  caret-color: var(--input-text);
+  color-scheme: var(--input-color-scheme);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   transition:
     background-color var(--quick-transition),
-    border-color var(--quick-transition);
+    border-color var(--quick-transition),
+    color var(--quick-transition);
 }
 textarea { resize: vertical; }
 
 .input::placeholder,
 input::placeholder,
-textarea::placeholder { color: var(--ink-3); }
+textarea::placeholder {
+  color: var(--input-placeholder);
+  opacity: 0.72;
+}
+
+.input:hover,
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--input-border-hover);
+}
 
 .input:focus,
 input:focus,
 textarea:focus,
 select:focus {
-  background: var(--form-bg);
-  border-color: var(--input-focus-border) !important;
+  background: var(--input-bg);
+  background-color: var(--input-bg);
+  border-color: var(--input-border-focus);
   box-shadow: none;
   outline: none !important;
 }
@@ -149,8 +192,9 @@ input[aria-invalid="true"],
 textarea[aria-invalid="true"],
 select[aria-invalid="true"],
 .input.is-error {
-  background: var(--form-bg);
-  border-color: var(--input-error-border) !important;
+  background: var(--input-bg);
+  background-color: var(--input-bg);
+  border-color: var(--input-border-error);
   box-shadow: none;
 }
 .input[aria-invalid="true"]:focus,
@@ -158,16 +202,63 @@ input[aria-invalid="true"]:focus,
 textarea[aria-invalid="true"]:focus,
 select[aria-invalid="true"]:focus,
 .input.is-error:focus {
-  background: var(--form-bg);
-  border-color: var(--input-error-border) !important;
+  background: var(--input-bg);
+  background-color: var(--input-bg);
+  border-color: var(--input-border-error);
   box-shadow: none;
   outline: none !important;
+}
+input:read-only,
+textarea:read-only {
+  background: var(--input-bg);
+  background-color: var(--input-bg);
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:autofill,
+input:autofill:hover,
+input:autofill:focus {
+  color: var(--input-text) !important;
+  -webkit-text-fill-color: var(--input-text);
+  background: var(--input-autofill-bg) !important;
+  background-color: var(--input-autofill-bg) !important;
+  caret-color: var(--input-text);
+  color-scheme: var(--input-color-scheme);
+  box-shadow: 0 0 0 1000px var(--input-autofill-bg) inset !important;
+  transition: background-color 9999s ease-out, color var(--quick-transition), border-color var(--quick-transition);
+}
+input:-webkit-autofill:focus {
+  border-color: var(--input-border-focus) !important;
+}
+input:-webkit-autofill[aria-invalid="true"],
+input:-webkit-autofill.is-error {
+  border-color: var(--input-border-error) !important;
+}
+input:-webkit-autofill[aria-invalid="true"]:focus,
+input:-webkit-autofill.is-error:focus {
+  border-color: var(--input-border-error) !important;
+}
+input[dir="ltr"],
+input[type="email"],
+input[type="password"] {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
 }
 input:disabled,
 textarea:disabled,
 select:disabled {
-  color: var(--ink-3);
-  background: var(--form-disabled-bg);
+  color: var(--input-placeholder);
+  background: var(--input-disabled-bg);
+  background-color: var(--input-disabled-bg);
+  border-color: var(--input-border);
+  box-shadow: none;
   cursor: not-allowed;
 }
 

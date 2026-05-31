@@ -1,4 +1,0 @@
-<svg width="180" height="180" viewBox="0 0 64 64" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="6" />
-  <path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="var(--logo-cutout, Canvas)" />
-</svg>

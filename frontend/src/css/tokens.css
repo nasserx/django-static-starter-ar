@@ -30,13 +30,16 @@
   --line-accent:       rgba(24, 24, 27, 0.20);
   --line-on-accent:    rgba(255, 255, 255, 0.18);
 
-  --input-bg:          #FAFAFA;
-  --input-bg-dark:     #121214;
-  --input-border:      var(--line-soft);
-  --input-focus-border: #A1A1AA;
-  --input-error-border: #d93025;
-  --form-bg:           var(--input-bg);
-  --form-disabled-bg:  #ECEFF1;
+  --input-bg:            #FFFFFF;
+  --input-text:          var(--ink);
+  --input-placeholder:   var(--ink-3);
+  --input-border:        var(--line-soft);
+  --input-border-hover:  var(--line-accent);
+  --input-border-focus:  #71717A;
+  --input-border-error:  var(--error);
+  --input-disabled-bg:   #ECEFF1;
+  --input-autofill-bg:   var(--input-bg);
+  --input-color-scheme:  light;
 
   --nav-bg:                 var(--bg);
   --nav-link-hover-bg:      transparent;
@@ -87,7 +90,6 @@
   --input-pad-x: 14px;
   --input-min-h: 44px;
   --auth-tab-active-bg: #FFFFFF;
-  --auth-tab-active-bg-dark: #292A2D;
 
   --theme-transition:  0.18s ease;
   --quick-transition:  0.2s ease;
@@ -133,11 +135,16 @@
   --logo-bg:   #E4E4E7;
   --logo-icon: #09090B;
 
-  --form-bg:           var(--input-bg-dark);
-  --input-border:      var(--line-soft);
-  --input-focus-border: #52525B;
-  --input-error-border: #f28b82;
-  --form-disabled-bg:  var(--surface-4);
+  --input-bg:            var(--surface-2);
+  --input-text:          var(--ink);
+  --input-placeholder:   var(--ink-3);
+  --input-border:        var(--line-soft);
+  --input-border-hover:  var(--line-accent);
+  --input-border-focus:  #A1A1AA;
+  --input-border-error:  var(--error);
+  --input-disabled-bg:   var(--surface-4);
+  --input-autofill-bg:   var(--input-bg);
+  --input-color-scheme:  dark;
   --auth-tab-active-bg: var(--card-bg);
 }
 
@@ -178,11 +185,16 @@
     --logo-bg:   #E4E4E7;
     --logo-icon: #09090B;
 
-    --form-bg:           var(--input-bg-dark);
-    --input-border:      var(--line-soft);
-    --input-focus-border: #52525B;
-    --input-error-border: #f28b82;
-    --form-disabled-bg:  var(--surface-4);
+    --input-bg:            var(--surface-2);
+    --input-text:          var(--ink);
+    --input-placeholder:   var(--ink-3);
+    --input-border:        var(--line-soft);
+    --input-border-hover:  var(--line-accent);
+    --input-border-focus:  #A1A1AA;
+    --input-border-error:  var(--error);
+    --input-disabled-bg:   var(--surface-4);
+    --input-autofill-bg:   var(--input-bg);
+    --input-color-scheme:  dark;
     --auth-tab-active-bg: var(--card-bg);
   }
 }
