@@ -330,6 +330,35 @@
     return { ok: response.ok, status: response.status, ...data };
   }
 
+  function getCookie(name) {
+    const cookie = document.cookie
+      .split(';')
+      .map((item) => item.trim())
+      .find((item) => item.startsWith(name + '='));
+    return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : '';
+  }
+
+  async function requestCsrfCookie(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.csrf;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: csrf');
+    if (!base || base === '#') return { ok: true, stub: true };
+
+    const response = await fetch(base + endpoint, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
+  window.AuthApi = window.AuthApi || {
+    requestCsrfCookie,
+    getCsrfToken: () => getCookie('csrftoken'),
+  };
+
   function getApiErrorMessage(result, fallback) {
     if (result && Array.isArray(result.errors)) {
       const messages = result.errors.map((error) => error && error.message).filter(Boolean);

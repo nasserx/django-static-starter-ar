@@ -54,6 +54,21 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok", "service": "api"})
 
+    def test_csrf_endpoint_returns_ok_and_sets_csrf_cookie(self) -> None:
+        response = self.client.get("/api/auth/csrf/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"csrf": "ok", "message": "CSRF cookie set."})
+        self.assertIn(settings.CSRF_COOKIE_NAME, response.cookies)
+
+    def test_csrf_endpoint_does_not_authenticate_or_create_users(self) -> None:
+        response = self.client.get("/api/auth/csrf/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+        self.assertNotIn("sessionid", response.cookies)
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
     def test_register_valid_payload_creates_user(self) -> None:
         response = self._post_register({"email": "USER@example.com", "password": "Password1"})
         data = response.json()

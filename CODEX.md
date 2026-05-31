@@ -319,7 +319,7 @@ Decision:
 
 Phase 1:
 
-* Add a CSRF endpoint if needed, for example `GET /api/auth/csrf/`.
+* Add a CSRF endpoint, `GET /api/auth/csrf/`.
 * Configure frontend fetch credentials behavior.
 * Confirm CORS and CSRF settings.
 
@@ -346,6 +346,81 @@ Phase 5:
 * Do not store tokens.
 * Do not store passwords.
 * Use `credentials: "include"` only when the real session flow is ready.
+
+## Session/CSRF Foundation
+
+The backend exposes a CSRF foundation endpoint for the future Django session/cookie auth flow:
+
+* `GET http://127.0.0.1:8000/api/auth/csrf/`
+* Returns HTTP `200`.
+* Ensures Django sets the `csrftoken` cookie.
+* Returns a safe JSON response:
+
+```json
+{
+  "csrf": "ok",
+  "message": "CSRF cookie set."
+}
+```
+
+Purpose:
+
+* The frontend can request this endpoint before future unsafe session-auth requests.
+* Future unsafe requests can send `X-CSRFToken` using the `csrftoken` cookie value.
+* Future session-aware fetch requests should use `credentials: "include"` when the real session flow is ready.
+
+Local development origins:
+
+* Frontend: `http://127.0.0.1:5500` or `http://localhost:5500`
+* Backend: `http://127.0.0.1:8000`
+* `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGINS` explicitly include local frontend origins.
+* `CORS_ALLOW_CREDENTIALS = True` is enabled for future credentialed session requests.
+* `CORS_ALLOW_ALL_ORIGINS` is not enabled.
+* CSRF middleware remains enabled.
+
+Frontend foundation:
+
+* `window.APP_CONFIG.endpoints.csrf` points to `/api/auth/csrf/`.
+* `window.AuthApi.requestCsrfCookie()` requests the CSRF endpoint with `credentials: "include"`.
+* `window.AuthApi.getCsrfToken()` reads the `csrftoken` cookie for future unsafe requests.
+* The token is not stored in `localStorage` or `sessionStorage`.
+
+Out of scope for this foundation step:
+
+* No real login.
+* No logout.
+* No `/api/auth/me/`.
+* No JWT or issued tokens.
+* No frontend auth persistence.
+* No password storage.
+* No email confirmation.
+
+Manual CSRF test:
+
+1. Start the backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+2. Request the CSRF endpoint in a browser or fetch:
+
+```text
+http://127.0.0.1:8000/api/auth/csrf/
+```
+
+3. Confirm the response is HTTP `200` and a `csrftoken` cookie is set.
+
+4. Start the frontend:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+5. Confirm existing register and login validation flows still behave as before.
 
 ## Register Manual Test Checklist
 

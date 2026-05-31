@@ -1,6 +1,7 @@
 from app.auth_validation import validate_auth_payload, validate_login_payload
 from common.errors import AuthErrorCode, RequestErrorCode, build_error
 from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.exceptions import ParseError
@@ -11,6 +12,12 @@ from rest_framework.response import Response
 @api_view(["GET"])
 def api_health_check(request):
     return Response({"status": "ok", "service": "api"})
+
+
+@api_view(["GET"])
+@ensure_csrf_cookie
+def csrf_cookie(request):
+    return Response({"csrf": "ok", "message": "CSRF cookie set."})
 
 
 @api_view(["POST"])
