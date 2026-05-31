@@ -273,6 +273,25 @@ Authenticated response:
 }
 ```
 
+Session logout endpoint:
+
+* `POST http://127.0.0.1:8000/api/auth/logout/`
+* Destroys the current Django session authentication state with Django `logout(...)`.
+* Requires CSRF cookie/token because it is a state-changing POST.
+* Returns HTTP `200` even when the browser is already anonymous.
+* Does not issue or clear JWTs or tokens because token auth is not used.
+* Does not redirect or persist frontend auth state.
+
+Example success response:
+
+```json
+{
+  "authenticated": false,
+  "session_destroyed": true,
+  "message": "تم تسجيل الخروج بنجاح."
+}
+```
+
 ## Authentication Strategy Decision
 
 Current auth state:
@@ -281,7 +300,8 @@ Current auth state:
 * Register uses Django password hashing through `create_user(...)`.
 * Login creates a Django session after credentials pass validation.
 * `/api/auth/me/` reads the current session authentication state.
-* There is no JWT, token issuing, logout, frontend auth persistence, or email confirmation.
+* Logout destroys the current Django session authentication state.
+* There is no JWT, token issuing, frontend auth persistence, or email confirmation.
 
 The next implementation step requires choosing the real authentication strategy.
 
@@ -366,8 +386,8 @@ Phase 3:
 
 Phase 4:
 
-* Add `POST /api/auth/logout/`.
-* Call Django `logout(...)`.
+* `POST /api/auth/logout/` has been added.
+* Django `logout(...)` destroys the current session authentication state.
 
 Phase 5:
 
@@ -412,14 +432,15 @@ Frontend foundation:
 
 * `window.APP_CONFIG.endpoints.csrf` points to `/api/auth/csrf/`.
 * `window.APP_CONFIG.endpoints.me` points to `/api/auth/me/`.
+* `window.APP_CONFIG.endpoints.logout` points to `/api/auth/logout/`.
 * `window.AuthApi.requestCsrfCookie()` requests the CSRF endpoint with `credentials: "include"`.
 * `window.AuthApi.getCsrfToken()` reads the `csrftoken` cookie for unsafe requests.
 * `window.AuthApi.getCurrentUser()` requests `/api/auth/me/` with `credentials: "include"`.
+* `window.AuthApi.logout()` requests CSRF, then posts to `/api/auth/logout/` with `credentials: "include"` and `X-CSRFToken`.
 * The token is not stored in `localStorage` or `sessionStorage`.
 
 Still out of scope:
 
-* No logout.
 * No JWT or issued tokens.
 * No frontend auth persistence.
 * No password storage.
@@ -665,10 +686,93 @@ Expected response:
 
 7. Confirm no tokens exist in `localStorage` or `sessionStorage`.
 
+## Session Logout Manual Test Checklist
+
+The frontend helper can call the logout endpoint through:
+
+* `window.APP_CONFIG.BACKEND_API_BASE_URL`
+* `window.APP_CONFIG.endpoints.logout`
+* `window.AuthApi.logout()`
+
+Default local target:
+
+```text
+http://127.0.0.1:8000/api/auth/logout/
+```
+
+Purpose:
+
+* Destroy the current Django session authentication state.
+* Keep logout idempotent, so anonymous logout with a valid CSRF token still returns success.
+* Avoid JWTs, issued tokens, redirects, and frontend auth persistence.
+
+Manual cases:
+
+1. Start the backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+2. Start the frontend:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+3. Register a user if needed.
+
+4. Log in:
+
+* `GET /api/auth/csrf/` with `credentials: "include"`
+* `POST /api/auth/login/` with `credentials: "include"` and `X-CSRFToken`
+
+5. Confirm `GET /api/auth/me/` with credentials included returns:
+
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+6. Log out:
+
+* `GET /api/auth/csrf/` with `credentials: "include"`
+* `POST /api/auth/logout/` with `credentials: "include"` and `X-CSRFToken`
+
+Expected logout response:
+
+```json
+{
+  "authenticated": false,
+  "session_destroyed": true,
+  "message": "تم تسجيل الخروج بنجاح."
+}
+```
+
+7. Confirm `GET /api/auth/me/` with credentials included returns:
+
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+8. Confirm anonymous logout with a valid CSRF token also returns HTTP `200`.
+
+9. Confirm no tokens exist in `localStorage` or `sessionStorage`.
+
 ### Out Of Scope For This Step
 
 * No models or migrations.
-* No logout.
 * No JWT.
 * No tokens.
 * No frontend auth state or token storage.
@@ -700,7 +804,7 @@ Repository:
 git diff --check
 ```
 
-Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. No flow stores tokens, issues JWTs, redirects, adds logout, persists frontend auth state, or sends email.
+Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. Logout destroys the current session authentication state. No flow stores tokens, issues JWTs, redirects, persists frontend auth state, or sends email.
 
 ## Backend Development Rules
 

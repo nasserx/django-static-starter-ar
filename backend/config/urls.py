@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import path
 
-from app.api import api_health_check, csrf_cookie, current_user, login_validation, register_validation
+from app.api import api_health_check, csrf_cookie, current_user, login_validation, logout_session, register_validation
 
 
 def health_check(request):
@@ -17,4 +17,5 @@ urlpatterns = [
     path("api/auth/me/", current_user, name="api-auth-me"),
     path("api/auth/register/", register_validation, name="api-auth-register"),
     path("api/auth/login/", login_validation, name="api-auth-login"),
+    path("api/auth/logout/", logout_session, name="api-auth-logout"),
 ]

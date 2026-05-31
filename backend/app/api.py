@@ -2,7 +2,7 @@ import json
 
 from app.auth_validation import validate_auth_payload, validate_login_payload
 from common.errors import AuthErrorCode, RequestErrorCode, build_error
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
@@ -112,6 +112,21 @@ def login_validation(request):
                 "id": user.id,
                 "email": email,
             },
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@require_POST
+@csrf_protect
+def logout_session(request):
+    logout(request)
+
+    return JsonResponse(
+        {
+            "authenticated": False,
+            "session_destroyed": True,
+            "message": "تم تسجيل الخروج بنجاح.",
         },
         status=status.HTTP_200_OK,
     )

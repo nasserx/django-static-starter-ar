@@ -409,8 +409,7 @@ class ApiFoundationTests(SimpleTestCase):
     def test_login_with_csrf_cookie_and_token_succeeds_when_csrf_checks_are_enforced(self) -> None:
         client = Client(enforce_csrf_checks=True)
         user = self._create_user(email="user@example.com", password="Password123")
-        csrf_response = client.get("/api/auth/csrf/")
-        csrf_token = csrf_response.cookies[settings.CSRF_COOKIE_NAME].value
+        csrf_token = self._csrf_token_for(client)
 
         response = client.post(
             "/api/auth/login/",
@@ -426,6 +425,135 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["user"], {"id": user.id, "email": "user@example.com"})
         self.assertEqual(int(client.session["_auth_user_id"]), user.id)
 
+    def test_logout_without_csrf_token_is_rejected_when_csrf_checks_are_enforced(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+
+        response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_logout_with_csrf_token_returns_success_for_anonymous_user(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        csrf_token = self._csrf_token_for(client)
+
+        response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "authenticated": False,
+                "session_destroyed": True,
+                "message": "تم تسجيل الخروج بنجاح.",
+            },
+        )
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
+    def test_logout_after_session_login_destroys_authentication(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        self._create_user(email="user@example.com", password="Password123")
+        csrf_token = self._csrf_token_for(client)
+
+        login_response = client.post(
+            "/api/auth/login/",
+            data=json.dumps({"email": "user@example.com", "password": "Password123"}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        logout_response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value,
+        )
+        me_response = client.get("/api/auth/me/")
+
+        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(logout_response.status_code, 200)
+        self.assertEqual(me_response.status_code, 200)
+        self.assertEqual(me_response.json(), {"authenticated": False, "user": None})
+        self.assertNotIn("_auth_user_id", client.session)
+
+    def test_logout_success_response_never_includes_sensitive_fields(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        self._create_user(email="user@example.com", password="Password123")
+        csrf_token = self._csrf_token_for(client)
+
+        login_response = client.post(
+            "/api/auth/login/",
+            data=json.dumps({"email": "user@example.com", "password": "Password123"}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        old_session_key = client.session.session_key
+        response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=client.cookies[settings.CSRF_COOKIE_NAME].value,
+        )
+        content = response.content.decode()
+
+        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("password", content)
+        self.assertNotIn("token", content)
+        self.assertNotIn("csrf", content)
+        self.assertNotIn("is_staff", content)
+        self.assertNotIn("is_superuser", content)
+        self.assertNotIn("permissions", content)
+        if old_session_key:
+            self.assertNotIn(old_session_key, content)
+
+    def test_logout_is_idempotent_for_anonymous_user(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        csrf_token = self._csrf_token_for(client)
+
+        first_response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        csrf_token = self._csrf_token_for(client)
+        second_response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(first_response.json(), second_response.json())
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
+    def test_anonymous_logout_does_not_leave_client_authenticated(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        csrf_token = self._csrf_token_for(client)
+
+        logout_response = client.post(
+            "/api/auth/logout/",
+            data=json.dumps({}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        me_response = client.get("/api/auth/me/")
+
+        self.assertEqual(logout_response.status_code, 200)
+        self.assertEqual(me_response.status_code, 200)
+        self.assertEqual(me_response.json(), {"authenticated": False, "user": None})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
     def _post_register(self, payload):
         return self.client.post(
             "/api/auth/register/",
@@ -439,6 +567,11 @@ class ApiFoundationTests(SimpleTestCase):
             data=json.dumps(payload),
             content_type="application/json",
         )
+
+    def _csrf_token_for(self, client):
+        response = client.get("/api/auth/csrf/")
+        self.assertEqual(response.status_code, 200)
+        return client.cookies[settings.CSRF_COOKIE_NAME].value
 
     def _create_user(self, email: str, password: str):
         return get_user_model()._default_manager.create_user(

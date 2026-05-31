@@ -371,11 +371,36 @@
     return { ok: response.ok, status: response.status, ...data };
   }
 
-  window.AuthApi = window.AuthApi || {
-    requestCsrfCookie,
-    getCsrfToken: () => getCookie('csrftoken'),
-    getCurrentUser,
-  };
+  async function logout(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.logout;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: logout');
+    if (!base || base === '#') return { ok: true, stub: true, authenticated: false, session_destroyed: true };
+
+    await requestCsrfCookie({ baseUrl: base });
+    const csrfToken = getCookie('csrftoken');
+    if (!csrfToken) throw new Error('Missing CSRF token');
+
+    const response = await fetch(base + endpoint, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: JSON.stringify({}),
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
+  window.AuthApi = window.AuthApi || {};
+  window.AuthApi.requestCsrfCookie = window.AuthApi.requestCsrfCookie || requestCsrfCookie;
+  window.AuthApi.getCsrfToken = window.AuthApi.getCsrfToken || (() => getCookie('csrftoken'));
+  window.AuthApi.getCurrentUser = window.AuthApi.getCurrentUser || getCurrentUser;
+  window.AuthApi.logout = window.AuthApi.logout || logout;
 
   function getApiErrorMessage(result, fallback) {
     if (result && Array.isArray(result.errors)) {

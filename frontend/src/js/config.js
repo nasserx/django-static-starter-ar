@@ -17,6 +17,7 @@ window.APP_CONFIG = window.APP_CONFIG || {
     csrf: '/api/auth/csrf/',
     me: '/api/auth/me/',
     login: '/api/auth/login/',
+    logout: '/api/auth/logout/',
     register: '/api/auth/register/',
     forgotPassword: '/api/auth/forgot-password',
     oauthGoogle: '/api/auth/google',
