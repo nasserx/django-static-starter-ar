@@ -17,6 +17,7 @@ class AuthErrorCode:
     EMAIL_MUST_BE_STRING: Final = "auth.email_must_be_string"
     EMAIL_INVALID: Final = "auth.email_invalid"
     EMAIL_ALREADY_REGISTERED: Final = "auth.email_already_registered"
+    INVALID_CREDENTIALS: Final = "auth.invalid_credentials"
     PASSWORD_REQUIRED: Final = "auth.password_required"
     PASSWORD_MUST_BE_STRING: Final = "auth.password_must_be_string"
     PASSWORD_TOO_SHORT: Final = "auth.password_too_short"
@@ -36,6 +37,7 @@ DEFAULT_ERROR_MESSAGES: Final[dict[str, str]] = {
     AuthErrorCode.EMAIL_MUST_BE_STRING: "البريد الإلكتروني يجب أن يكون نصًا.",
     AuthErrorCode.EMAIL_INVALID: "صيغة البريد الإلكتروني غير صحيحة.",
     AuthErrorCode.EMAIL_ALREADY_REGISTERED: "البريد الإلكتروني مسجل مسبقًا.",
+    AuthErrorCode.INVALID_CREDENTIALS: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     AuthErrorCode.PASSWORD_REQUIRED: "كلمة المرور مطلوبة.",
     AuthErrorCode.PASSWORD_MUST_BE_STRING: "كلمة المرور يجب أن تكون نصًا.",
     AuthErrorCode.PASSWORD_TOO_SHORT: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",

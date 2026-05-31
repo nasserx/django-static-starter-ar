@@ -40,10 +40,11 @@
       register: 'جارٍ الإنشاء...',
     },
     success: {
+      login: 'تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.',
       register: 'تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.',
     },
     fallbackError: {
-      login: 'تعذّر الدخول. تحقق من البيانات وحاول مرة أخرى.',
+      login: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
       register: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
     },
     passwordToggle: {
@@ -837,8 +838,24 @@
       loadingLabel: AUTH_COPY.loading.login,
       validate: validateAuthCredentials,
       endpointKey: 'login',
+      baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
       fallbackError: AUTH_COPY.fallbackError.login,
+      onSuccess: ({ form, result, submit }) => {
+        setBusy(submit, false);
+        if (!result || result.authenticated !== true) {
+          showError('login', getApiErrorMessage(result, AUTH_COPY.fallbackError.login));
+          return true;
+        }
+        const values = getAuthFormValues(form);
+        if (values.emailInput && result.user && result.user.email) {
+          values.emailInput.value = result.user.email;
+        }
+        if (values.passwordInput) values.passwordInput.value = '';
+        resetInputStates([values.emailInput, values.passwordInput]);
+        showMessage('login', result.message || AUTH_COPY.success.login, 'success');
+        return true;
+      },
       showError,
       clearError,
       close,

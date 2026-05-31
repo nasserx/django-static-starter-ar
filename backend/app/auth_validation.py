@@ -105,12 +105,44 @@ def validate_auth_payload(email: object, password: object) -> ValidationResult:
     }
 
 
+def validate_login_payload(email: object, password: object) -> ValidationResult:
+    email_result = validate_email(email)
+    password_result = _validate_login_password(password)
+    errors = [*email_result["errors"], *password_result["errors"]]
+    normalized: NormalizedAuthData = {}
+
+    if email_result["is_valid"]:
+        normalized["email"] = email_result["normalized"]["email"]
+
+    return {
+        "is_valid": not errors,
+        "errors": errors,
+        "normalized": normalized if not errors else {},
+    }
+
+
 def _invalid(field: ErrorField, code: str) -> ValidationResult:
     return {
         "is_valid": False,
         "errors": [build_error(field, code)],
         "normalized": {},
     }
+
+
+def _validate_login_password(password: object) -> ValidationResult:
+    if password is None:
+        return _invalid("password", AuthErrorCode.PASSWORD_REQUIRED)
+
+    if not isinstance(password, str):
+        return _invalid("password", AuthErrorCode.PASSWORD_MUST_BE_STRING)
+
+    if not password:
+        return _invalid("password", AuthErrorCode.PASSWORD_REQUIRED)
+
+    if not password.strip():
+        return _invalid("password", AuthErrorCode.PASSWORD_REQUIRED)
+
+    return {"is_valid": True, "errors": [], "normalized": {}}
 
 
 def _is_valid_email_format(email: str) -> bool:

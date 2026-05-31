@@ -14,7 +14,7 @@ window.APP_CONFIG = window.APP_CONFIG || {
   BACKEND_API_BASE_URL: 'http://127.0.0.1:8000',
   endpoints: {
     trialSignup: '/api/trial',
-    login: '/api/auth/login',
+    login: '/api/auth/login/',
     register: '/api/auth/register/',
     forgotPassword: '/api/auth/forgot-password',
     oauthGoogle: '/api/auth/google',

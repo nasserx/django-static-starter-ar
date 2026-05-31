@@ -196,6 +196,52 @@ Duplicate email response:
 }
 ```
 
+Login validation endpoint:
+
+* `POST http://127.0.0.1:8000/api/auth/login/`
+* Validates email/password input, checks the stored Django password hash, and returns a safe validation success or failure response.
+* Does not call Django `login(...)`, create a session, set cookies, issue JWTs, issue tokens, redirect, or persist frontend auth state.
+* Uses one generic invalid credentials error for unknown email and wrong password.
+
+Example request:
+
+```json
+{
+  "email": "USER@example.com",
+  "password": "Password123"
+}
+```
+
+Example success response:
+
+```json
+{
+  "is_valid": true,
+  "authenticated": true,
+  "message": "تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.",
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+Example invalid credentials response:
+
+```json
+{
+  "is_valid": false,
+  "errors": [
+    {
+      "field": "general",
+      "code": "auth.invalid_credentials",
+      "message": "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+    }
+  ],
+  "normalized": {}
+}
+```
+
 ## Register Manual Test Checklist
 
 The frontend register form calls the backend register endpoint through:
@@ -279,11 +325,69 @@ Backend server stopped or connection failure:
 
 * The frontend should show: `تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.`
 
+## Login Validation Manual Test Checklist
+
+The frontend login form calls the backend login validation endpoint through:
+
+* `window.APP_CONFIG.BACKEND_API_BASE_URL`
+* `window.APP_CONFIG.endpoints.login`
+
+Default local target:
+
+```text
+http://127.0.0.1:8000/api/auth/login/
+```
+
+Use the same backend/frontend setup commands from the register checklist, then open the login modal/form.
+
+### Manual Cases
+
+Registered email and correct password:
+
+* Request should be sent to `POST /api/auth/login/`.
+* Backend should return HTTP `200`.
+* The frontend should show: `تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.`
+* No login should happen.
+* No redirect should happen.
+* No token, session, cookie auth flow, or frontend auth state should be stored.
+* Password field should be cleared after success.
+
+Registered email and wrong password:
+
+* Backend should return HTTP `400`.
+* The frontend should show: `البريد الإلكتروني أو كلمة المرور غير صحيحة.`
+
+Unknown email:
+
+* Backend should return HTTP `400`.
+* The frontend should show the same generic invalid credentials message as wrong password.
+
+Uppercase or trimmed email:
+
+* `  USER@example.com  ` should be normalized and checked case-insensitively.
+
+Empty email:
+
+* Frontend required-field UX text should appear, or the backend validation message should appear if submitted.
+
+Empty password:
+
+* Frontend required-field UX text should appear, or the backend validation message should appear if submitted.
+
+Whitespace-only password:
+
+* Backend validation error text from `errors[].message` should be displayed.
+
+Backend server stopped or connection failure:
+
+* The frontend should show: `تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.`
+
 ### Out Of Scope For This Step
 
 * No models or migrations.
 * No login or logout.
 * No JWT or session/cookie authentication flow.
+* No tokens.
 * No frontend auth state or token storage.
 * No email confirmation.
 
@@ -313,7 +417,7 @@ Repository:
 git diff --check
 ```
 
-Registration now creates a Django user only after backend validation passes. It does not log in, store tokens, issue JWTs, add a session/cookie auth flow, or send email.
+Registration now creates a Django user only after backend validation passes. Login currently validates credentials only. Neither flow logs in, stores tokens, issues JWTs, adds a session/cookie auth flow, or sends email.
 
 ## Backend Development Rules
 
