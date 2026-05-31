@@ -202,7 +202,7 @@ Session login endpoint:
 * Validates email/password input, checks the stored Django password hash, and calls Django `login(...)` after credentials are valid.
 * Creates a Django session and session cookie.
 * Requires CSRF cookie/token for real browser requests.
-* Does not issue JWTs, issue tokens, redirect, or persist frontend auth state.
+* Does not issue JWTs, issue tokens, redirect, or persist frontend auth state across page sessions.
 * Uses one generic invalid credentials error for unknown email and wrong password.
 
 Example request:
@@ -249,7 +249,7 @@ Current user endpoint:
 * `GET http://127.0.0.1:8000/api/auth/me/`
 * Reads the current Django session authentication state.
 * Returns HTTP `200` for both authenticated and anonymous sessions.
-* Does not log in, log out, create users, issue tokens, or persist frontend auth state.
+* Does not log in, log out, create users, issue tokens, or persist frontend auth state across page sessions.
 * Frontend calls should use `credentials: "include"` so the browser sends the session cookie.
 
 Anonymous response:
@@ -280,7 +280,7 @@ Session logout endpoint:
 * Requires CSRF cookie/token because it is a state-changing POST.
 * Returns HTTP `200` even when the browser is already anonymous.
 * Does not issue or clear JWTs or tokens because token auth is not used.
-* Does not redirect or persist frontend auth state.
+* Does not redirect or persist frontend auth state across page sessions.
 
 Example success response:
 
@@ -608,7 +608,7 @@ Registered email and correct password:
 * The frontend should show: `تم تسجيل الدخول بنجاح.`
 * Django should create a session cookie.
 * No redirect should happen.
-* No token or frontend auth state should be stored.
+* No token or persistent frontend auth state should be stored.
 * Password field should be cleared after success.
 
 Registered email and wrong password:
@@ -868,6 +868,295 @@ Still future work:
 * No protected pages.
 * No profile pages.
 * No frontend-persistent auth state.
+
+## Complete Session Auth Manual QA
+
+Use this checklist for a final browser-level pass over the current Django session/cookie auth flow.
+
+### Setup
+
+Start the backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+Start the frontend:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+Open the frontend:
+
+```text
+http://127.0.0.1:5500/
+```
+
+### Pre-Checks
+
+Backend health:
+
+* `GET http://127.0.0.1:8000/health/`
+* `GET http://127.0.0.1:8000/api/health/`
+
+Expected:
+
+* Both endpoints return HTTP `200`.
+
+CSRF endpoint:
+
+* `GET http://127.0.0.1:8000/api/auth/csrf/`
+
+Expected:
+
+```json
+{
+  "csrf": "ok",
+  "message": "CSRF cookie set."
+}
+```
+
+* HTTP `200`.
+* `csrftoken` cookie is set.
+
+Anonymous state:
+
+* `GET http://127.0.0.1:8000/api/auth/me/`
+
+Expected:
+
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+### Browser QA Flow
+
+A. Anonymous page load:
+
+* Page loads normally.
+* Login/register actions are visible where applicable.
+* Logout is hidden or disabled.
+* No user email is shown.
+* If the backend is temporarily unavailable, the page does not crash and anonymous fallback is acceptable for `/api/auth/me/`.
+
+B. Register new user:
+
+* Open the register modal/form.
+* Submit a valid email, valid password, and matching confirmation.
+
+Expected:
+
+* User is created.
+* Success message appears.
+* Password fields are cleared.
+* Registration does not authenticate the session.
+* No redirect happens.
+* No tokens are stored.
+
+C. Duplicate registration:
+
+* Try registering the same email again using different casing.
+
+Expected:
+
+* Frontend handles the backend HTTP `400`.
+* This backend error appears: `البريد الإلكتروني مسجل مسبقًا.`
+* No second user is created.
+
+D. Register validation errors:
+
+Test:
+
+* Invalid email.
+* Empty email.
+* Empty password.
+* Whitespace-only password.
+* Weak/common password.
+* Password without a required letter or number.
+* Password confirmation mismatch.
+
+Expected:
+
+* Frontend UX handles required fields and confirmation mismatch where applicable.
+* Backend `errors[].message` appears for backend validation failures.
+* No user is created.
+
+E. Login with valid credentials:
+
+* Open the login modal/form.
+* Submit registered email/password.
+
+Expected:
+
+* Frontend obtains a CSRF cookie.
+* Login POST uses `credentials: "include"`.
+* Login POST sends `X-CSRFToken`.
+* Backend creates a Django session.
+* Success message appears: `تم تسجيل الدخول بنجاح.`
+* UI switches to authenticated state.
+* User email appears in the nav.
+* Logout appears and is enabled.
+* Login/register nav action is hidden.
+* Password field clears.
+* No redirect happens.
+* No token is stored.
+
+F. Refresh after login:
+
+* Refresh the page.
+
+Expected:
+
+* Frontend calls `/api/auth/me/`.
+* Existing Django session is detected.
+* UI remains authenticated.
+* User email remains visible.
+* No `localStorage` or `sessionStorage` auth data is required.
+
+G. `/me` authenticated check:
+
+* `GET /api/auth/me/` with credentials included.
+
+Expected:
+
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+H. Login failure:
+
+Test:
+
+* Registered email with wrong password.
+* Unknown email with any password.
+
+Expected:
+
+* The same generic error appears for both cases: `البريد الإلكتروني أو كلمة المرور غير صحيحة.`
+* UI remains anonymous if not already logged in.
+* No session is created.
+* No email-existence leak.
+
+I. Logout:
+
+* Click logout.
+
+Expected:
+
+* Frontend obtains or sends a CSRF token.
+* Logout POST uses `credentials: "include"`.
+* Backend destroys the Django session.
+* Success message appears: `تم تسجيل الخروج بنجاح.`
+* UI returns to anonymous state.
+* User email is hidden.
+* Logout is hidden or disabled.
+* Login/register actions are visible where applicable.
+* No redirect happens.
+* No tokens are cleared because no tokens exist.
+
+J. `/me` after logout:
+
+* `GET /api/auth/me/` with credentials included.
+
+Expected:
+
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+K. Anonymous logout:
+
+* Trigger logout while anonymous through `window.AuthApi.logout()` or a manual request with a valid CSRF token.
+
+Expected:
+
+* Logout returns success.
+* The session remains anonymous.
+* No users are created.
+* No UI error is required.
+
+L. Backend stopped or connection failure:
+
+* Stop the backend.
+* Try login, register, logout, or reload the page.
+
+Expected:
+
+* User-facing connection failure appears where applicable: `تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.`
+* The page does not crash.
+* Anonymous fallback is acceptable for `/api/auth/me/` failure on load.
+
+M. Storage/security inspection:
+
+In browser DevTools:
+
+* Check `localStorage`.
+* Check `sessionStorage`.
+* Check console output if needed.
+
+Expected:
+
+* No JWT.
+* No tokens.
+* No password.
+* No persisted user auth data.
+* No password printed to console.
+* Session auth is cookie-based only.
+
+N. Sensitive response inspection:
+
+Use the browser network panel.
+
+Expected:
+
+* Register, login, `/me`, and logout responses do not include password, password hash, token, session key, CSRF token, staff/superuser flags, or permissions.
+
+## Current Auth Status
+
+* Register creates Django built-in users.
+* Register prevents duplicate email registration case-insensitively.
+* Login validates credentials and creates a Django session.
+* `/api/auth/me/` reads the current session state.
+* Logout destroys the current session and is idempotent.
+* Frontend reflects auth state in memory only through `window.AuthSession`.
+* CSRF is used for unsafe session requests.
+* No JWTs or tokens are issued.
+* No auth state or user data is persisted in `localStorage` or `sessionStorage`.
+* No protected pages exist yet.
+
+## Future Auth Work
+
+Likely next branches:
+
+* `feature/protected-dashboard-foundation`
+* `feature/auth-route-guards`
+* `feature/email-confirmation`
+* `feature/password-reset`
+* `feature/profile-model`
+
+Production security hardening:
+
+* Cookie secure settings.
+* SameSite policy.
+* Allowed hosts and origins.
+* HTTPS.
+* Deployment-specific CSRF/CORS configuration.
 
 ### Out Of Scope For This Step
 
