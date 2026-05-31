@@ -1316,6 +1316,47 @@ git diff --check
 git status
 ```
 
+## Template Usage Guide Branch
+
+Branch: `feature/template-usage-guide`
+
+Goal:
+
+* Document how to use this repository as a reusable Django + static frontend starter template.
+
+Scope:
+
+* Documentation only.
+* No runtime behavior changes.
+* No frontend design changes.
+* No auth behavior changes.
+* No endpoint changes.
+* No new dependencies or tooling.
+* No domain-specific implementation.
+
+Notes:
+
+* `docs/template-usage.md` explains safe downstream extension patterns.
+* The neutral base template should not gain product-specific domain features.
+* Current auth remains Django session/cookie based with memory-only frontend auth state.
+
+Checks for this branch:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe -m unittest app.tests
+
+cd frontend
+node --check src\js\main.js
+node --check src\js\config.js
+npx --yes html-validate@9 "*.html" "partials/*.html"
+
+git diff --check
+git status
+```
+
 ## Backend Development Rules
 
 When backend development starts:

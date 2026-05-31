@@ -15,6 +15,8 @@ The current API is intentionally small and domain-neutral. It provides:
 
 Authentication uses Django sessions and cookies with CSRF protection. JWTs, access tokens, refresh tokens, frontend token storage, route guards, redirects, and protected pages are not part of the current starter template.
 
+Domain-specific APIs should be added in downstream projects or scoped feature branches and documented separately.
+
 ## Base URLs
 
 Local backend base URL:

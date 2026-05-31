@@ -17,6 +17,9 @@ For local setup and day-to-day development commands, see
 For the current backend API contract, see
 [`docs/api.md`](./docs/api.md).
 
+For guidance on using this repository as a reusable starter, see
+[`docs/template-usage.md`](./docs/template-usage.md).
+
 ## Frontend Template
 
 The frontend is a **flat, generic, production-ready Arabic SaaS landing

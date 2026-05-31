@@ -4,6 +4,8 @@ This guide explains how to run the reusable Django backend + static frontend sta
 
 It is for local development only. Production deployment, hosting, HTTPS, production cookie settings, and deployment-specific CORS/CSRF configuration are out of scope here.
 
+For guidance on using this repository as a starter for future projects, see [template-usage.md](./template-usage.md).
+
 ## Overview
 
 The project has two independently served parts:
