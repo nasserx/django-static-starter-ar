@@ -177,6 +177,43 @@ Example validation error response:
 }
 ```
 
+## Frontend Register Validation Integration
+
+The frontend register form calls the validation-only backend endpoint through:
+
+* `window.APP_CONFIG.BACKEND_API_BASE_URL`
+* `window.APP_CONFIG.endpoints.register`
+
+Default local target:
+
+```text
+http://127.0.0.1:8000/api/auth/register/
+```
+
+Manual test flow:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+In a second terminal, serve the frontend from an allowed local origin:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+Open `http://127.0.0.1:5500/`, open the register modal, and test:
+
+* valid email and password
+* invalid email
+* whitespace-only password
+* mismatched password confirmation
+
+The success message is validation-only. It does not create a user, log in, store tokens, hash passwords, write to the database, or send email.
+
 ## Backend Development Rules
 
 When backend development starts:

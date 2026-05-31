@@ -39,9 +39,12 @@
       login: 'جارٍ الدخول...',
       register: 'جارٍ الإنشاء...',
     },
+    success: {
+      registerValidation: 'تم التحقق من البيانات بنجاح. إنشاء الحساب الفعلي سيتم تفعيله لاحقًا.',
+    },
     fallbackError: {
       login: 'تعذّر الدخول. تحقق من البيانات وحاول مرة أخرى.',
-      register: 'تعذّر إنشاء الحساب. حاول مرة أخرى.',
+      register: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
     },
     passwordToggle: {
       show: 'إظهار كلمة المرور',
@@ -309,8 +312,8 @@
     setInvalid(input, state === 'error');
   }
 
-  async function apiPost(endpointKey, body) {
-    const base = CONFIG.API_BASE_URL;
+  async function apiPost(endpointKey, body, options = {}) {
+    const base = options.baseUrl || CONFIG.API_BASE_URL;
     const endpoint = ENDPOINTS[endpointKey];
     if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: ' + endpointKey);
     if (!base || base === '#') return { ok: true, stub: true };
@@ -547,10 +550,13 @@
       setBusy(submit, true, options.loadingLabel);
 
       try {
-        const result = await apiPost(options.endpointKey, validation.body);
+        const result = await apiPost(options.endpointKey, validation.body, { baseUrl: options.baseUrl });
         if (!result.ok) {
           setBusy(submit, false);
           options.showError(panelName, getApiErrorMessage(result, options.fallbackError));
+          return;
+        }
+        if (typeof options.onSuccess === 'function' && options.onSuccess({ form, result, submit })) {
           return;
         }
         window.AuthSession.set({ status: 'authenticated', provider: options.provider, user: result.user || null });
@@ -842,8 +848,25 @@
       loadingLabel: AUTH_COPY.loading.register,
       validate: (form) => validateAuthCredentials(form, { requirePasswordConfirmation: true }),
       endpointKey: 'register',
+      baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
       fallbackError: AUTH_COPY.fallbackError.register,
+      onSuccess: ({ form, result, submit }) => {
+        setBusy(submit, false);
+        if (!result || result.is_valid !== true) {
+          showError('register', getApiErrorMessage(result, AUTH_COPY.fallbackError.register));
+          return true;
+        }
+        const values = getAuthFormValues(form);
+        if (values.emailInput && result.normalized && result.normalized.email) {
+          values.emailInput.value = result.normalized.email;
+        }
+        if (values.passwordInput) values.passwordInput.value = '';
+        if (values.confirmInput) values.confirmInput.value = '';
+        resetInputStates([values.emailInput, values.passwordInput, values.confirmInput]);
+        showMessage('register', AUTH_COPY.success.registerValidation, 'success');
+        return true;
+      },
       showError,
       clearError,
       close,
