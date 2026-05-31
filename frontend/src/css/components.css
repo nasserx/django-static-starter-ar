@@ -91,14 +91,34 @@ select {
   flex-direction: column;
   gap: 4px;
   padding: 6px;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  backdrop-filter: blur(12px);
+}
+.nav-active-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 0;
+  height: 0;
+  border-radius: var(--radius);
+  background: var(--nav-link-active-bg);
+  border: 1px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity var(--quick-transition);
 }
 .nav.menu-open .nav-links { display: flex; }
 
 .nav-link {
+  position: relative;
+  z-index: 1;
   color: var(--ink-2);
   border: 1px solid transparent;
   text-decoration: none;
@@ -120,8 +140,8 @@ select {
 }
 .nav-link.is-active {
   color: var(--nav-link-active-fg);
-  background: var(--nav-link-active-bg);
-  border-color: var(--accent);
+  background: transparent;
+  border-color: transparent;
 }
 
 .nav-action-link {
@@ -216,7 +236,9 @@ select {
   .brand { justify-self: start; }
   /* Desktop tabs: 4 links in a single solid container. */
   .nav-links {
-    position: static;
+    position: relative;
+    top: auto;
+    inset-inline: auto;
     display: flex;
     flex-direction: row;
     justify-self: center;
@@ -224,7 +246,6 @@ select {
     padding: 0;
     background: transparent;
     border-color: transparent;
-    backdrop-filter: none;
     border-radius: var(--radius);
   }
   .nav-actions { justify-self: end; }
@@ -243,6 +264,12 @@ select {
   .nav-toggle { display: none; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .nav-active-indicator {
+    transition-duration: var(--reduced-motion-duration);
+  }
+}
+
 /* ============================================================================
  * SCROLL ANCHORS
  * ========================================================================= */
@@ -253,6 +280,38 @@ select {
 #pricing,
 #help {
   scroll-margin-top: 84px;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #main,
+html[data-theme="dark"] [data-region],
+html[data-theme="dark"] section,
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .features,
+html[data-theme="dark"] .stats,
+html[data-theme="dark"] .help,
+html[data-theme="dark"] .final-cta,
+html[data-theme="dark"] .site-footer {
+  background: var(--bg);
+  background-image: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]),
+  html:not([data-theme="light"]) body,
+  html:not([data-theme="light"]) #main,
+  html:not([data-theme="light"]) [data-region],
+  html:not([data-theme="light"]) section,
+  html:not([data-theme="light"]) .hero,
+  html:not([data-theme="light"]) .features,
+  html:not([data-theme="light"]) .stats,
+  html:not([data-theme="light"]) .help,
+  html:not([data-theme="light"]) .final-cta,
+  html:not([data-theme="light"]) .site-footer {
+    background: var(--bg);
+    background-image: none !important;
+  }
 }
 
 /* ============================================================================
@@ -327,7 +386,7 @@ select {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--form-bg);
+  background: var(--input-bg);
   padding: 6px;
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius);
@@ -337,11 +396,11 @@ select {
   transition: border-color var(--quick-transition);
 }
 .email-form:focus-within {
-  border-color: var(--input-focus-border);
+  border-color: var(--input-border-focus);
   box-shadow: none;
 }
 .email-form.is-error {
-  border-color: var(--input-error-border);
+  border-color: var(--input-border-error);
   box-shadow: none;
 }
 .email-form input {
@@ -354,15 +413,16 @@ select {
   background: transparent;
   border: 0 !important;
   box-shadow: none;
-  color: var(--ink);
+  color: var(--input-text);
   min-width: 0;
 }
 .email-form input:focus {
   background: transparent;
+  background-color: transparent;
   border: 0 !important;
   box-shadow: none;
 }
-.email-form input::placeholder { color: var(--ink-3); }
+.email-form input::placeholder { color: var(--input-placeholder); }
 .email-form button {
   background: var(--accent);
   color: var(--on-accent);
@@ -1031,24 +1091,6 @@ section.section { padding: 56px 0; }
 }
 
 /* ============================================================================
- * REVEAL ANIMATIONS — opacity only
- * ========================================================================= */
-.reveal { opacity: 0; transition: opacity 0.6s; }
-.reveal.in { opacity: 1; }
-
-.hero-text > * {
-  opacity: 0;
-  animation: rise 0.6s forwards ease;
-}
-.hero-text > *:nth-child(1) { animation-delay: 0.05s; }
-.hero-text > *:nth-child(2) { animation-delay: 0.13s; }
-.hero-text > *:nth-child(3) { animation-delay: 0.21s; }
-.hero-text > *:nth-child(4) { animation-delay: 0.29s; }
-.hero-text > *:nth-child(5) { animation-delay: 0.37s; }
-.preview-card { opacity: 0; animation: rise 0.8s 0.25s forwards ease; }
-@keyframes rise { to { opacity: 1; } }
-
-/* ============================================================================
  * AUTH MODAL — flat, solid-surface panel
  * ========================================================================= */
 body.auth-modal-open { overflow: hidden; }
@@ -1061,7 +1103,6 @@ body.auth-modal-open { overflow: hidden; }
   place-items: center;
   padding: var(--space-4);
   background: var(--overlay);
-  backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--quick-transition);
@@ -1106,20 +1147,10 @@ body.auth-modal-open { overflow: hidden; }
   border: 1px solid var(--line);
   cursor: pointer;
   font: inherit;
-  font-size: 0;
+  font-size: 21px;
+  font-weight: var(--font-light);
   padding: 0;
-  line-height: 0;
-}
-.auth-modal__close::before {
-  content: "";
-  display: block;
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-  color: color-mix(in srgb, var(--ink-3) 78%, transparent);
-  background:
-    linear-gradient(45deg, transparent calc(50% - 0.625px), currentColor calc(50% - 0.625px), currentColor calc(50% + 0.625px), transparent calc(50% + 0.625px)),
-    linear-gradient(-45deg, transparent calc(50% - 0.625px), currentColor calc(50% - 0.625px), currentColor calc(50% + 0.625px), transparent calc(50% + 0.625px));
+  line-height: 1;
 }
 .auth-modal__close:hover,
 .auth-modal__close:focus-visible {
@@ -1278,7 +1309,7 @@ body.auth-modal-open { overflow: hidden; }
 
 .auth-form {
   display: grid;
-  gap: var(--space-3);
+  gap: 14px;
   opacity: 0;
   transform: scale(0.99);
   transition: opacity var(--quick-transition), transform var(--quick-transition);
@@ -1288,15 +1319,61 @@ body.auth-modal-open { overflow: hidden; }
 
 .auth-field {
   display: grid;
-  gap: var(--space-2);
+  gap: 7px;
   text-align: start;
 }
 .auth-field span {
   color: var(--ink-2);
-  font-size: 13px;
-  font-weight: var(--font-bold);
+  font-size: 12.5px;
+  font-weight: var(--font-medium);
+  line-height: 1.35;
 }
-
+.auth-field .input {
+  min-height: 46px;
+  font-size: 15.5px;
+}
+.auth-password-control {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.auth-password-control .input {
+  padding-right: 48px;
+}
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--input-placeholder);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius);
+  box-shadow: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color var(--quick-transition),
+    background-color var(--quick-transition);
+}
+.auth-password-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+.auth-password-icon--eye-off { display: none; }
+.auth-password-toggle.is-visible .auth-password-icon--eye { display: none; }
+.auth-password-toggle.is-visible .auth-password-icon--eye-off { display: block; }
+.auth-password-toggle:hover,
+.auth-password-toggle:focus-visible {
+  color: var(--input-text);
+  background: var(--accent-soft);
+}
 .auth-forgot-link {
   justify-self: start;
   color: var(--ink);
@@ -1333,9 +1410,10 @@ body.auth-modal-open { overflow: hidden; }
 
 .auth-modal__error {
   color: var(--error);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.55;
   text-align: start;
+  margin-top: -2px;
 }
 .auth-modal__error.is-success { color: var(--ink-2); }
 
