@@ -1235,6 +1235,47 @@ git diff --check
 git status
 ```
 
+## Local Development Documentation Branch
+
+Branch: `feature/template-local-dev-docs`
+
+Goal:
+
+* Document local development setup and day-to-day workflow for the reusable Django + static frontend starter template.
+
+Scope:
+
+* Documentation only.
+* No runtime behavior changes.
+* No frontend design changes.
+* No auth behavior changes.
+* No environment behavior changes.
+* No new tooling.
+
+Notes:
+
+* Local backend setup uses `backend/.venv` and `backend/requirements.txt`.
+* The frontend remains static HTML/CSS/JS with no build step.
+* `frontend/src/js/config.js` remains the current frontend API config source.
+* Production deployment remains out of scope for this branch.
+
+Checks for this branch:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe -m unittest app.tests
+
+cd frontend
+node --check src\js\main.js
+node --check src\js\config.js
+npx --yes html-validate@9 "*.html" "partials/*.html"
+
+git diff --check
+git status
+```
+
 ## Backend Development Rules
 
 When backend development starts:

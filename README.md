@@ -11,6 +11,9 @@ For the current structure audit and future cleanup notes, see
 For environment file usage and current config behavior, see
 [`docs/environment.md`](./docs/environment.md).
 
+For local setup and day-to-day development commands, see
+[`docs/local-development.md`](./docs/local-development.md).
+
 ## Frontend Template
 
 The frontend is a **flat, generic, production-ready Arabic SaaS landing
