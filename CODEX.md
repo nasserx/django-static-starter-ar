@@ -62,18 +62,15 @@ When working on the frontend in the future:
 
 ## Backend Status
 
-The backend is currently only a Django-ready placeholder structure.
-
-Backend files are intentionally empty.
+The backend now has a minimal Django foundation.
 
 This means:
 
-* The backend is structurally prepared.
-* The backend is not runnable yet.
-* Django has not been configured yet.
-* No database has been created.
-* No real migrations have been created.
-* No dependencies have been installed yet.
+* `backend/manage.py` is configured.
+* `backend/config/` contains minimal Django settings, URLs, ASGI, and WSGI modules.
+* `backend/app/` remains the early-stage generic app for current backend logic.
+* `backend/common/errors.py` contains centralized validation error utilities.
+* No real domain models or project migrations have been added yet.
 
 Current backend structure:
 
@@ -83,6 +80,47 @@ Current backend structure:
 * `backend/config/`
 * `backend/app/`
 * `backend/common/`
+
+## Backend Local Setup
+
+From the repository root on Windows PowerShell:
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+If activation is unavailable, use the virtual environment Python directly:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Run the standalone auth validation tests:
+
+```powershell
+cd backend
+python -m unittest app.tests
+```
+
+Run Django checks and Django's test runner:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+```
+
+Start the local Django development server:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py runserver
+```
 
 ## Backend Development Rules
 
