@@ -24,6 +24,22 @@ def csrf_cookie(request):
     return Response({"csrf": "ok", "message": "CSRF cookie set."})
 
 
+@api_view(["GET"])
+def current_user(request):
+    if not request.user.is_authenticated:
+        return Response({"authenticated": False, "user": None})
+
+    return Response(
+        {
+            "authenticated": True,
+            "user": {
+                "id": request.user.id,
+                "email": request.user.email,
+            },
+        }
+    )
+
+
 @api_view(["POST"])
 def register_validation(request):
     try:

@@ -244,6 +244,35 @@ Example invalid credentials response:
 }
 ```
 
+Current user endpoint:
+
+* `GET http://127.0.0.1:8000/api/auth/me/`
+* Reads the current Django session authentication state.
+* Returns HTTP `200` for both authenticated and anonymous sessions.
+* Does not log in, log out, create users, issue tokens, or persist frontend auth state.
+* Frontend calls should use `credentials: "include"` so the browser sends the session cookie.
+
+Anonymous response:
+
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+Authenticated response:
+
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
 ## Authentication Strategy Decision
 
 Current auth state:
@@ -251,7 +280,8 @@ Current auth state:
 * Register creates Django built-in users.
 * Register uses Django password hashing through `create_user(...)`.
 * Login creates a Django session after credentials pass validation.
-* There is no JWT, token issuing, logout, `/api/auth/me/`, frontend auth persistence, or email confirmation.
+* `/api/auth/me/` reads the current session authentication state.
+* There is no JWT, token issuing, logout, frontend auth persistence, or email confirmation.
 
 The next implementation step requires choosing the real authentication strategy.
 
@@ -331,7 +361,7 @@ Phase 2:
 
 Phase 3:
 
-* Add `GET /api/auth/me/`.
+* `GET /api/auth/me/` has been added.
 * Return authenticated user data or an anonymous state.
 
 Phase 4:
@@ -381,14 +411,15 @@ Local development origins:
 Frontend foundation:
 
 * `window.APP_CONFIG.endpoints.csrf` points to `/api/auth/csrf/`.
+* `window.APP_CONFIG.endpoints.me` points to `/api/auth/me/`.
 * `window.AuthApi.requestCsrfCookie()` requests the CSRF endpoint with `credentials: "include"`.
 * `window.AuthApi.getCsrfToken()` reads the `csrftoken` cookie for unsafe requests.
+* `window.AuthApi.getCurrentUser()` requests `/api/auth/me/` with `credentials: "include"`.
 * The token is not stored in `localStorage` or `sessionStorage`.
 
 Still out of scope:
 
 * No logout.
-* No `/api/auth/me/`.
 * No JWT or issued tokens.
 * No frontend auth persistence.
 * No password storage.
@@ -569,11 +600,75 @@ CSRF failure:
 * If the CSRF cookie/token is missing or invalid, backend should reject the request.
 * The frontend should show: `تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.`
 
+## Current User Manual Test Checklist
+
+The frontend helper can call the current-user endpoint through:
+
+* `window.APP_CONFIG.BACKEND_API_BASE_URL`
+* `window.APP_CONFIG.endpoints.me`
+* `window.AuthApi.getCurrentUser()`
+
+Default local target:
+
+```text
+http://127.0.0.1:8000/api/auth/me/
+```
+
+Manual cases:
+
+1. Start the backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+2. Start the frontend:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+3. Without logging in, call `GET /api/auth/me/`.
+
+Expected response:
+
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+4. Register a user if needed.
+
+5. Log in through the frontend or API:
+
+* `GET /api/auth/csrf/` with `credentials: "include"`
+* `POST /api/auth/login/` with `credentials: "include"` and `X-CSRFToken`
+
+6. Call `GET /api/auth/me/` with `credentials: "include"`.
+
+Expected response:
+
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+7. Confirm no tokens exist in `localStorage` or `sessionStorage`.
+
 ### Out Of Scope For This Step
 
 * No models or migrations.
 * No logout.
-* No `/api/auth/me/`.
 * No JWT.
 * No tokens.
 * No frontend auth state or token storage.
@@ -605,7 +700,7 @@ Repository:
 git diff --check
 ```
 
-Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. Neither flow stores tokens, issues JWTs, redirects, adds logout, adds `/api/auth/me/`, persists frontend auth state, or sends email.
+Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. No flow stores tokens, issues JWTs, redirects, adds logout, persists frontend auth state, or sends email.
 
 ## Backend Development Rules
 

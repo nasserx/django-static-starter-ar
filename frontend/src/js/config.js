@@ -15,6 +15,7 @@ window.APP_CONFIG = window.APP_CONFIG || {
   endpoints: {
     trialSignup: '/api/trial',
     csrf: '/api/auth/csrf/',
+    me: '/api/auth/me/',
     login: '/api/auth/login/',
     register: '/api/auth/register/',
     forgotPassword: '/api/auth/forgot-password',

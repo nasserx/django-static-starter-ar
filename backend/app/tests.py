@@ -69,6 +69,64 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertNotIn("sessionid", response.cookies)
         self.assertEqual(get_user_model()._default_manager.count(), 0)
 
+    def test_current_user_returns_anonymous_state(self) -> None:
+        response = self.client.get("/api/auth/me/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"authenticated": False, "user": None})
+
+    def test_current_user_anonymous_does_not_create_user_or_session(self) -> None:
+        response = self.client.get("/api/auth/me/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+        self.assertNotIn(settings.SESSION_COOKIE_NAME, response.cookies)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_current_user_returns_authenticated_session_user(self) -> None:
+        user = self._create_user(email="user@example.com", password="Password123")
+        self._post_login({"email": "user@example.com", "password": "Password123"})
+
+        response = self.client.get("/api/auth/me/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"authenticated": True, "user": {"id": user.id, "email": "user@example.com"}})
+
+    def test_current_user_response_never_includes_sensitive_fields(self) -> None:
+        user = self._create_user(email="user@example.com", password="Password123")
+        self._post_login({"email": "user@example.com", "password": "Password123"})
+
+        response = self.client.get("/api/auth/me/")
+        content = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("password", content)
+        self.assertNotIn(user.password, content)
+        self.assertNotIn("token", content)
+        self.assertNotIn("session", content)
+        self.assertNotIn("csrf", content)
+        self.assertNotIn("is_staff", content)
+        self.assertNotIn("is_superuser", content)
+        self.assertNotIn("permissions", content)
+
+    def test_current_user_works_after_csrf_protected_login(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        user = self._create_user(email="user@example.com", password="Password123")
+        csrf_response = client.get("/api/auth/csrf/")
+        csrf_token = csrf_response.cookies[settings.CSRF_COOKIE_NAME].value
+
+        login_response = client.post(
+            "/api/auth/login/",
+            data=json.dumps({"email": "user@example.com", "password": "Password123"}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        me_response = client.get("/api/auth/me/")
+
+        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(me_response.status_code, 200)
+        self.assertEqual(me_response.json(), {"authenticated": True, "user": {"id": user.id, "email": "user@example.com"}})
+
     def test_register_valid_payload_creates_user(self) -> None:
         response = self._post_register({"email": "USER@example.com", "password": "Password1"})
         data = response.json()

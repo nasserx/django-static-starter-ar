@@ -355,9 +355,26 @@
     return { ok: response.ok, status: response.status, ...data };
   }
 
+  async function getCurrentUser(options = {}) {
+    const base = options.baseUrl || CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL;
+    const endpoint = ENDPOINTS.me;
+    if (!endpoint) throw new Error('Missing APP_CONFIG endpoint: me');
+    if (!base || base === '#') return { ok: true, stub: true, authenticated: false, user: null };
+
+    const response = await fetch(base + endpoint, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    return { ok: response.ok, status: response.status, ...data };
+  }
+
   window.AuthApi = window.AuthApi || {
     requestCsrfCookie,
     getCsrfToken: () => getCookie('csrftoken'),
+    getCurrentUser,
   };
 
   function getApiErrorMessage(result, fallback) {
