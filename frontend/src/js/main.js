@@ -7,7 +7,7 @@
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-  const isEmail = (value) => CONSTANTS.emailPattern.test((value || '').trim().toLowerCase());
+  const hasValue = (value) => (value || '').trim().length > 0;
   const toArabicNumeral = (value) => String(value).replace(/\d/g, (digit) => '٠١٢٣٤٥٦٧٨٩'[digit]);
   const getHashId = (href) => {
     if (!href || !href.includes('#')) return '';
@@ -31,8 +31,8 @@
       failure: 'تعذّر إرسال رابط إعادة التعيين. حاول مرة أخرى.',
     },
     validation: {
-      invalidEmail: 'أدخل بريدًا إلكترونيًا صحيحًا.',
-      shortPassword: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
+      emailRequired: 'أدخل البريد الإلكتروني.',
+      passwordRequired: 'أدخل كلمة المرور.',
       passwordMismatch: 'كلمتا المرور غير متطابقتين.',
     },
     loading: {
@@ -326,6 +326,16 @@
     return { ok: response.ok, status: response.status, ...data };
   }
 
+  function getApiErrorMessage(result, fallback) {
+    if (result && Array.isArray(result.errors)) {
+      const messages = result.errors.map((error) => error && error.message).filter(Boolean);
+      if (messages.length) return messages.join(' ');
+    }
+    if (result && typeof result.error === 'string' && result.error) return result.error;
+    if (result && typeof result.message === 'string' && result.message) return result.message;
+    return fallback;
+  }
+
   const AuthSession = {
     state: { status: 'anonymous', provider: null, user: null },
     set(nextState) {
@@ -369,7 +379,6 @@
       '<input class="input" id="' + fieldId + '" type="' + field.type + '" name="' + field.name + '" autocomplete="' + field.autocomplete + '" aria-describedby="' + describedBy + '"' +
       (field.type === 'email' ? ' inputmode="email" dir="ltr"' : '') +
       (isPassword ? ' dir="ltr"' : '') +
-      (isPassword ? ' minlength="8"' : '') +
       ' required>'
     );
 
@@ -495,7 +504,7 @@
       event.preventDefault();
       const email = (input.value || '').trim().toLowerCase();
 
-      if (!isEmail(email)) {
+      if (!hasValue(email)) {
         setFormError(true);
         input.focus();
         return;
@@ -539,7 +548,11 @@
 
       try {
         const result = await apiPost(options.endpointKey, validation.body);
-        if (!result.ok) throw new Error(result.error || options.endpointKey + ' failed');
+        if (!result.ok) {
+          setBusy(submit, false);
+          options.showError(panelName, getApiErrorMessage(result, options.fallbackError));
+          return;
+        }
         window.AuthSession.set({ status: 'authenticated', provider: options.provider, user: result.user || null });
         options.close();
       } catch (_) {
@@ -605,12 +618,12 @@
     const values = getAuthFormValues(form);
     resetInputStates([values.emailInput, values.passwordInput, values.confirmInput]);
 
-    if (!isEmail(values.email)) {
-      return { input: values.emailInput, message: AUTH_COPY.validation.invalidEmail };
+    if (!hasValue(values.email)) {
+      return { input: values.emailInput, message: AUTH_COPY.validation.emailRequired };
     }
 
-    if (values.password.length < 8) {
-      return { input: values.passwordInput, message: AUTH_COPY.validation.shortPassword };
+    if (!hasValue(values.password)) {
+      return { input: values.passwordInput, message: AUTH_COPY.validation.passwordRequired };
     }
 
     if (options.requirePasswordConfirmation && values.password !== values.confirm) {
@@ -793,7 +806,7 @@
         clearError('login');
         setInputState(emailInput, null);
 
-        if (!isEmail(email)) {
+        if (!hasValue(email)) {
           showError('login', AUTH_COPY.forgotPassword.missingEmail);
           setInputState(emailInput, 'error');
           if (emailInput) emailInput.focus();

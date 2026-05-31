@@ -218,7 +218,6 @@ window.SHOWCASE_MESSAGES = window.SHOWCASE_MESSAGES || window.APP_CONTENT.hero.p
 
 window.APP_CONSTANTS = window.APP_CONSTANTS || {
   desktopQuery: '(min-width: 769px)',
-  emailPattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   modalCloseDelay: 160,
   showcaseInterval: 4000,
   showcaseFadeDelay: 320,

@@ -172,7 +172,7 @@ backend/
 │
 └── common/
     ├── utils.py
-    ├── exceptions.py
+    ├── errors.py
     ├── responses.py
     └── pagination.py
 ```
