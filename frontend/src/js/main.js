@@ -40,7 +40,7 @@
       register: 'جارٍ الإنشاء...',
     },
     success: {
-      login: 'تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.',
+      login: 'تم تسجيل الدخول بنجاح.',
       register: 'تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.',
     },
     fallbackError: {
@@ -321,7 +321,8 @@
 
     const response = await fetch(base + endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: options.credentials || 'same-origin',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       body: JSON.stringify(body),
     });
 
@@ -580,7 +581,11 @@
       setBusy(submit, true, options.loadingLabel);
 
       try {
-        const result = await apiPost(options.endpointKey, validation.body, { baseUrl: options.baseUrl });
+        const requestOptions = { baseUrl: options.baseUrl };
+        if (typeof options.prepareRequest === 'function') {
+          Object.assign(requestOptions, await options.prepareRequest());
+        }
+        const result = await apiPost(options.endpointKey, validation.body, requestOptions);
         if (!result.ok) {
           setBusy(submit, false);
           options.showError(panelName, getApiErrorMessage(result, options.fallbackError));
@@ -870,9 +875,18 @@
       baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
       fallbackError: AUTH_COPY.fallbackError.login,
+      prepareRequest: async () => {
+        await requestCsrfCookie({ baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL });
+        const csrfToken = getCookie('csrftoken');
+        if (!csrfToken) throw new Error('Missing CSRF token');
+        return {
+          credentials: 'include',
+          headers: { 'X-CSRFToken': csrfToken },
+        };
+      },
       onSuccess: ({ form, result, submit }) => {
         setBusy(submit, false);
-        if (!result || result.authenticated !== true) {
+        if (!result || result.authenticated !== true || result.session_created !== true) {
           showError('login', getApiErrorMessage(result, AUTH_COPY.fallbackError.login));
           return true;
         }

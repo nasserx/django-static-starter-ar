@@ -1,8 +1,12 @@
+import json
+
 from app.auth_validation import validate_auth_payload, validate_login_payload
 from common.errors import AuthErrorCode, RequestErrorCode, build_error
-from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import get_user_model, login
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.decorators import api_view
@@ -60,31 +64,34 @@ def register_validation(request):
     )
 
 
-@api_view(["POST"])
+@require_POST
+@csrf_protect
 def login_validation(request):
     try:
-        payload = request.data
-    except ParseError:
-        return _invalid_json_body_response()
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return _invalid_json_body_json_response()
 
     if not isinstance(payload, dict):
-        return _invalid_json_body_response()
+        return _invalid_json_body_json_response()
 
     result = validate_login_payload(payload.get("email"), payload.get("password"))
     if not result["is_valid"]:
-        return Response(result, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(result, status=status.HTTP_400_BAD_REQUEST)
 
     email = result["normalized"]["email"]
     user = _get_user_by_email(email)
     password = payload.get("password")
     if user is None or not user.check_password(password):
-        return _invalid_credentials_response()
+        return _invalid_credentials_json_response()
 
-    return Response(
+    login(request, user)
+
+    return JsonResponse(
         {
-            "is_valid": True,
             "authenticated": True,
-            "message": "تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.",
+            "session_created": True,
+            "message": "تم تسجيل الدخول بنجاح.",
             "user": {
                 "id": user.id,
                 "email": email,
@@ -105,8 +112,19 @@ def _invalid_json_body_response():
     )
 
 
-def _invalid_credentials_response():
-    return Response(
+def _invalid_json_body_json_response():
+    return JsonResponse(
+        {
+            "is_valid": False,
+            "errors": [build_error("general", RequestErrorCode.INVALID_JSON_BODY)],
+            "normalized": {},
+        },
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+
+def _invalid_credentials_json_response():
+    return JsonResponse(
         {
             "is_valid": False,
             "errors": [build_error("general", AuthErrorCode.INVALID_CREDENTIALS)],

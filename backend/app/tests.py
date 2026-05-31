@@ -12,7 +12,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import SimpleTestCase, override_settings
+from django.test import Client, SimpleTestCase, override_settings
 
 from app.auth_validation import (
     MAX_PASSWORD_LENGTH,
@@ -225,20 +225,23 @@ class ApiFoundationTests(SimpleTestCase):
         data = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(data["is_valid"])
         self.assertTrue(data["authenticated"])
-        self.assertEqual(data["message"], "تم التحقق من بيانات تسجيل الدخول بنجاح. جلسة تسجيل الدخول سيتم تفعيلها لاحقًا.")
+        self.assertTrue(data["session_created"])
+        self.assertEqual(data["message"], "تم تسجيل الدخول بنجاح.")
         self.assertEqual(data["user"], {"id": user.id, "email": "user@example.com"})
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
 
-    def test_login_success_response_never_includes_password_or_token(self) -> None:
-        self._create_user(email="user@example.com", password="Password123")
+    def test_login_success_response_never_includes_password_token_or_session_key(self) -> None:
+        user = self._create_user(email="user@example.com", password="Password123")
 
         response = self._post_login({"email": "user@example.com", "password": "Password123"})
         content = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("password", content)
+        self.assertNotIn(user.password, content)
         self.assertNotIn("token", content)
+        self.assertNotIn(self.client.session.session_key, content)
 
     def test_login_wrong_password_returns_generic_invalid_credentials_error(self) -> None:
         self._create_user(email="user@example.com", password="Password123")
@@ -258,6 +261,7 @@ class ApiFoundationTests(SimpleTestCase):
             ],
         )
         self.assertEqual(data["normalized"], {})
+        self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_login_unknown_email_returns_same_generic_invalid_credentials_error(self) -> None:
         self._create_user(email="user@example.com", password="Password123")
@@ -267,6 +271,7 @@ class ApiFoundationTests(SimpleTestCase):
 
         self.assertEqual(unknown_email_response.status_code, 400)
         self.assertEqual(unknown_email_response.json(), wrong_password_response.json())
+        self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_login_email_lookup_is_case_insensitive_and_trimmed(self) -> None:
         user = self._create_user(email="user@example.com", password="Password123")
@@ -276,6 +281,7 @@ class ApiFoundationTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(data["authenticated"])
+        self.assertTrue(data["session_created"])
         self.assertEqual(data["user"], {"id": user.id, "email": "user@example.com"})
 
     def test_login_empty_email_fails_with_required_error(self) -> None:
@@ -312,14 +318,14 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["errors"][0]["code"], "request.invalid_json_body")
         self.assertEqual(data["normalized"], {})
 
-    def test_login_validation_does_not_create_session_cookie_or_persist_auth(self) -> None:
+    def test_login_creates_session_cookie_and_persists_auth_in_session(self) -> None:
         self._create_user(email="user@example.com", password="Password123")
 
         response = self._post_login({"email": "user@example.com", "password": "Password123"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("_auth_user_id", self.client.session)
-        self.assertNotIn("sessionid", response.cookies)
+        self.assertIn("_auth_user_id", self.client.session)
+        self.assertIn(settings.SESSION_COOKIE_NAME, response.cookies)
 
     def test_login_uses_stored_hash_without_registration_strength_policy(self) -> None:
         self._create_user(email="user@example.com", password="short")
@@ -328,6 +334,39 @@ class ApiFoundationTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["authenticated"])
+
+    def test_login_without_csrf_token_is_rejected_when_csrf_checks_are_enforced(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        self._create_user(email="user@example.com", password="Password123")
+
+        response = client.post(
+            "/api/auth/login/",
+            data=json.dumps({"email": "user@example.com", "password": "Password123"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn("_auth_user_id", client.session)
+
+    def test_login_with_csrf_cookie_and_token_succeeds_when_csrf_checks_are_enforced(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+        user = self._create_user(email="user@example.com", password="Password123")
+        csrf_response = client.get("/api/auth/csrf/")
+        csrf_token = csrf_response.cookies[settings.CSRF_COOKIE_NAME].value
+
+        response = client.post(
+            "/api/auth/login/",
+            data=json.dumps({"email": "user@example.com", "password": "Password123"}),
+            content_type="application/json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["authenticated"])
+        self.assertTrue(data["session_created"])
+        self.assertEqual(data["user"], {"id": user.id, "email": "user@example.com"})
+        self.assertEqual(int(client.session["_auth_user_id"]), user.id)
 
     def _post_register(self, payload):
         return self.client.post(
