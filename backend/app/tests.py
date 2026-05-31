@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from unittest import TestCase
 
@@ -34,6 +35,109 @@ class ApiFoundationTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok", "service": "api"})
+
+    def test_register_validation_valid_payload_returns_ok(self) -> None:
+        response = self._post_register({"email": "USER@example.com", "password": "Password1"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "is_valid": True,
+                "errors": [],
+                "normalized": {"email": "user@example.com"},
+            },
+        )
+
+    def test_register_validation_valid_response_never_includes_password(self) -> None:
+        response = self._post_register({"email": "user@example.com", "password": "Password1"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("password", response.content.decode())
+
+    def test_register_validation_invalid_email_returns_email_error(self) -> None:
+        response = self._post_register({"email": "invalid-email", "password": "Password1"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data["is_valid"])
+        self.assertEqual(data["errors"][0]["field"], "email")
+        self.assertEqual(data["errors"][0]["code"], "auth.email_invalid")
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_invalid_password_returns_password_error(self) -> None:
+        response = self._post_register({"email": "user@example.com", "password": "short"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data["is_valid"])
+        self.assertEqual(data["errors"][0]["field"], "password")
+        self.assertEqual(data["errors"][0]["code"], "auth.password_too_short")
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_missing_email_returns_required_error(self) -> None:
+        response = self._post_register({"password": "Password1"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data["errors"][0]["code"], "auth.email_required")
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_missing_password_returns_required_error(self) -> None:
+        response = self._post_register({"email": "user@example.com"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data["errors"][0]["code"], "auth.password_required")
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_invalid_email_and_password_return_both_errors(self) -> None:
+        response = self._post_register({"email": "invalid-email", "password": "short"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual([error["field"] for error in data["errors"]], ["email", "password"])
+        self.assertEqual([error["code"] for error in data["errors"]], ["auth.email_invalid", "auth.password_too_short"])
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_whitespace_only_password_returns_required_error(self) -> None:
+        response = self._post_register({"email": "user@example.com", "password": "        "})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data["errors"][0]["field"], "password")
+        self.assertEqual(data["errors"][0]["code"], "auth.password_required")
+        self.assertEqual(data["normalized"], {})
+
+    def test_register_validation_get_returns_method_not_allowed(self) -> None:
+        response = self.client.get("/api/auth/register/")
+
+        self.assertEqual(response.status_code, 405)
+
+    def test_register_validation_non_object_json_body_returns_general_error(self) -> None:
+        response = self._post_register(["user@example.com", "Password1"])
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data["is_valid"])
+        self.assertEqual(
+            data["errors"],
+            [
+                {
+                    "field": "general",
+                    "code": "request.invalid_json_body",
+                    "message": "صيغة الطلب غير صحيحة.",
+                }
+            ],
+        )
+        self.assertEqual(data["normalized"], {})
+
+    def _post_register(self, payload):
+        return self.client.post(
+            "/api/auth/register/",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
 
 
 class EmailValidationTests(TestCase):

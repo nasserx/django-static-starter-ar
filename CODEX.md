@@ -134,6 +134,49 @@ Local health endpoints:
 * `http://127.0.0.1:8000/health/` — basic Django health check.
 * `http://127.0.0.1:8000/api/health/` — Django REST Framework API health check.
 
+Validation-only auth endpoint:
+
+* `POST http://127.0.0.1:8000/api/auth/register/`
+* Validates email and password for a future registration flow.
+* Does not create a user, write to the database, hash passwords, start a session, or send email.
+
+Example request:
+
+```json
+{
+  "email": "USER@example.com",
+  "password": "Password1"
+}
+```
+
+Example success response:
+
+```json
+{
+  "is_valid": true,
+  "errors": [],
+  "normalized": {
+    "email": "user@example.com"
+  }
+}
+```
+
+Example validation error response:
+
+```json
+{
+  "is_valid": false,
+  "errors": [
+    {
+      "field": "email",
+      "code": "auth.email_invalid",
+      "message": "صيغة البريد الإلكتروني غير صحيحة."
+    }
+  ],
+  "normalized": {}
+}
+```
+
 ## Backend Development Rules
 
 When backend development starts:

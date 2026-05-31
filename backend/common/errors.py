@@ -26,6 +26,10 @@ class AuthErrorCode:
     PASSWORD_TOO_COMMON: Final = "auth.password_too_common"
 
 
+class RequestErrorCode:
+    INVALID_JSON_BODY: Final = "request.invalid_json_body"
+
+
 DEFAULT_ERROR_MESSAGES: Final[dict[str, str]] = {
     AuthErrorCode.EMAIL_REQUIRED: "البريد الإلكتروني مطلوب.",
     AuthErrorCode.EMAIL_MUST_BE_STRING: "البريد الإلكتروني يجب أن يكون نصًا.",
@@ -38,6 +42,7 @@ DEFAULT_ERROR_MESSAGES: Final[dict[str, str]] = {
     AuthErrorCode.PASSWORD_MISSING_NUMBER: "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.",
     AuthErrorCode.PASSWORD_HAS_OUTER_SPACES: "كلمة المرور لا يجب أن تبدأ أو تنتهي بمسافة.",
     AuthErrorCode.PASSWORD_TOO_COMMON: "كلمة المرور ضعيفة جدًا.",
+    RequestErrorCode.INVALID_JSON_BODY: "صيغة الطلب غير صحيحة.",
 }
 
 UNKNOWN_ERROR_MESSAGE: Final = "حدث خطأ غير متوقع."
