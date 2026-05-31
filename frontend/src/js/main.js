@@ -46,6 +46,12 @@
     fallbackError: {
       login: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
       register: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
+      logout: 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.',
+    },
+    logout: {
+      label: 'خروج',
+      loading: 'جارٍ الخروج...',
+      success: 'تم تسجيل الخروج بنجاح.',
     },
     passwordToggle: {
       show: 'إظهار كلمة المرور',
@@ -145,7 +151,10 @@
       '</a>',
       '<div class="nav-links" id="primaryNav"><span class="nav-active-indicator" data-nav-indicator aria-hidden="true"></span>' + links + '</div>',
       '<div class="nav-actions">',
-      '<button class="nav-action-link" type="button" data-auth-open>' + nav.loginLabel + '</button>',
+      '<button class="nav-action-link" type="button" data-auth-open data-auth-anonymous>' + nav.loginLabel + '</button>',
+      '<span class="nav-user-email" data-auth-user-email hidden></span>',
+      '<button class="nav-action-link nav-action-link--muted" type="button" data-auth-logout hidden>' + AUTH_COPY.logout.label + '</button>',
+      '<span class="nav-auth-status" data-auth-status hidden></span>',
       '<button class="theme-toggle" id="themeToggle" type="button" aria-label="' + nav.themeToggleLabel + '" title="' + nav.themeToggleLabel + '">' + svg.moon + svg.sun + '</button>',
       '<button class="nav-toggle" id="navToggle" type="button" aria-label="' + nav.menuToggleLabel + '" aria-controls="primaryNav" aria-expanded="false"><span></span><span></span><span></span></button>',
       '</div>',
@@ -413,9 +422,14 @@
   }
 
   const AuthSession = {
-    state: { status: 'anonymous', provider: null, user: null },
+    state: { authenticated: false, status: 'anonymous', provider: null, user: null },
     set(nextState) {
-      this.state = { ...this.state, ...nextState };
+      const authenticated = nextState.authenticated !== undefined
+        ? nextState.authenticated === true
+        : nextState.status !== undefined
+          ? nextState.status === 'authenticated'
+          : this.state.authenticated === true;
+      this.state = { ...this.state, ...nextState, authenticated };
       document.dispatchEvent(new CustomEvent('auth:state', { detail: this.state }));
     },
     get() {
@@ -424,6 +438,92 @@
   };
 
   window.AuthSession = window.AuthSession || AuthSession;
+
+  function setAuthStateFromResponse(result) {
+    const authenticated = Boolean(result && result.authenticated === true && result.user);
+    window.AuthSession.set({
+      authenticated,
+      status: authenticated ? 'authenticated' : 'anonymous',
+      provider: authenticated ? 'session' : null,
+      user: authenticated ? result.user : null,
+    });
+  }
+
+  function updateAuthUi(state = window.AuthSession.get()) {
+    const authenticated = state.authenticated === true || state.status === 'authenticated';
+    const user = authenticated && state.user ? state.user : null;
+
+    $$('[data-auth-anonymous]').forEach((element) => {
+      element.hidden = authenticated;
+      if ('disabled' in element) element.disabled = authenticated;
+    });
+
+    $$('[data-auth-user-email]').forEach((element) => {
+      element.textContent = user && user.email ? user.email : '';
+      element.hidden = !user || !user.email;
+    });
+
+    $$('[data-auth-logout]').forEach((button) => {
+      button.hidden = !authenticated;
+      button.disabled = !authenticated;
+    });
+  }
+
+  async function checkCurrentAuthState() {
+    try {
+      const result = await window.AuthApi.getCurrentUser();
+      if (!result || result.ok === false) {
+        window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+        return;
+      }
+      setAuthStateFromResponse(result);
+    } catch (_) {
+      window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+    }
+  }
+
+  let authStatusTimer = null;
+
+  function showAuthStatus(message) {
+    if (!message) return;
+    window.clearTimeout(authStatusTimer);
+    $$('[data-auth-status]').forEach((element) => {
+      element.textContent = message;
+      element.hidden = false;
+    });
+    authStatusTimer = window.setTimeout(() => {
+      $$('[data-auth-status]').forEach((element) => {
+        element.textContent = '';
+        element.hidden = true;
+      });
+    }, 3600);
+  }
+
+  function bindAuthStateControls() {
+    document.addEventListener('auth:state', (event) => {
+      updateAuthUi(event.detail);
+    });
+
+    updateAuthUi();
+
+    $$('[data-auth-logout]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        setBusy(button, true, AUTH_COPY.logout.loading);
+
+        try {
+          const result = await window.AuthApi.logout();
+          if (!result || result.ok === false) throw new Error('logout failed');
+
+          setBusy(button, false);
+          window.AuthSession.set({ authenticated: false, status: 'anonymous', provider: null, user: null });
+          showAuthStatus(result.message || AUTH_COPY.logout.success);
+        } catch (_) {
+          setBusy(button, false);
+          showAuthStatus(AUTH_COPY.fallbackError.logout);
+        }
+      });
+    });
+  }
 
   function setBusy(button, busy, label) {
     if (!button) return;
@@ -938,6 +1038,7 @@
         }
         if (values.passwordInput) values.passwordInput.value = '';
         resetInputStates([values.emailInput, values.passwordInput]);
+        setAuthStateFromResponse(result);
         showMessage('login', result.message || AUTH_COPY.success.login, 'success');
         return true;
       },
@@ -1177,6 +1278,8 @@
     bindNavigation();
     bindTrialForm();
     bindAuthModal();
+    bindAuthStateControls();
+    checkCurrentAuthState();
     bindSectionNav();
     bindShowcase();
   }

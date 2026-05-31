@@ -292,6 +292,30 @@ Example success response:
 }
 ```
 
+Frontend auth state:
+
+* On page load, the frontend calls `GET /api/auth/me/` through `window.AuthApi.getCurrentUser()`.
+* Auth state is memory-only in `window.AuthSession`.
+* Authenticated state stores only:
+
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+* Anonymous state uses `authenticated: false` and `user: null`.
+* Successful session login updates memory and the visible nav state.
+* Successful session logout clears memory and returns the visible nav state to anonymous.
+* The nav login action is hidden while authenticated.
+* A compact user email label and logout action are shown while authenticated.
+* The frontend does not store auth state, user data, passwords, or tokens in `localStorage` or `sessionStorage`.
+* No JWTs, redirects, route guards, protected pages, or frontend-persistent auth state have been added.
+
 ## Authentication Strategy Decision
 
 Current auth state:
@@ -301,7 +325,8 @@ Current auth state:
 * Login creates a Django session after credentials pass validation.
 * `/api/auth/me/` reads the current session authentication state.
 * Logout destroys the current Django session authentication state.
-* There is no JWT, token issuing, frontend auth persistence, or email confirmation.
+* The frontend reads `/api/auth/me/` on page load and keeps auth state in memory only.
+* There is no JWT, token issuing, persistent frontend auth storage, route guarding, protected pages, or email confirmation.
 
 The next implementation step requires choosing the real authentication strategy.
 
@@ -391,8 +416,8 @@ Phase 4:
 
 Phase 5:
 
-* Connect frontend authenticated UI state.
-* Show logged-in UI after `/api/auth/me/`.
+* Frontend authenticated UI state has been connected.
+* Logged-in UI is shown after `/api/auth/me/` returns an authenticated session.
 * Do not store tokens.
 * Do not store passwords.
 * Continue using `credentials: "include"` for session-aware requests.
@@ -770,12 +795,87 @@ Expected logout response:
 
 9. Confirm no tokens exist in `localStorage` or `sessionStorage`.
 
+## Frontend Auth State Manual Test Checklist
+
+The frontend now reads the current Django session through:
+
+* `window.APP_CONFIG.BACKEND_API_BASE_URL`
+* `window.APP_CONFIG.endpoints.me`
+* `window.AuthApi.getCurrentUser()`
+* `window.AuthSession`
+
+Auth state remains in memory only for the current page runtime.
+
+Manual cases:
+
+1. Start the backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+2. Start the frontend:
+
+```powershell
+cd frontend
+python -m http.server 5500
+```
+
+3. Open:
+
+```text
+http://127.0.0.1:5500/
+```
+
+4. Anonymous load:
+
+* Expected anonymous UI.
+* Login/register actions remain visible where applicable.
+* Logout is hidden or disabled.
+
+5. Register a user if needed.
+
+6. Log in with valid credentials:
+
+* Expected success message: `تم تسجيل الدخول بنجاح.`
+* UI switches to authenticated state.
+* The nav shows the user email.
+* Login/register nav action is hidden.
+* Logout is visible and enabled.
+
+7. Refresh the page:
+
+* `/api/auth/me/` detects the existing Django session.
+* UI remains authenticated.
+
+8. Log out:
+
+* Expected success message: `تم تسجيل الخروج بنجاح.`
+* UI returns to anonymous state.
+* `/api/auth/me/` returns `authenticated: false` and `user: null`.
+
+9. Confirm:
+
+* No tokens exist in `localStorage`.
+* No auth data exists in `sessionStorage`.
+* No password is printed in the console.
+
+Still future work:
+
+* No route guards.
+* No protected pages.
+* No profile pages.
+* No frontend-persistent auth state.
+
 ### Out Of Scope For This Step
 
 * No models or migrations.
 * No JWT.
 * No tokens.
-* No frontend auth state or token storage.
+* No persistent frontend auth storage.
+* No route guards or protected pages.
 * No email confirmation.
 
 ### Verification Commands
@@ -804,7 +904,7 @@ Repository:
 git diff --check
 ```
 
-Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. Logout destroys the current session authentication state. No flow stores tokens, issues JWTs, redirects, persists frontend auth state, or sends email.
+Registration now creates a Django user only after backend validation passes. Login creates a Django session after CSRF-backed credential validation passes. `/api/auth/me/` reads the current session state. Logout destroys the current session authentication state. The frontend keeps the current auth state in memory only. No flow stores tokens, issues JWTs, redirects, persists frontend auth state, adds route guards, protects pages, or sends email.
 
 ## Backend Development Rules
 
