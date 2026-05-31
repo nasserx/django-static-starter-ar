@@ -157,6 +157,8 @@ For exact endpoint response shapes and CSRF/session notes, see [api.md](./api.md
 
 ## Standard Checks
 
+Before reusing or branching from the starter template, also run the readiness checklist in [template-release-checklist.md](./template-release-checklist.md).
+
 Backend:
 
 ```powershell

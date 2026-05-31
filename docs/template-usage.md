@@ -42,8 +42,9 @@ Recommended workflow:
 5. Review [environment.md](./environment.md).
 6. Review [local-development.md](./local-development.md).
 7. Review [api.md](./api.md).
-8. Configure local-only environment files safely.
-9. Run the standard backend, frontend, and repository checks before and after changes.
+8. Run [template-release-checklist.md](./template-release-checklist.md) before treating the starter as ready to reuse.
+9. Configure local-only environment files safely.
+10. Run the standard backend, frontend, and repository checks before and after changes.
 
 Do not commit real secrets, local databases, virtual environments, caches, logs, or generated artifacts.
 

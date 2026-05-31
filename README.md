@@ -20,6 +20,9 @@ For the current backend API contract, see
 For guidance on using this repository as a reusable starter, see
 [`docs/template-usage.md`](./docs/template-usage.md).
 
+For the starter-template readiness checklist, see
+[`docs/template-release-checklist.md`](./docs/template-release-checklist.md).
+
 ## Frontend Template
 
 The frontend is a **flat, generic, production-ready Arabic SaaS landing

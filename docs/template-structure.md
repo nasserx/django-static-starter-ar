@@ -29,6 +29,7 @@ The base template should stay generic. App-specific product logic should be adde
 * `docs/local-development.md` - local setup, run, check, and troubleshooting guide.
 * `docs/api.md` - current health and session-auth API contract.
 * `docs/template-usage.md` - guidance for using and extending this repository as a reusable starter.
+* `docs/template-release-checklist.md` - release/readiness checklist before reusing or branching from the starter.
 * `.env.example` - tracked environment example placeholder.
 * `.gitignore` - local/cache/generated file ignore rules.
 

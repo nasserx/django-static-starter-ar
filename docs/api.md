@@ -17,6 +17,8 @@ Authentication uses Django sessions and cookies with CSRF protection. JWTs, acce
 
 Domain-specific APIs should be added in downstream projects or scoped feature branches and documented separately.
 
+For manual API/auth readiness checks before reuse, see [template-release-checklist.md](./template-release-checklist.md).
+
 ## Base URLs
 
 Local backend base URL:
