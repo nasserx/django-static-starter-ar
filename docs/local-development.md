@@ -41,7 +41,7 @@ Clone the repository:
 
 ```powershell
 git clone <repository-url>
-cd html-frontend-template
+cd django-static-starter-ar
 ```
 
 Create and activate the backend virtual environment:
