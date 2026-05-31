@@ -115,12 +115,24 @@ cd backend
 .\.venv\Scripts\python.exe manage.py test
 ```
 
+Run the standalone test module through the virtual environment:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m unittest app.tests
+```
+
 Start the local Django development server:
 
 ```powershell
 cd backend
 .\.venv\Scripts\python.exe manage.py runserver
 ```
+
+Local health endpoints:
+
+* `http://127.0.0.1:8000/health/` — basic Django health check.
+* `http://127.0.0.1:8000/api/health/` — Django REST Framework API health check.
 
 ## Backend Development Rules
 

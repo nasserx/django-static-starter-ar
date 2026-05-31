@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+import os
 from unittest import TestCase
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+
+import django
+from django.apps import apps
+from django.test import SimpleTestCase, override_settings
 
 from app.auth_validation import (
     MAX_PASSWORD_LENGTH,
@@ -8,6 +15,25 @@ from app.auth_validation import (
     validate_email,
     validate_password,
 )
+
+
+if not apps.ready:
+    django.setup()
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ApiFoundationTests(SimpleTestCase):
+    def test_django_health_endpoint_still_returns_ok(self) -> None:
+        response = self.client.get("/health/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
+    def test_api_health_endpoint_returns_ok(self) -> None:
+        response = self.client.get("/api/health/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok", "service": "api"})
 
 
 class EmailValidationTests(TestCase):
