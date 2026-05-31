@@ -177,7 +177,7 @@ Example validation error response:
 }
 ```
 
-## Frontend Register Validation Integration
+## Register Validation Manual Test Checklist
 
 The frontend register form calls the validation-only backend endpoint through:
 
@@ -190,7 +190,9 @@ Default local target:
 http://127.0.0.1:8000/api/auth/register/
 ```
 
-Manual test flow:
+### Setup
+
+Start the backend:
 
 ```powershell
 cd backend
@@ -198,19 +200,94 @@ cd backend
 python manage.py runserver
 ```
 
-In a second terminal, serve the frontend from an allowed local origin:
+In a second terminal, serve the frontend:
 
 ```powershell
 cd frontend
 python -m http.server 5500
 ```
 
-Open `http://127.0.0.1:5500/`, open the register modal, and test:
+Open `http://127.0.0.1:5500/` in the browser, then open the register modal/form.
 
-* valid email and password
-* invalid email
-* whitespace-only password
-* mismatched password confirmation
+### Manual Cases
+
+Valid email, valid password, and matching confirmation:
+
+* Request should be sent to `POST /api/auth/register/`.
+* The frontend should show: `تم التحقق من البيانات بنجاح. إنشاء الحساب الفعلي سيتم تفعيله لاحقًا.`
+* No login should happen.
+* No redirect should happen.
+* No token should be stored.
+* Password fields should be cleared after success.
+
+Invalid email:
+
+* Backend validation error text from `errors[].message` should be displayed.
+
+Empty email:
+
+* Frontend required-field UX text should appear, or the backend validation message should appear if submitted.
+
+Empty password:
+
+* Frontend required-field UX text should appear, or the backend validation message should appear if submitted.
+
+Whitespace-only password:
+
+* Backend validation error text from `errors[].message` should be displayed.
+
+Weak or common password, such as `password123`:
+
+* Backend validation error text from `errors[].message` should be displayed.
+
+Password without letters or without numbers:
+
+* Backend validation error text from `errors[].message` should be displayed.
+
+Password confirmation mismatch:
+
+* Frontend mismatch UX text should appear.
+* No backend request should be sent for this case.
+
+Backend server stopped or connection failure:
+
+* The frontend should show: `تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.`
+
+### Out Of Scope For This Step
+
+* No user creation.
+* No database writes.
+* No models or migrations.
+* No login or logout.
+* No JWT, sessions, or cookies.
+* No password hashing.
+* No email confirmation.
+
+### Verification Commands
+
+Backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe -m unittest app.tests
+```
+
+Frontend:
+
+```powershell
+cd frontend
+node --check src\js\main.js
+node --check src\js\config.js
+npx --yes html-validate@9 "*.html" "partials/*.html"
+```
+
+Repository:
+
+```powershell
+git diff --check
+```
 
 The success message is validation-only. It does not create a user, log in, store tokens, hash passwords, write to the database, or send email.
 
