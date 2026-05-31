@@ -40,7 +40,7 @@
       register: 'جارٍ الإنشاء...',
     },
     success: {
-      registerValidation: 'تم التحقق من البيانات بنجاح. إنشاء الحساب الفعلي سيتم تفعيله لاحقًا.',
+      register: 'تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.',
     },
     fallbackError: {
       login: 'تعذّر الدخول. تحقق من البيانات وحاول مرة أخرى.',
@@ -864,7 +864,7 @@
         if (values.passwordInput) values.passwordInput.value = '';
         if (values.confirmInput) values.confirmInput.value = '';
         resetInputStates([values.emailInput, values.passwordInput, values.confirmInput]);
-        showMessage('register', AUTH_COPY.success.registerValidation, 'success');
+        showMessage('register', result.message || AUTH_COPY.success.register, 'success');
         return true;
       },
       showError,

@@ -1,5 +1,7 @@
 from app.auth_validation import validate_auth_payload
-from common.errors import RequestErrorCode, build_error
+from common.errors import AuthErrorCode, RequestErrorCode, build_error
+from django.contrib.auth import get_user_model
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.decorators import api_view
@@ -22,8 +24,33 @@ def register_validation(request):
         return _invalid_json_body_response()
 
     result = validate_auth_payload(payload.get("email"), payload.get("password"))
-    response_status = status.HTTP_200_OK if result["is_valid"] else status.HTTP_400_BAD_REQUEST
-    return Response(result, status=response_status)
+    if not result["is_valid"]:
+        return Response(result, status=status.HTTP_400_BAD_REQUEST)
+
+    email = result["normalized"]["email"]
+    if _email_is_registered(email):
+        return Response(
+            {
+                "is_valid": False,
+                "errors": [build_error("email", AuthErrorCode.EMAIL_ALREADY_REGISTERED)],
+                "normalized": {},
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = _create_user(email, payload.get("password"))
+    return Response(
+        {
+            "is_valid": True,
+            "user_created": True,
+            "message": "تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+            },
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 def _invalid_json_body_response():
@@ -35,3 +62,23 @@ def _invalid_json_body_response():
         },
         status=status.HTTP_400_BAD_REQUEST,
     )
+
+
+def _email_is_registered(email: str) -> bool:
+    user_model = get_user_model()
+    query = Q(email__iexact=email)
+
+    if user_model.USERNAME_FIELD != "email":
+        query |= Q(**{f"{user_model.USERNAME_FIELD}__iexact": email})
+
+    return user_model._default_manager.filter(query).exists()
+
+
+def _create_user(email: str, password: str):
+    user_model = get_user_model()
+    user_data = {"email": email, "password": password}
+
+    if user_model.USERNAME_FIELD != "email":
+        user_data[user_model.USERNAME_FIELD] = email
+
+    return user_model._default_manager.create_user(**user_data)

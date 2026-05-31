@@ -134,11 +134,12 @@ Local health endpoints:
 * `http://127.0.0.1:8000/health/` — basic Django health check.
 * `http://127.0.0.1:8000/api/health/` — Django REST Framework API health check.
 
-Validation-only auth endpoint:
+Register auth endpoint:
 
 * `POST http://127.0.0.1:8000/api/auth/register/`
-* Validates email and password for a future registration flow.
-* Does not create a user, write to the database, hash passwords, start a session, or send email.
+* Validates email and password, then creates a Django built-in user when the payload is valid.
+* Uses Django password hashing through the built-in user manager.
+* Does not log in the user, issue tokens, customize sessions or cookies, or send email.
 
 Example request:
 
@@ -154,8 +155,10 @@ Example success response:
 ```json
 {
   "is_valid": true,
-  "errors": [],
-  "normalized": {
+  "user_created": true,
+  "message": "تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.",
+  "user": {
+    "id": 1,
     "email": "user@example.com"
   }
 }
@@ -177,9 +180,25 @@ Example validation error response:
 }
 ```
 
-## Register Validation Manual Test Checklist
+Duplicate email response:
 
-The frontend register form calls the validation-only backend endpoint through:
+```json
+{
+  "is_valid": false,
+  "errors": [
+    {
+      "field": "email",
+      "code": "auth.email_already_registered",
+      "message": "البريد الإلكتروني مسجل مسبقًا."
+    }
+  ],
+  "normalized": {}
+}
+```
+
+## Register Manual Test Checklist
+
+The frontend register form calls the backend register endpoint through:
 
 * `window.APP_CONFIG.BACKEND_API_BASE_URL`
 * `window.APP_CONFIG.endpoints.register`
@@ -214,11 +233,18 @@ Open `http://127.0.0.1:5500/` in the browser, then open the register modal/form.
 Valid email, valid password, and matching confirmation:
 
 * Request should be sent to `POST /api/auth/register/`.
-* The frontend should show: `تم التحقق من البيانات بنجاح. إنشاء الحساب الفعلي سيتم تفعيله لاحقًا.`
+* Backend should return HTTP `201`.
+* The frontend should show: `تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.`
 * No login should happen.
 * No redirect should happen.
 * No token should be stored.
 * Password fields should be cleared after success.
+
+Duplicate email:
+
+* Submitting the same email again should return HTTP `400`.
+* The frontend should show: `البريد الإلكتروني مسجل مسبقًا.`
+* No second user should be created.
 
 Invalid email:
 
@@ -255,12 +281,10 @@ Backend server stopped or connection failure:
 
 ### Out Of Scope For This Step
 
-* No user creation.
-* No database writes.
 * No models or migrations.
 * No login or logout.
-* No JWT, sessions, or cookies.
-* No password hashing.
+* No JWT or session/cookie authentication flow.
+* No frontend auth state or token storage.
 * No email confirmation.
 
 ### Verification Commands
@@ -289,7 +313,7 @@ Repository:
 git diff --check
 ```
 
-The success message is validation-only. It does not create a user, log in, store tokens, hash passwords, write to the database, or send email.
+Registration now creates a Django user only after backend validation passes. It does not log in, store tokens, issue JWTs, add a session/cookie auth flow, or send email.
 
 ## Backend Development Rules
 

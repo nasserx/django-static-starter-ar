@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import json
 import os
-from unittest import TestCase
+import sys
+from unittest import TestCase as UnitTestCase
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 import django
 from django.apps import apps
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import SimpleTestCase, override_settings
 
 from app.auth_validation import (
@@ -18,12 +22,25 @@ from app.auth_validation import (
 )
 
 
+_RUNNING_STANDALONE_UNITTEST = any("unittest" in argument for argument in sys.argv) and "test" not in sys.argv
+
+if _RUNNING_STANDALONE_UNITTEST:
+    settings.DATABASES["default"]["NAME"] = ":memory:"
+
 if not apps.ready:
     django.setup()
+
+if _RUNNING_STANDALONE_UNITTEST:
+    call_command("migrate", interactive=False, verbosity=0)
 
 
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class ApiFoundationTests(SimpleTestCase):
+    databases = {"default"}
+
+    def setUp(self) -> None:
+        get_user_model()._default_manager.all().delete()
+
     def test_django_health_endpoint_still_returns_ok(self) -> None:
         response = self.client.get("/health/")
 
@@ -36,26 +53,65 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok", "service": "api"})
 
-    def test_register_validation_valid_payload_returns_ok(self) -> None:
+    def test_register_valid_payload_creates_user(self) -> None:
         response = self._post_register({"email": "USER@example.com", "password": "Password1"})
+        data = response.json()
+        user = get_user_model()._default_manager.get(email="user@example.com")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json(),
-            {
-                "is_valid": True,
-                "errors": [],
-                "normalized": {"email": "user@example.com"},
-            },
-        )
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(data["is_valid"])
+        self.assertTrue(data["user_created"])
+        self.assertEqual(data["message"], "تم إنشاء الحساب بنجاح. تسجيل الدخول سيتم تفعيله لاحقًا.")
+        self.assertEqual(data["user"]["id"], user.id)
+        self.assertEqual(data["user"]["email"], "user@example.com")
+        self.assertEqual(user.email, "user@example.com")
 
-    def test_register_validation_valid_response_never_includes_password(self) -> None:
+    def test_register_success_response_never_includes_password(self) -> None:
         response = self._post_register({"email": "user@example.com", "password": "Password1"})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertNotIn("password", response.content.decode())
 
-    def test_register_validation_invalid_email_returns_email_error(self) -> None:
+    def test_register_password_is_hashed_and_verifiable(self) -> None:
+        response = self._post_register({"email": "user@example.com", "password": "Password1"})
+        user = get_user_model()._default_manager.get(email="user@example.com")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertNotEqual(user.password, "Password1")
+        self.assertTrue(user.check_password("Password1"))
+
+    def test_register_duplicate_email_returns_duplicate_error(self) -> None:
+        get_user_model()._default_manager.create_user(
+            username="user@example.com",
+            email="user@example.com",
+            password="Password1",
+        )
+
+        response = self._post_register({"email": "user@example.com", "password": "Password1"})
+        data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data["is_valid"])
+        self.assertEqual(data["errors"][0]["field"], "email")
+        self.assertEqual(data["errors"][0]["code"], "auth.email_already_registered")
+        self.assertEqual(data["errors"][0]["message"], "البريد الإلكتروني مسجل مسبقًا.")
+        self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 1)
+
+    def test_register_duplicate_email_check_is_case_insensitive(self) -> None:
+        get_user_model()._default_manager.create_user(
+            username="user@example.com",
+            email="user@example.com",
+            password="Password1",
+        )
+
+        response = self._post_register({"email": "  USER@EXAMPLE.COM  ", "password": "Password1"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["errors"][0]["code"], "auth.email_already_registered")
+        self.assertEqual(get_user_model()._default_manager.count(), 1)
+
+    def test_register_invalid_email_returns_email_error_and_does_not_create_user(self) -> None:
         response = self._post_register({"email": "invalid-email", "password": "Password1"})
         data = response.json()
 
@@ -64,8 +120,9 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["errors"][0]["field"], "email")
         self.assertEqual(data["errors"][0]["code"], "auth.email_invalid")
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
-    def test_register_validation_invalid_password_returns_password_error(self) -> None:
+    def test_register_invalid_password_returns_password_error_and_does_not_create_user(self) -> None:
         response = self._post_register({"email": "user@example.com", "password": "short"})
         data = response.json()
 
@@ -74,6 +131,7 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["errors"][0]["field"], "password")
         self.assertEqual(data["errors"][0]["code"], "auth.password_too_short")
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
     def test_register_validation_missing_email_returns_required_error(self) -> None:
         response = self._post_register({"password": "Password1"})
@@ -82,6 +140,7 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data["errors"][0]["code"], "auth.email_required")
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
     def test_register_validation_missing_password_returns_required_error(self) -> None:
         response = self._post_register({"email": "user@example.com"})
@@ -90,6 +149,7 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data["errors"][0]["code"], "auth.password_required")
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
     def test_register_validation_invalid_email_and_password_return_both_errors(self) -> None:
         response = self._post_register({"email": "invalid-email", "password": "short"})
@@ -99,6 +159,7 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual([error["field"] for error in data["errors"]], ["email", "password"])
         self.assertEqual([error["code"] for error in data["errors"]], ["auth.email_invalid", "auth.password_too_short"])
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
     def test_register_validation_whitespace_only_password_returns_required_error(self) -> None:
         response = self._post_register({"email": "user@example.com", "password": "        "})
@@ -108,6 +169,7 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["errors"][0]["field"], "password")
         self.assertEqual(data["errors"][0]["code"], "auth.password_required")
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
 
     def test_register_validation_get_returns_method_not_allowed(self) -> None:
         response = self.client.get("/api/auth/register/")
@@ -131,6 +193,14 @@ class ApiFoundationTests(SimpleTestCase):
             ],
         )
         self.assertEqual(data["normalized"], {})
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
+    def test_register_success_does_not_log_in_user_or_create_session_cookie(self) -> None:
+        response = self._post_register({"email": "user@example.com", "password": "Password1"})
+
+        self.assertEqual(response.status_code, 201)
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertNotIn("sessionid", response.cookies)
 
     def _post_register(self, payload):
         return self.client.post(
@@ -140,7 +210,7 @@ class ApiFoundationTests(SimpleTestCase):
         )
 
 
-class EmailValidationTests(TestCase):
+class EmailValidationTests(UnitTestCase):
     def test_valid_email_passes(self) -> None:
         result = validate_email("user@example.com")
 
@@ -211,7 +281,7 @@ class EmailValidationTests(TestCase):
                 self.assertEqual(result["normalized"], {})
 
 
-class PasswordValidationTests(TestCase):
+class PasswordValidationTests(UnitTestCase):
     def test_valid_password_passes(self) -> None:
         result = validate_password("StrongPass1")
 
@@ -318,7 +388,7 @@ class PasswordValidationTests(TestCase):
         self.assertEqual(result["normalized"], {})
 
 
-class AuthPayloadValidationTests(TestCase):
+class AuthPayloadValidationTests(UnitTestCase):
     def test_valid_email_and_password_passes(self) -> None:
         result = validate_auth_payload("USER@example.com", "StrongPass1")
 
