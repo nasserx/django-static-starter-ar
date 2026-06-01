@@ -114,6 +114,24 @@ This starter does not provide authorization patterns, protected routes, protecte
 
 For endpoint response shapes and error behavior, see [api.md](./api.md).
 
+## Frontend Auth Session Behavior
+
+The static frontend keeps auth behavior in `frontend/src/js/main.js`, with endpoint configuration in `frontend/src/js/config.js`.
+
+At a high level:
+
+* `window.AuthSession` stores the current frontend auth state in memory for the current page runtime.
+* `window.AuthSession.set(...)` updates that in-memory state and dispatches an `auth:state` browser event so the nav/UI can show anonymous, authenticated, pending, or logged-out state.
+* `window.AuthSession.get()` returns a copy of the current in-memory state.
+* On page load, `checkCurrentAuthState()` calls `window.AuthApi.getCurrentUser()`, which requests `GET /api/auth/me/` with `credentials: "include"`.
+* Login first requests the CSRF cookie, then posts credentials to `POST /api/auth/login/` with cookies included and `X-CSRFToken`.
+* Logout requests or uses a CSRF token, then posts to `POST /api/auth/logout/` with cookies included and `X-CSRFToken`.
+* Register posts `{ email, password }` to `POST /api/auth/register/` and shows the backend response, but it does not create frontend authenticated state.
+
+The frontend does not store auth credentials, JWTs, API tokens, session keys, or user auth state in browser storage. CSRF tokens are read from the framework cookie when needed for unsafe requests and should not be treated as login tokens.
+
+The starter intentionally has no redirects, route guards, protected pages, or authorization UI. Downstream applications can add project-specific routing and authorization patterns later with dedicated tests and documentation.
+
 ## Frontend Extension Guidance
 
 For future frontend work:
