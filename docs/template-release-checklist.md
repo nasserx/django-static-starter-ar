@@ -40,6 +40,8 @@ Verify:
 * [ ] `docs/template-structure.md` exists and reflects the current structure.
 * [ ] `docs/environment.md` exists and reflects current env behavior.
 * [ ] `docs/local-development.md` exists and includes current setup/check commands.
+* [ ] Backend commands use the repository-root `.venv` workflow.
+* [ ] Docs state that `backend/.venv` is not the supported documented workflow.
 * [ ] `docs/api.md` exists and matches implemented endpoints.
 * [ ] `docs/template-usage.md` exists and explains safe downstream usage.
 * [ ] `CODEX.md` is up to date if used as the working log.
@@ -154,9 +156,8 @@ Run a concise manual pass:
 1. Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 2. Serve the frontend:
@@ -241,10 +242,9 @@ http://127.0.0.1:5500/
 Backend:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
 Frontend:
@@ -263,7 +263,7 @@ git diff --check
 git status
 ```
 
-On macOS/Linux or different Windows setups, use the equivalent Python executable from the active virtual environment. Do not change project behavior just because the local virtualenv path differs.
+On macOS/Linux or different Windows setups, use the equivalent Python executable from the repository-root virtual environment. `backend/.venv` is not the supported documented workflow. Do not change project behavior just because the local virtualenv path differs.
 
 ## Release Notes Template
 

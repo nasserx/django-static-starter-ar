@@ -25,7 +25,8 @@ Local-only files may exist during development and must remain untracked:
 * `backend/.env`
 * `frontend/.env`
 * `backend/db.sqlite3`
-* Root `.venv/` and `backend/.venv/`
+* Root `.venv/`
+* `backend/.venv/`
 
 Do not commit real secrets or local `.env` files.
 
@@ -62,8 +63,7 @@ Example PowerShell override:
 
 ```powershell
 $env:DJANGO_DEBUG="false"
-cd backend
-.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe backend\manage.py check
 Remove-Item Env:\DJANGO_DEBUG
 ```
 
@@ -108,6 +108,8 @@ These files and folders should remain untracked:
 * logs
 
 See `.gitignore` for the active ignore rules.
+
+The supported documented Python workflow uses the repository-root `.venv`. `backend/.venv` is ignored as a local artifact and is not the supported documented workflow.
 
 ## Copy And Setup Guidance
 

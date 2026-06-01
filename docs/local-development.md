@@ -47,7 +47,6 @@ cd django-static-starter-ar
 Create and activate the backend virtual environment:
 
 ```powershell
-cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
@@ -56,8 +55,10 @@ Install backend dependencies:
 
 ```powershell
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -r backend\requirements.txt
 ```
+
+The supported documented workflow uses the repository-root `.venv`. A separate `backend/.venv` may exist on a local machine, but it is not the supported workflow for this starter template.
 
 Environment file behavior is documented in [environment.md](./environment.md).
 
@@ -73,29 +74,28 @@ See [environment.md](./environment.md) for supported backend variables and examp
 
 ## Backend Setup
 
-From the backend directory:
+From the repository root:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe backend\manage.py check
 ```
 
 Run migrations for local Django tables such as auth and sessions:
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py migrate
+.\.venv\Scripts\python.exe backend\manage.py migrate
 ```
 
 Creating a superuser is optional and only useful if you want to use Django admin locally:
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py createsuperuser
+.\.venv\Scripts\python.exe backend\manage.py createsuperuser
 ```
 
 Start the backend development server:
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py runserver
+.\.venv\Scripts\python.exe backend\manage.py runserver
 ```
 
 Expected backend base URL:
@@ -166,10 +166,9 @@ Before reusing or branching from the starter template, also run the readiness ch
 Backend:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
 Frontend:
@@ -188,13 +187,13 @@ git diff --check
 git status
 ```
 
-On macOS/Linux, use `.venv/bin/python` from `backend/` instead of `.\.venv\Scripts\python.exe`. Depending on your Python install, `python`, `python3`, or `py` may be the command that creates the virtual environment. Do not change project code just because the local virtualenv path differs.
+On macOS/Linux, use `.venv/bin/python` from the repository root instead of `.\.venv\Scripts\python.exe`. Depending on your Python install, `python`, `python3`, or `py` may be the command that creates the virtual environment. Do not change project code just because the local virtualenv path differs.
 
 ## Troubleshooting
 
 Django server is not running:
 
-* Start it with `.\.venv\Scripts\python.exe manage.py runserver` from `backend/`.
+* Start it with `.\.venv\Scripts\python.exe backend\manage.py runserver` from the repository root.
 * Confirm `http://127.0.0.1:8000/health/` returns HTTP `200`.
 
 Frontend cannot reach backend:
@@ -222,7 +221,7 @@ Static frontend opened from `file://` behaves differently:
 
 Database tables are missing:
 
-* Run `.\.venv\Scripts\python.exe manage.py migrate` from `backend/`.
+* Run `.\.venv\Scripts\python.exe backend\manage.py migrate` from the repository root.
 * `backend/db.sqlite3` is local-only and ignored by Git.
 
 Node or HTML validation command is unavailable:
@@ -233,8 +232,9 @@ Node or HTML validation command is unavailable:
 
 Virtualenv path differs:
 
-* Windows PowerShell uses `.\.venv\Scripts\python.exe`.
-* macOS/Linux usually uses `.venv/bin/python`.
+* Windows PowerShell uses `.\.venv\Scripts\python.exe` from the repository root.
+* macOS/Linux usually uses `.venv/bin/python` from the repository root.
+* `backend/.venv` is not the supported documented workflow.
 * Keep local path differences out of committed code.
 
 ## Development Rules For Future Branches
