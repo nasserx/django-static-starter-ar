@@ -1530,21 +1530,14 @@ If frontend paths change, update:
 * any integration documentation
 * any developer notes
 
-Known point to verify later:
-Some existing documentation may still reference old paths like:
-
-```text
-frontend/assets/
-```
-
-The new paths should use:
+Current frontend documentation paths should use:
 
 ```text
 frontend/src/
 frontend/public/assets/
 ```
 
-Update documentation when needed.
+Update documentation if future changes move these folders.
 
 ## Git Ignore Rules
 
