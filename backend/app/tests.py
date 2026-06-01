@@ -4,6 +4,7 @@ import json
 import os
 import sys
 from unittest import TestCase as UnitTestCase
+from unittest.mock import patch
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -21,6 +22,7 @@ from app.auth_validation import (
     validate_login_payload,
     validate_password,
 )
+from config.settings import _get_env_bool, _get_env_list
 
 
 _RUNNING_STANDALONE_UNITTEST = any("unittest" in argument for argument in sys.argv) and "test" not in sys.argv
@@ -856,3 +858,43 @@ class LoginPayloadValidationTests(UnitTestCase):
         self.assertFalse(result["is_valid"])
         self.assertEqual([error["code"] for error in result["errors"]], ["auth.email_must_be_string", "auth.password_must_be_string"])
         self.assertEqual(result["normalized"], {})
+
+
+class SettingsEnvironmentParsingTests(UnitTestCase):
+    def test_env_bool_true_values(self) -> None:
+        for value in ("1", "true", "yes", "on", " TRUE "):
+            with self.subTest(value=value), patch.dict(os.environ, {"TEST_BOOL": value}, clear=False):
+                self.assertTrue(_get_env_bool("TEST_BOOL", False))
+
+    def test_env_bool_false_values(self) -> None:
+        for value in ("0", "false", "no", "off", " FALSE "):
+            with self.subTest(value=value), patch.dict(os.environ, {"TEST_BOOL": value}, clear=False):
+                self.assertFalse(_get_env_bool("TEST_BOOL", True))
+
+    def test_env_bool_blank_returns_default(self) -> None:
+        for value in ("", "   "):
+            with self.subTest(value=repr(value)), patch.dict(os.environ, {"TEST_BOOL": value}, clear=False):
+                self.assertTrue(_get_env_bool("TEST_BOOL", True))
+
+    def test_env_bool_unset_returns_default(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertFalse(_get_env_bool("TEST_BOOL", False))
+
+    def test_env_bool_invalid_value_raises_value_error(self) -> None:
+        with patch.dict(os.environ, {"TEST_BOOL": "maybe"}, clear=False):
+            with self.assertRaises(ValueError):
+                _get_env_bool("TEST_BOOL", True)
+
+    def test_env_list_parsing_trims_whitespace_and_removes_empty_entries(self) -> None:
+        with patch.dict(os.environ, {"TEST_LIST": " alpha, beta ,, gamma , "}, clear=False):
+            self.assertEqual(_get_env_list("TEST_LIST", ["default"]), ["alpha", "beta", "gamma"])
+
+    def test_env_list_blank_returns_default(self) -> None:
+        default = ["default"]
+        for value in ("", "   "):
+            with self.subTest(value=repr(value)), patch.dict(os.environ, {"TEST_LIST": value}, clear=False):
+                self.assertEqual(_get_env_list("TEST_LIST", default), default)
+
+    def test_env_list_unset_returns_default(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(_get_env_list("TEST_LIST", ["default"]), ["default"])

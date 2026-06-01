@@ -136,6 +136,8 @@ The audit found these local-only files/folders in the working tree:
 
 These are ignored by `.gitignore` and were not removed in this branch. If any local-only files become tracked in the future, remove them in a separate cleanup branch with a focused commit.
 
+The supported documented Python workflow uses the repository-root `.venv`. `backend/.venv/` is a local-only artifact and is not the supported workflow for this starter template.
+
 ## Cleanup Candidates For Later Branches
 
 Potential future cleanup work:

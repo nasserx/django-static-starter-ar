@@ -86,47 +86,43 @@ Current backend structure:
 From the repository root on Windows PowerShell:
 
 ```powershell
-cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -r backend\requirements.txt
 ```
+
+The supported documented workflow uses the repository-root `.venv`. A separate `backend/.venv` may exist locally, but it is not the supported workflow for this starter template.
 
 If activation is unavailable, use the virtual environment Python directly:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
 Run the standalone auth validation tests:
 
 ```powershell
-cd backend
-python -m unittest app.tests
+.\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
 Run Django checks and Django's test runner:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
 ```
 
 Run the standalone test module through the virtual environment:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
 Start the local Django development server:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py runserver
+.\.venv\Scripts\python.exe backend\manage.py runserver
 ```
 
 Local health endpoints:
@@ -476,9 +472,8 @@ Manual CSRF test:
 1. Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 2. Request the CSRF endpoint in a browser or fetch:
@@ -516,9 +511,8 @@ http://127.0.0.1:8000/api/auth/register/
 Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 In a second terminal, serve the frontend:
@@ -665,9 +659,8 @@ Manual cases:
 1. Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 2. Start the frontend:
@@ -736,9 +729,8 @@ Manual cases:
 1. Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 2. Start the frontend:
@@ -811,9 +803,8 @@ Manual cases:
 1. Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 2. Start the frontend:
@@ -878,9 +869,8 @@ Use this checklist for a final browser-level pass over the current Django sessio
 Start the backend:
 
 ```powershell
-cd backend
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+python backend\manage.py runserver
 ```
 
 Start the frontend:
@@ -1172,10 +1162,9 @@ Production security hardening:
 Backend:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
 Frontend:
@@ -1221,10 +1210,9 @@ Notes:
 Checks for this branch:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 
 cd frontend
 node --check src\js\main.js
@@ -1254,7 +1242,7 @@ Scope:
 
 Notes:
 
-* Local backend setup uses `backend/.venv` and `backend/requirements.txt`.
+* Local backend setup uses the repository-root `.venv` and `backend/requirements.txt`; `backend/.venv` is not the supported documented workflow.
 * The frontend remains static HTML/CSS/JS with no build step.
 * `frontend/src/js/config.js` remains the current frontend API config source.
 * Production deployment remains out of scope for this branch.
@@ -1262,10 +1250,9 @@ Notes:
 Checks for this branch:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 
 cd frontend
 node --check src\js\main.js
@@ -1302,10 +1289,9 @@ Notes:
 Checks for this branch:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 
 cd frontend
 node --check src\js\main.js
@@ -1343,10 +1329,9 @@ Notes:
 Checks for this branch:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 
 cd frontend
 node --check src\js\main.js
@@ -1383,10 +1368,9 @@ Notes:
 Checks for this branch:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
-.\.venv\Scripts\python.exe -m unittest app.tests
+.\.venv\Scripts\python.exe backend\manage.py check
+.\.venv\Scripts\python.exe backend\manage.py test app
+.\.venv\Scripts\python.exe -m unittest discover backend
 
 cd frontend
 node --check src\js\main.js
@@ -1624,3 +1608,69 @@ The current structure is mostly ready as a clean foundation.
 The frontend should remain stable and design-safe.
 
 The backend should stay simple at first, then evolve into domain-based Django apps when the application grows.
+
+## Branch Log: feature/backend-env-settings
+
+Goal:
+
+* Support selected Django backend settings from environment variables while preserving local development defaults.
+
+Scope:
+
+* `backend/config/settings.py`
+* `.env.example`
+* `docs/environment.md`
+* `docs/local-development.md`
+* `docs/template-release-checklist.md`
+* Optional tests for backend settings parsing helpers
+
+Constraints:
+
+* No auth behavior changes.
+* No endpoint changes.
+* No frontend design changes.
+* No new dependencies.
+* No automatic `.env` loading.
+* No database environment changes.
+
+Checks run:
+
+* `.venv/Scripts/python.exe backend/manage.py check`
+* `.venv/Scripts/python.exe backend/manage.py test app`
+* `.venv/Scripts/python.exe -m unittest discover backend`
+* `node --check frontend/src/js/main.js`
+* `node --check frontend/src/js/config.js`
+* `npx --yes html-validate@9 "*.html" "partials/*.html"`
+* `DJANGO_DEBUG=false` backend system check
+* `git diff --check`
+
+## Branch Log: feature/backend-env-settings root venv follow-up
+
+Goal:
+
+* Standardize documented Python virtual environment usage on repository-root `.venv`.
+
+Scope:
+
+* Documentation and working-log updates only.
+* Root `.venv` dependency installation from `backend/requirements.txt`.
+
+Constraints:
+
+* No Django runtime behavior changes.
+* No frontend design changes.
+* No auth, endpoint, response shape, model, migration, or database setting changes.
+* No new dependencies.
+* No automatic `.env` loading.
+
+Checks run:
+
+* `.venv/Scripts/python.exe -m pip install -r backend/requirements.txt`
+* `.venv/Scripts/python.exe backend/manage.py check`
+* `.venv/Scripts/python.exe backend/manage.py test` (completed successfully, discovered 0 tests from repository root)
+* `.venv/Scripts/python.exe backend/manage.py test app`
+* `.venv/Scripts/python.exe -m unittest discover backend`
+* `node --check frontend/src/js/main.js`
+* `node --check frontend/src/js/config.js`
+* `npx --yes html-validate@9 "*.html" "partials/*.html"`
+* `git diff --check`
