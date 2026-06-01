@@ -26,7 +26,10 @@ Use this section as the top-level release gate:
 * [ ] Backend checks and tests pass.
 * [ ] Frontend syntax and HTML checks pass.
 * [ ] API documentation matches implementation.
+* [ ] API success and error contracts are documented.
 * [ ] Session/cookie auth behavior is intact.
+* [ ] Auth/security boundaries are documented.
+* [ ] Frontend auth session behavior is documented.
 * [ ] No secrets or local artifacts are tracked.
 * [ ] No domain-specific implementation was added to the base template.
 * [ ] Manual auth QA has been completed.
@@ -43,14 +46,19 @@ Verify:
 * [ ] Backend commands use the repository-root `.venv` workflow.
 * [ ] Docs state that `backend/.venv` is not the supported documented workflow.
 * [ ] `docs/api.md` exists and matches implemented endpoints.
+* [ ] `docs/api.md` documents current success and error response contracts.
 * [ ] `docs/template-usage.md` exists and explains safe downstream usage.
+* [ ] `docs/template-usage.md` documents auth/security boundaries and frontend auth session behavior.
 * [ ] `CODEX.md` is up to date if used as the working log.
 * [ ] Docs are internally linked where useful.
 * [ ] Docs state that backend settings read only the supported environment variables.
 * [ ] Docs state that `.env` files are not automatically loaded.
+* [ ] Docs state that `.env.example` is example-only.
 * [ ] Docs do not describe domain-specific product features as part of the base template.
 * [ ] Docs clearly state that auth uses Django session/cookie authentication, not JWT.
 * [ ] Docs clearly state that frontend auth state is memory-only.
+* [ ] Docs do not present `.\.venv\Scripts\python.exe backend\manage.py test` as the main repository-root test command.
+* [ ] Docs use `.\.venv\Scripts\python.exe backend\manage.py test app` as the official Django app test command.
 
 ## Repository Hygiene Checklist
 
@@ -58,9 +66,11 @@ Verify:
 
 * [ ] `git status` is clean before release.
 * [ ] `git diff --check` passes.
+* [ ] Stale project-name grep checks find no legacy frontend-template or Django-template repository names.
 * [ ] No real secrets are tracked.
 * [ ] Local `.env` files are ignored and not tracked.
 * [ ] `.env` files remain ignored.
+* [ ] `.env.example` contains placeholders only and does not load automatically.
 * [ ] SQLite database files are ignored and not tracked.
 * [ ] Virtual environments are ignored and not tracked.
 * [ ] `node_modules/` is ignored and not tracked.
@@ -74,10 +84,11 @@ Verify:
 Verify:
 
 * [ ] Backend requirements install correctly from `backend/requirements.txt`.
+* [ ] Backend requirements are installed into the repository-root `.venv`.
 * [ ] Django system check passes.
 * [ ] Migrations are in a known good state for local auth/session tables.
-* [ ] Django test runner passes.
-* [ ] Standalone auth validation tests pass.
+* [ ] Django app test runner passes with `.\.venv\Scripts\python.exe backend\manage.py test app`.
+* [ ] Standalone unittest discovery passes with `.\.venv\Scripts\python.exe -m unittest discover backend`.
 * [ ] Supported backend env vars are documented.
 * [ ] Backend env defaults still support local development.
 * [ ] Register creates Django users using hashed passwords.
@@ -88,6 +99,7 @@ Verify:
 * [ ] `/api/auth/me/` works for anonymous state.
 * [ ] `/api/auth/me/` works for authenticated state.
 * [ ] API responses do not return password, password hash, token, session key, or CSRF token.
+* [ ] `/api/auth/me/` does not return permissions, groups, or staff/superuser flags.
 * [ ] JWT or token storage behavior has not been introduced.
 * [ ] No domain-specific Django apps, models, or endpoints were added to the base template.
 
@@ -101,8 +113,10 @@ Verify:
 * [ ] Frontend requests CSRF before login/logout where needed.
 * [ ] Frontend uses `credentials: "include"` for session requests.
 * [ ] Frontend auth state remains memory-only through `window.AuthSession`.
+* [ ] Frontend auth session behavior is documented.
 * [ ] No token persistence was added.
 * [ ] No auth data persistence was added to `localStorage` or `sessionStorage`.
+* [ ] No redirects were added to the base auth flow.
 * [ ] No route guards or protected pages were added to the base template.
 * [ ] No frontend build tooling was introduced unintentionally.
 
@@ -111,6 +125,8 @@ Verify:
 Verify:
 
 * [ ] Documented endpoints match implemented endpoints.
+* [ ] Documented success response shapes match implemented response shapes.
+* [ ] Documented error response shapes and status codes match implemented behavior.
 * [ ] `GET /health/` works.
 * [ ] `GET /api/health/` works.
 * [ ] `GET /api/auth/csrf/` sets the CSRF cookie.
@@ -129,11 +145,13 @@ Verify:
 
 * [ ] No real secrets are committed.
 * [ ] `.env.example` contains placeholders only.
+* [ ] `.env` files are not automatically loaded by Django.
 * [ ] Passwords are not logged or returned.
 * [ ] Password hashes are not returned.
 * [ ] Session keys are not returned.
 * [ ] CSRF behavior is documented and tested.
 * [ ] Auth tokens are not stored in browser storage.
+* [ ] CSRF tokens are documented as request-protection details, not login tokens.
 * [ ] Backend validation remains authoritative.
 * [ ] Frontend validation is treated as UX only.
 * [ ] Login uses one generic invalid credentials error for unknown email and wrong password.
@@ -242,10 +260,13 @@ http://127.0.0.1:5500/
 Backend:
 
 ```powershell
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 .\.venv\Scripts\python.exe backend\manage.py check
 .\.venv\Scripts\python.exe backend\manage.py test app
 .\.venv\Scripts\python.exe -m unittest discover backend
 ```
+
+Use `backend\manage.py test app` from the repository root. Plain `backend\manage.py test` may complete while discovering zero tests and is not the documented release command.
 
 Frontend:
 
@@ -257,6 +278,8 @@ npx --yes html-validate@9 "*.html" "partials/*.html"
 ```
 
 Repository:
+
+Run the stale project-name grep checks from the release task; they should print no matches.
 
 ```powershell
 git diff --check
