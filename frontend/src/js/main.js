@@ -79,8 +79,8 @@
   const brandMark = {
     viewBox: '0 0 64 64',
     radius: 6,
-    ring: { cx: 31, cy: 30, r: 18, width: 5.5 },
-    tail: 'M39 39L51 51',
+    window: { x: 15, y: 15, width: 34, height: 34, radius: 5, stroke: 4 },
+    lines: ['M15 25H49', 'M27 15V49', 'M15 37H49'],
   };
 
   const svg = {
@@ -89,12 +89,13 @@
       return '<span class="svg-icon ' + className + '" style="--icon-url: url(\'' + path + '\');"' + aria + '></span>';
     },
     logo(className = 'brand-mark') {
-      const ring = brandMark.ring;
+      const appWindow = brandMark.window;
+      const lines = brandMark.lines.map((path) => '<path d="' + path + '" stroke="var(--logo-icon)" stroke-width="' + appWindow.stroke + '" stroke-linecap="round" />').join('');
       return [
         '<svg class="' + className + '" viewBox="' + brandMark.viewBox + '" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + CONTENT.brand.name + '">',
         '<rect width="64" height="64" rx="' + brandMark.radius + '" fill="var(--logo-bg)" />',
-        '<circle cx="' + ring.cx + '" cy="' + ring.cy + '" r="' + ring.r + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" />',
-        '<path d="' + brandMark.tail + '" stroke="var(--logo-icon)" stroke-width="' + ring.width + '" stroke-linecap="round" />',
+        '<rect x="' + appWindow.x + '" y="' + appWindow.y + '" width="' + appWindow.width + '" height="' + appWindow.height + '" rx="' + appWindow.radius + '" stroke="var(--logo-icon)" stroke-width="' + appWindow.stroke + '" />',
+        lines,
         '</svg>',
       ].join('');
     },

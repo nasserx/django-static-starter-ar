@@ -6,6 +6,8 @@
     }
   </style>
   <rect width="64" height="64" rx="6" fill="var(--mark-bg)" />
-  <circle cx="31" cy="30" r="18" stroke="var(--mark-fg)" stroke-width="5.5" />
-  <path d="M39 39L51 51" stroke="var(--mark-fg)" stroke-width="5.5" stroke-linecap="round" />
+  <rect x="15" y="15" width="34" height="34" rx="5" stroke="var(--mark-fg)" stroke-width="4" />
+  <path d="M15 25H49" stroke="var(--mark-fg)" stroke-width="4" stroke-linecap="round" />
+  <path d="M27 15V49" stroke="var(--mark-fg)" stroke-width="4" stroke-linecap="round" />
+  <path d="M15 37H49" stroke="var(--mark-fg)" stroke-width="4" stroke-linecap="round" />
 </svg>
