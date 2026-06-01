@@ -1,6 +1,6 @@
 # Environment Configuration
 
-This starter template should keep real secrets and local runtime configuration out of Git.
+This starter template keeps real secrets and local runtime configuration out of Git.
 
 Environment example files are safe templates only. Local `.env` files, virtual environments, SQLite databases, caches, logs, and coverage output should stay local and are ignored by `.gitignore`.
 
@@ -9,7 +9,7 @@ Environment example files are safe templates only. Local `.env` files, virtual e
 Tracked environment-related files:
 
 * `.env.example` - safe placeholder example file.
-* `backend/config/settings.py` - Django settings with hardcoded local development defaults.
+* `backend/config/settings.py` - Django settings with local development defaults and selected environment overrides.
 * `frontend/src/js/config.js` - static frontend configuration object.
 * `.gitignore` - ignores local environment/config artifacts.
 
@@ -20,48 +20,52 @@ Not present as tracked files:
 * `backend/.env`
 * `frontend/.env`
 
-Local-only files observed during the audit:
+Local-only files may exist during development and must remain untracked:
 
-* `backend/.env` - ignored, local-only, empty at audit time.
-* `frontend/.env` - ignored, local-only, empty at audit time.
-* `backend/db.sqlite3` - ignored local SQLite file.
-* Root `.venv/` and `backend/.venv/` - ignored local virtual environments.
+* `backend/.env`
+* `frontend/.env`
+* `backend/db.sqlite3`
+* Root `.venv/` and `backend/.venv/`
 
 Do not commit real secrets or local `.env` files.
 
 ## Backend Environment
 
-Backend local settings should eventually live in `backend/.env` or another clearly documented local-only mechanism.
+`backend/config/settings.py` reads a small set of backend settings directly through `os.environ`.
 
-Current code behavior:
+Important behavior:
 
-* `backend/config/settings.py` does not read `.env`.
-* `backend/config/settings.py` does not call `os.environ`.
+* Django still does not automatically load `.env` files.
 * `python-dotenv`, `django-environ`, or similar env-loading packages are not configured.
-* The backend currently uses development defaults directly in `settings.py`.
+* To use `.env` values locally, export them yourself or use external tooling before starting Django.
+* If a supported variable is unset or blank, the existing local development default is used.
+* Database settings are not environment-driven in this branch.
 
-Currently supported variables:
+Supported variables:
 
-* None through environment variables.
+| Variable | Purpose | Example | Default when unset or blank |
+| --- | --- | --- | --- |
+| `DJANGO_SECRET_KEY` | Overrides Django `SECRET_KEY`. Use a generated secret for real deployments. | `DJANGO_SECRET_KEY=change-me-to-a-generated-secret-key` | `django-insecure-development-only-change-me` |
+| `DJANGO_DEBUG` | Overrides Django `DEBUG`. Accepts `1`, `true`, `yes`, `on`, `0`, `false`, `no`, `off`. Invalid values raise `ValueError`. | `DJANGO_DEBUG=false` | `True` |
+| `DJANGO_ALLOWED_HOSTS` | Overrides Django `ALLOWED_HOSTS` with a comma-separated list. Empty entries are ignored. | `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1` | `["localhost", "127.0.0.1"]` |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | Overrides `CORS_ALLOWED_ORIGINS` with a comma-separated list of frontend origins. | `DJANGO_CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500` | Local frontend origins for ports `3000`, `5173`, and `5500` |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | Overrides `CSRF_TRUSTED_ORIGINS` with a comma-separated list of trusted frontend origins. | `DJANGO_CSRF_TRUSTED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500` | Local frontend origins for ports `3000`, `5173`, and `5500` |
 
-Current hardcoded development settings include:
+Current unchanged development settings include:
 
-* `SECRET_KEY = "django-insecure-development-only-change-me"`
-* `DEBUG = True`
-* `ALLOWED_HOSTS = ["localhost", "127.0.0.1"]`
-* SQLite database at `backend/db.sqlite3`
-* Local frontend CORS/CSRF origins for `3000`, `5173`, and `5500`
+* SQLite database at `backend/db.sqlite3`.
+* Django REST Framework JSON renderer/parser settings.
+* Existing installed apps and middleware order.
+* Local frontend CORS/CSRF origins for `3000`, `5173`, and `5500` when env overrides are not set.
 
-Recommended future backend variables:
+Example PowerShell override:
 
-* `DJANGO_SECRET_KEY`
-* `DJANGO_DEBUG`
-* `DJANGO_ALLOWED_HOSTS`
-* `CORS_ALLOWED_ORIGINS`
-* `CSRF_TRUSTED_ORIGINS`
-* `DATABASE_URL` or explicit database settings
-
-These future variables are not consumed yet. A later branch should add env parsing deliberately, with tests and clear local setup documentation.
+```powershell
+$env:DJANGO_DEBUG="false"
+cd backend
+.\.venv\Scripts\python.exe manage.py check
+Remove-Item Env:\DJANGO_DEBUG
+```
 
 ## Frontend Environment And Static Config
 
@@ -72,7 +76,7 @@ Current code behavior:
 * `frontend/src/js/config.js` defines `window.APP_CONFIG`.
 * `window.APP_CONFIG.BACKEND_API_BASE_URL` currently points to `http://127.0.0.1:8000`.
 * Auth endpoints are configured under `window.APP_CONFIG.endpoints`.
-* `frontend/.env` is not consumed by the browser.
+* `frontend/.env` is not consumed by browser JavaScript unless a future build or config injection step is introduced.
 
 Current configured auth endpoints:
 
@@ -83,12 +87,6 @@ Current configured auth endpoints:
 * `register: "/api/auth/register/"`
 
 To change frontend runtime config today, edit or inject `window.APP_CONFIG` before `frontend/src/js/main.js` runs. Do not add Vite, Webpack, React, or another build tool just for env support in this branch.
-
-Recommended future frontend config work:
-
-* Decide whether deployments should inject `window.APP_CONFIG` from server-rendered HTML.
-* Decide whether static hosting should use a generated config file.
-* Document how derived projects override `BACKEND_API_BASE_URL` per environment.
 
 ## Local-Only Files
 
@@ -117,15 +115,8 @@ Current safe pattern:
 
 1. Keep `.env.example` tracked.
 2. Do not commit `.env`, `backend/.env`, or `frontend/.env`.
-3. Treat `.env.example` as documentation until env loading is implemented.
-
-If a future branch adds backend env loading, a reasonable local setup could be:
-
-```powershell
-Copy-Item .env.example backend\.env
-```
-
-That command is only future guidance. The current backend does not read `backend/.env`.
+3. Export supported backend variables in your shell or deployment environment when defaults are not enough.
+4. Keep frontend runtime config in `window.APP_CONFIG` unless a future branch deliberately introduces a config injection step.
 
 ## Future Cleanup Candidates
 
@@ -133,13 +124,10 @@ That command is only future guidance. The current backend does not read `backend
 | --- | --- | --- | --- |
 | Decide whether to keep one root `.env.example` or split into `backend/.env.example` and `frontend/.env.example`. | Low | The current root example is safe but broad. Split examples may be clearer as the template grows. | `feature/template-env-examples` |
 | Decide whether `backend.env` and `frontend.env` should exist. | Low | They are not present or consumed today, but the naming question may return during template packaging. | `feature/template-env-examples` |
-| Add robust environment parsing to Django settings. | Medium | This changes runtime behavior and must be tested carefully. | `feature/backend-env-settings` |
 | Document production deployment environment variables. | Medium | Production docs require decisions about hosting, HTTPS, cookies, CORS, and CSRF. | `feature/production-env-docs` |
 | Add database configuration through env variables. | Medium | Database settings affect migrations, tests, and deployment behavior. | `feature/backend-database-env` |
 | Add a frontend API base URL strategy for multiple deployments. | Medium | Static frontend config needs a deliberate injection or generated-file approach. | `feature/frontend-runtime-config` |
 
 ## Non-Goals
 
-This document does not introduce runtime behavior changes.
-
-It does not add JWTs, token storage, redirects, route guards, protected pages, domain-specific features, frontend redesigns, new models, migrations, or new environment-loading dependencies.
+This document does not add automatic `.env` loading, new dependencies, database environment settings, JWTs, token storage, redirects, route guards, protected pages, domain-specific features, frontend redesigns, new models, or migrations.

@@ -63,9 +63,13 @@ Environment file behavior is documented in [environment.md](./environment.md).
 
 Current behavior:
 
-* `backend/config/settings.py` does not read `.env`.
+* Local development works with the backend defaults.
+* `backend/config/settings.py` can read selected settings from exported environment variables.
+* Django does not automatically load `.env` files.
 * `frontend/src/js/config.js` does not read `.env`.
 * Local `.env` files should stay untracked.
+
+See [environment.md](./environment.md) for supported backend variables and examples.
 
 ## Backend Setup
 
@@ -202,7 +206,7 @@ Frontend cannot reach backend:
 CORS or CSRF local origin mismatch:
 
 * Current Django settings include local frontend origins for ports `3000`, `5173`, and `5500`.
-* If you serve the frontend from another port, update settings in a deliberate future branch and run checks.
+* If you serve the frontend from another port, override `DJANGO_CORS_ALLOWED_ORIGINS` and `DJANGO_CSRF_TRUSTED_ORIGINS` locally or update settings in a deliberate future branch and run checks.
 
 Login returns HTTP `403`:
 

@@ -1,11 +1,36 @@
+import os
 from pathlib import Path
+
+
+def _get_env_bool(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+
+    raise ValueError(
+        f"{name} must be one of: 1, true, yes, on, 0, false, no, off."
+    )
+
+
+def _get_env_list(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-development-only-change-me"
-DEBUG = True
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "").strip() or "django-insecure-development-only-change-me"
+DEBUG = _get_env_bool("DJANGO_DEBUG", True)
+ALLOWED_HOSTS = _get_env_list("DJANGO_ALLOWED_HOSTS", ["localhost", "127.0.0.1"])
 
 INSTALLED_APPS = [
     "corsheaders",
@@ -82,6 +107,6 @@ LOCAL_FRONTEND_ORIGINS = [
     "http://127.0.0.1:5500",
 ]
 
-CORS_ALLOWED_ORIGINS = LOCAL_FRONTEND_ORIGINS
+CORS_ALLOWED_ORIGINS = _get_env_list("DJANGO_CORS_ALLOWED_ORIGINS", LOCAL_FRONTEND_ORIGINS)
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = LOCAL_FRONTEND_ORIGINS
+CSRF_TRUSTED_ORIGINS = _get_env_list("DJANGO_CSRF_TRUSTED_ORIGINS", LOCAL_FRONTEND_ORIGINS)

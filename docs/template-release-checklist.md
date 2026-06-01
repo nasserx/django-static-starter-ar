@@ -44,7 +44,8 @@ Verify:
 * [ ] `docs/template-usage.md` exists and explains safe downstream usage.
 * [ ] `CODEX.md` is up to date if used as the working log.
 * [ ] Docs are internally linked where useful.
-* [ ] Docs do not claim `.env` behavior that does not exist.
+* [ ] Docs state that backend settings read only the supported environment variables.
+* [ ] Docs state that `.env` files are not automatically loaded.
 * [ ] Docs do not describe domain-specific product features as part of the base template.
 * [ ] Docs clearly state that auth uses Django session/cookie authentication, not JWT.
 * [ ] Docs clearly state that frontend auth state is memory-only.
@@ -57,6 +58,7 @@ Verify:
 * [ ] `git diff --check` passes.
 * [ ] No real secrets are tracked.
 * [ ] Local `.env` files are ignored and not tracked.
+* [ ] `.env` files remain ignored.
 * [ ] SQLite database files are ignored and not tracked.
 * [ ] Virtual environments are ignored and not tracked.
 * [ ] `node_modules/` is ignored and not tracked.
@@ -74,6 +76,8 @@ Verify:
 * [ ] Migrations are in a known good state for local auth/session tables.
 * [ ] Django test runner passes.
 * [ ] Standalone auth validation tests pass.
+* [ ] Supported backend env vars are documented.
+* [ ] Backend env defaults still support local development.
 * [ ] Register creates Django users using hashed passwords.
 * [ ] Register does not log users in automatically.
 * [ ] Session login behavior remains intact.
@@ -122,6 +126,7 @@ Verify:
 Verify:
 
 * [ ] No real secrets are committed.
+* [ ] `.env.example` contains placeholders only.
 * [ ] Passwords are not logged or returned.
 * [ ] Password hashes are not returned.
 * [ ] Session keys are not returned.

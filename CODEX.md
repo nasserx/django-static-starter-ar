@@ -1624,3 +1624,38 @@ The current structure is mostly ready as a clean foundation.
 The frontend should remain stable and design-safe.
 
 The backend should stay simple at first, then evolve into domain-based Django apps when the application grows.
+
+## Branch Log: feature/backend-env-settings
+
+Goal:
+
+* Support selected Django backend settings from environment variables while preserving local development defaults.
+
+Scope:
+
+* `backend/config/settings.py`
+* `.env.example`
+* `docs/environment.md`
+* `docs/local-development.md`
+* `docs/template-release-checklist.md`
+* Optional tests for backend settings parsing helpers
+
+Constraints:
+
+* No auth behavior changes.
+* No endpoint changes.
+* No frontend design changes.
+* No new dependencies.
+* No automatic `.env` loading.
+* No database environment changes.
+
+Checks run:
+
+* `backend/.venv/Scripts/python.exe manage.py check`
+* `backend/.venv/Scripts/python.exe manage.py test`
+* `backend/.venv/Scripts/python.exe -m unittest app.tests`
+* `node --check frontend/src/js/main.js`
+* `node --check frontend/src/js/config.js`
+* `npx --yes html-validate@9 "*.html" "partials/*.html"`
+* `DJANGO_DEBUG=false` backend system check
+* `git diff --check`
