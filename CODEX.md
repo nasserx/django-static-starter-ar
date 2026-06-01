@@ -113,6 +113,8 @@ Run Django checks and Django's test runner:
 .\.venv\Scripts\python.exe backend\manage.py test app
 ```
 
+Use the explicit `app` label from the repository root. The plain `backend\manage.py test` command may complete but discover zero tests.
+
 Run the standalone test module through the virtual environment:
 
 ```powershell
