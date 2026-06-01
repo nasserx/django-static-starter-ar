@@ -171,6 +171,8 @@ Backend:
 .\.venv\Scripts\python.exe -m unittest discover backend
 ```
 
+Use the explicit `app` label for Django's test runner from the repository root. Running `.\.venv\Scripts\python.exe backend\manage.py test` without a label may complete but discover zero tests.
+
 Frontend:
 
 ```powershell
