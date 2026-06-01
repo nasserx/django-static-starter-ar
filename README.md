@@ -1,4 +1,6 @@
-# Django + Static Frontend Starter Template
+# django-static-starter-ar
+
+Django + static frontend starter template.
 
 This repository is being prepared as a reusable Django backend + static
 frontend starter template. It includes a Django session-auth foundation
@@ -54,9 +56,9 @@ Highlights:
 ## Preview locally
 
 ```bash
-# Static server (preferred — partials load via fetch)
-cd frontend && python -m http.server 8000
-# then visit http://localhost:8000/
+# Static server
+cd frontend && python -m http.server 5500
+# then visit http://127.0.0.1:5500/
 
 # Direct file open also works — main.js inlines the partials as a
 # fallback when fetch() fails on file://.
@@ -67,25 +69,36 @@ open frontend/index.html
 
 ```
 /
+├── backend/
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── app/
+│   ├── common/
+│   └── config/
 ├── frontend/
 │   ├── index.html
 │   ├── partials/
-│   │   ├── nav.html               brand + 4 tabs + theme toggle + login
-│   │   └── footer.html            3 columns (الشركة / الدعم / قانوني) + © strip
-│   ├── assets/
+│   ├── public/
+│   │   └── assets/
+│   │       ├── fonts/
+│   │       ├── icons/
+│   │       ├── images/
+│   │       └── manifest.json
+│   ├── src/
 │   │   ├── css/
 │   │   │   ├── tokens.css         dual-theme palette + radii + motion (FLAT)
-│   │   │   ├── layout.css         resets + primitives (.btn, .card, .input, …)
+│   │   │   ├── layout.css         resets + primitives (.btn, .card, .input, ...)
 │   │   │   └── components.css     landing-page composition
-│   │   ├── js/
-│   │   │   ├── theme.js           synchronous theme bootstrap (no FOUC)
-│   │   │   └── main.js            partials loader + nav + auth modal + scroll-spy + showcase rotator
-│   │   └── branding/              spark monogram favicon set
+│   │   └── js/
+│   │       ├── config.js          static runtime config object
+│   │       ├── theme.js           synchronous theme bootstrap (no FOUC)
+│   │       └── main.js            nav + auth modal + scroll-spy + showcase behavior
 │   └── .htmlvalidate.json
+├── docs/
 ├── README.md
 ├── CLAUDE.md
 ├── BACKEND_INTEGRATION.md
-└── docs/superpowers/specs/        design specs that drove this layout
+└── .env.example
 ```
 
 ## Information architecture
@@ -117,30 +130,31 @@ Two paths covered in detail in
   Jinja template
 - **Django** — `STATICFILES_DIRS` + `TemplateView`, with anchor-to-route
   conversion for the nav tabs
-- **Any framework** — serve `frontend/assets/` statically, render or
-  include `partials/nav.html` and `partials/footer.html`, then inject
-  config before `assets/js/main.js`.
+- **Any framework** — serve `frontend/public/assets/` statically, render
+  `frontend/index.html`, then inject config before `frontend/src/js/main.js`.
 
-API config lives at the top of `frontend/assets/js/main.js`:
+API config lives in `frontend/src/js/config.js`:
 
 ```js
 window.APP_CONFIG = window.APP_CONFIG || {
-  API_BASE_URL: 'https://api.your-backend.example',
-  endpoints: { trialSignup: '/api/trial', login: '/api/auth/login',
-               register: '/api/auth/register', oauthGoogle: '/api/auth/google' },
+  BACKEND_API_BASE_URL: 'http://127.0.0.1:8000',
+  endpoints: {
+    csrf: '/api/auth/csrf/',
+    me: '/api/auth/me/',
+    login: '/api/auth/login/',
+    logout: '/api/auth/logout/',
+    register: '/api/auth/register/',
+  },
 };
 ```
 
-Showcase card messages live in the same file:
+Showcase and page content config live in the same file under `window.APP_CONTENT`:
 
 ```js
-window.SHOWCASE_MESSAGES = window.SHOWCASE_MESSAGES || [
-  'اعرض ميزات تطبيقك بشكل تفاعلي هنا.',
-  // …
-];
+window.APP_CONTENT = window.APP_CONTENT || {};
 ```
 
-Override both with `<script>` blocks injected before `main.js`.
+Override config with `<script>` blocks injected before `frontend/src/js/main.js`.
 
 ## Adding a section
 
