@@ -91,6 +91,29 @@ For future backend work:
 
 Current auth should remain session/cookie based unless a future scoped auth architecture branch deliberately changes that decision.
 
+## Auth And Security Boundaries
+
+The starter's current auth boundary is deliberately small:
+
+* Django session/cookie authentication is the only auth strategy.
+* Register creates a Django user but does not log the user in.
+* Login creates a Django session and logout destroys session authentication state.
+* Register, login, and logout POST requests rely on Django CSRF protection.
+* CSRF tokens are request-protection details, not login tokens or API credentials.
+* `/api/auth/me/` reports current session state only.
+
+The current `/api/auth/me/` response is intentionally narrow:
+
+* Anonymous users receive `{"authenticated": false, "user": null}`.
+* Authenticated users receive `authenticated: true` with user `id` and `email`.
+* Tests assert auth responses do not return passwords, password hashes, tokens, session keys, CSRF token values, permissions, or staff/superuser flags.
+
+The static frontend should use browser-managed cookies with `credentials: "include"` and should keep auth state in memory through `window.AuthSession`. It should not store auth credentials, tokens, session data, or user auth state in `localStorage` or `sessionStorage`.
+
+This starter does not provide authorization patterns, protected routes, protected pages, role checks, permissions UI, or route guards by default. Applications built from the starter can add those later in project-specific branches with their own tests and documentation.
+
+For endpoint response shapes and error behavior, see [api.md](./api.md).
+
 ## Frontend Extension Guidance
 
 For future frontend work:
