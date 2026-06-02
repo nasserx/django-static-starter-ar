@@ -3,7 +3,7 @@
 Generic Arabic reusable starter template with a Django backend and a static
 HTML/CSS/JavaScript frontend.
 
-Latest release: **v0.1.1 — Public Template Hardening**.
+Latest release: **v0.1.3 — Frontend Contract and Template Cleanup**.
 
 The default frontend/site name is **"منصتك"**. The visible frontend copy is
 generic placeholder content intended to be replaced by the user when starting a

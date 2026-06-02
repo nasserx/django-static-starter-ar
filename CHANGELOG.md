@@ -4,11 +4,26 @@ This changelog tracks notable changes for the reusable Django and static fronten
 
 ## Unreleased
 
-### Added
+No unreleased changes.
+
+## v0.1.3 - Frontend Contract and Template Cleanup
 
 ### Changed
 
+- Converted the hero email/signup form into a static demo-only form.
+- Confirmed the backend contract remains limited to the documented health and auth endpoints.
+
 ### Removed
+
+- Removed the unsupported Google OAuth placeholder from the default frontend.
+- Removed unsupported `/api/trial` frontend behavior.
+- Removed unused empty backend placeholder modules while keeping Python package marker files.
+
+## v0.1.2 - Frontend CSRF Registration Fix
+
+### Fixed
+
+- Fixed frontend registration POST handling so the static frontend requests the CSRF cookie and sends `X-CSRFToken` with credentials for Django session/cookie auth.
 
 ## v0.1.1 - Public Template Hardening
 
