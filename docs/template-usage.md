@@ -33,7 +33,23 @@ Avoid using the neutral base template branch for domain-specific product work. A
 
 ## Starting A New Project From The Template
 
-Recommended workflow:
+Preferred option:
+
+Use GitHub's **Use this template** button to create a new repository from this template.
+
+Manual Git option:
+
+```powershell
+git clone https://github.com/nasserx/django-static-starter-ar.git my-new-app
+cd my-new-app
+git remote remove origin
+git remote add origin https://github.com/nasserx/<new-repo>.git
+git push -u origin main
+```
+
+After creating the new repository, update the project name, README, frontend copy, and application-specific settings in the new project. Keep the original template repository generic.
+
+Recommended next steps:
 
 1. Create a new downstream repository or a new focused branch.
 2. Keep base template commits clean and domain-neutral.
