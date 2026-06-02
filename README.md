@@ -25,6 +25,9 @@ For the current backend API contract, see
 For guidance on using this repository as a reusable starter, see
 [`docs/template-usage.md`](./docs/template-usage.md).
 
+To start a new project from this template, see
+[`docs/template-usage.md#starting-a-new-project-from-the-template`](./docs/template-usage.md#starting-a-new-project-from-the-template).
+
 For the starter-template readiness checklist, see
 [`docs/template-release-checklist.md`](./docs/template-release-checklist.md).
 
