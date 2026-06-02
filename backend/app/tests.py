@@ -142,6 +142,18 @@ class ApiFoundationTests(SimpleTestCase):
         self.assertEqual(data["user"]["email"], "user@example.com")
         self.assertEqual(user.email, "user@example.com")
 
+    def test_register_without_csrf_token_is_rejected_when_csrf_checks_are_enforced(self) -> None:
+        client = Client(enforce_csrf_checks=True)
+
+        response = client.post(
+            "/api/auth/register/",
+            data=json.dumps({"email": "user@example.com", "password": "Password1"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(get_user_model()._default_manager.count(), 0)
+
     def test_register_success_response_never_includes_password(self) -> None:
         response = self._post_register({"email": "user@example.com", "password": "Password1"})
 
