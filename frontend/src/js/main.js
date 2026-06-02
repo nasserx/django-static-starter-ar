@@ -1016,6 +1016,15 @@
       baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL,
       provider: 'email',
       fallbackError: AUTH_COPY.fallbackError.register,
+      prepareRequest: async () => {
+        await requestCsrfCookie({ baseUrl: CONFIG.BACKEND_API_BASE_URL || CONFIG.API_BASE_URL });
+        const csrfToken = getCookie('csrftoken');
+        if (!csrfToken) throw new Error('Missing CSRF token');
+        return {
+          credentials: 'include',
+          headers: { 'X-CSRFToken': csrfToken },
+        };
+      },
       onSuccess: ({ form, result, submit }) => {
         setBusy(submit, false);
         if (!result || result.is_valid !== true) {
