@@ -576,14 +576,18 @@
   }
 
   function buildAuthModalMarkup() {
+    const providerButtons = buildProviderButtons();
+    const providerMarkup = providerButtons
+      ? '<div class="auth-modal__providers">' + providerButtons + '</div><div class="auth-divider" aria-hidden="true"><span></span><strong>أو</strong><span></span></div>'
+      : '';
+
     return (
       '<div class="auth-modal__panel" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">' +
       '<div class="auth-modal__head">' +
       '<h2 id="authModalTitle">' + AUTH_COPY.titles.login + '</h2>' +
       '<button class="auth-modal__close" type="button" data-auth-close aria-label="إغلاق">×</button>' +
       '</div>' +
-      '<div class="auth-modal__providers">' + buildProviderButtons() + '</div>' +
-      '<div class="auth-divider" aria-hidden="true"><span></span><strong>أو</strong><span></span></div>' +
+      providerMarkup +
       '<div class="auth-tabs" role="tablist" aria-label="خيارات الدخول">' +
       '<button class="auth-tab is-active" id="' + AUTH_PANEL.login.tabId + '" type="button" role="tab" aria-selected="true" aria-controls="' + AUTH_PANEL.login.panelId + '" data-auth-tab="login">' + AUTH_COPY.tabs.login + '</button>' +
       '<button class="auth-tab" id="' + AUTH_PANEL.register.tabId + '" type="button" role="tab" aria-selected="false" aria-controls="' + AUTH_PANEL.register.panelId + '" data-auth-tab="register">' + AUTH_COPY.tabs.register + '</button>' +
@@ -938,7 +942,8 @@
       }
     });
 
-    $$('[data-auth-provider]', modal).forEach((button) => {
+    const providerButtons = $$('[data-auth-provider]', modal);
+    if (providerButtons.length) providerButtons.forEach((button) => {
       button.addEventListener('click', async () => {
         const provider = AUTH_PROVIDERS.find((item) => item.id === button.dataset.authProvider);
         if (!provider) return;
