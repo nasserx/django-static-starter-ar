@@ -159,7 +159,7 @@
 
   function renderHero() {
     const hero = CONTENT.hero;
-    const form = hero.trialForm;
+    const form = hero.demoForm;
     const dotCount = hero.preview.messages.length;
     const dots = Array.from({ length: dotCount }, (_, index) => '<span class="showcase-dot' + (index === 0 ? ' is-active' : '') + '"></span>').join('');
 
@@ -169,9 +169,9 @@
       '<div class="hero-text">',
       '<h1><span class="accent">' + hero.titlePrefix + '</span>' + hero.titleSuffix + '</h1>',
       '<p class="lead">' + hero.lead + '</p>',
-      '<form class="email-form" id="' + form.id + '" action="' + form.action + '" method="' + form.method + '" data-endpoint-key="' + form.endpointKey + '" autocomplete="on" novalidate>',
+      '<form class="email-form" id="' + form.id + '" autocomplete="on" novalidate>',
       '<input type="email" name="' + form.inputName + '" placeholder="' + form.inputPlaceholder + '" aria-label="' + form.inputLabel + '" autocomplete="email" inputmode="email" required dir="ltr">',
-      '<button type="submit" data-loading-label="' + form.loadingLabel + '" data-success-label="' + form.successLabel + '">' + form.submitLabel + svg.arrow + '</button>',
+      '<button type="submit" data-success-label="' + form.successLabel + '">' + form.submitLabel + svg.arrow + '</button>',
       '</form>',
       '<div class="hero-note">' + svg.checkCircle + hero.note + '</div>',
       '</div>',
@@ -658,7 +658,7 @@
     });
   }
 
-  function bindTrialForm() {
+  function bindDemoForm() {
     const form = $('#emailForm');
     if (!form) return;
 
@@ -673,7 +673,7 @@
 
     input.addEventListener('input', () => setFormError(false));
 
-    form.addEventListener('submit', async (event) => {
+    form.addEventListener('submit', (event) => {
       event.preventDefault();
       const email = (input.value || '').trim().toLowerCase();
 
@@ -684,18 +684,7 @@
       }
 
       setFormError(false);
-      setBusy(button, true, button.dataset.loadingLabel || 'جارٍ التحضير...');
-
-      try {
-        const endpointKey = form.dataset.endpointKey || 'trialSignup';
-        const result = await apiPost(endpointKey, { email });
-        if (!result.ok) throw new Error(result.error || 'trial failed');
-        button.textContent = button.dataset.successLabel || 'تحقّق من بريدك';
-      } catch (_) {
-        setFormError(true);
-        input.focus();
-        setBusy(button, false);
-      }
+      button.textContent = button.dataset.successLabel || 'هذا نموذج تجريبي ضمن القالب.';
     });
   }
 
@@ -1252,7 +1241,7 @@
     renderApp();
     bindThemeToggle();
     bindNavigation();
-    bindTrialForm();
+    bindDemoForm();
     bindAuthModal();
     bindAuthStateControls();
     checkCurrentAuthState();

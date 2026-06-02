@@ -6,14 +6,12 @@
  *
  * Django/Jinja examples:
  *   brand.name: '{{ brand_name }}'
- *   trialForm.action: '{% url "trial_signup" %}'
  *   API_BASE_URL: '{{ api_base_url }}'
  */
 window.APP_CONFIG = window.APP_CONFIG || {
   API_BASE_URL: '#',
   BACKEND_API_BASE_URL: 'http://127.0.0.1:8000',
   endpoints: {
-    trialSignup: '/api/trial',
     csrf: '/api/auth/csrf/',
     me: '/api/auth/me/',
     login: '/api/auth/login/',
@@ -46,17 +44,13 @@ window.APP_CONTENT = window.APP_CONTENT || {
     titlePrefix: 'ابدأ مشروعك',
     titleSuffix: ' بواجهة عربية جاهزة',
     lead: 'منصتك قالب بداية عام يجمع واجهة منظمة قابلة للتخصيص مع خلفية Django، لتبدأ مشروعك بسرعة وتستبدل المحتوى بما يناسب فكرتك.',
-    trialForm: {
+    demoForm: {
       id: 'emailForm',
-      action: '/trial',
-      method: 'POST',
-      endpointKey: 'trialSignup',
       inputName: 'email',
       inputLabel: 'البريد الإلكتروني',
       inputPlaceholder: 'أدخل بريدك الإلكتروني',
-      submitLabel: 'جرّب البداية',
-      loadingLabel: 'جارٍ التحضير...',
-      successLabel: 'تحقّق من بريدك',
+      submitLabel: 'عرض النموذج',
+      successLabel: 'هذا نموذج تجريبي ضمن القالب.',
     },
     note: 'محتوى الواجهة افتراضي ومعد للاستبدال في مشروعك القادم.',
     preview: {
