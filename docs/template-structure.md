@@ -62,20 +62,13 @@ Current notable backend files:
 * `backend/config/urls.py` - current route registration.
 * `backend/requirements.txt` - backend Python dependencies.
 
-Placeholder backend files currently exist and should be reviewed in a later cleanup branch:
+Empty package marker files remain where Python packages need to be explicit:
 
-* `backend/app/admin.py`
-* `backend/app/models.py`
-* `backend/app/selectors.py`
-* `backend/app/serializers.py`
-* `backend/app/services.py`
-* `backend/app/urls.py`
-* `backend/app/views.py`
-* `backend/common/pagination.py`
-* `backend/common/responses.py`
-* `backend/common/utils.py`
+* `backend/app/__init__.py`
+* `backend/common/__init__.py`
+* `backend/config/__init__.py`
 
-Do not remove these placeholders during this audit branch. Decide later whether they help template clarity or add noise.
+Unused empty placeholder modules have been removed. Add modules such as `models.py`, `services.py`, `selectors.py`, `serializers.py`, or app-level `urls.py` only when a real feature needs them.
 
 ## Frontend Structure
 
@@ -143,7 +136,6 @@ The supported documented Python workflow uses the repository-root `.venv`. `back
 Potential future cleanup work:
 
 * Decide whether to keep `backend/app/` or split/rename it into clearer apps such as `accounts`, `core`, or `api`.
-* Decide whether placeholder backend files should stay for template guidance or be removed until needed.
 * Split `frontend/src/js/main.js` into smaller modules.
 * Clarify `frontend/pages/` versus `frontend/src/pages/`.
 * Reconcile older docs that still describe the previous frontend-only template and older asset paths.
