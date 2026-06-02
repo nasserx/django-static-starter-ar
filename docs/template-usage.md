@@ -215,6 +215,5 @@ These are candidates for later branches only.
 | Add deployment docs | Low | Could help production handoff. | Deployment strategy is not chosen in this branch. |
 | Expand CI checks | Medium | Could catch regressions earlier. | CI behavior and tooling should change in a separate branch. |
 | Add frontend component/page documentation | Low | Could help downstream frontend customization. | This branch focuses on overall template usage. |
-| Add template release checklist | Low | Could help tag stable starter versions. | Release/versioning policy is not defined yet. |
 
 Keep cleanup branches narrow and reversible. Run standard checks before committing.

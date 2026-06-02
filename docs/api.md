@@ -612,7 +612,7 @@ Current behavior:
 * Logout requests or uses a CSRF token, then posts to `/api/auth/logout/` with `credentials: "include"` and `X-CSRFToken`.
 * Frontend auth state is memory-only through `window.AuthSession`.
 
-Some frontend config keys exist as placeholders for future work and are not part of the implemented backend API contract in this document.
+The starter has no official forgot-password or reset-password endpoint. Do not add frontend auth placeholders for unsupported backend endpoints; new auth endpoints should be implemented and documented together.
 
 ## Security Notes
 
