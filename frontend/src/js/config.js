@@ -19,7 +19,6 @@ window.APP_CONFIG = window.APP_CONFIG || {
     login: '/api/auth/login/',
     logout: '/api/auth/logout/',
     register: '/api/auth/register/',
-    forgotPassword: '/api/auth/forgot-password',
     oauthGoogle: '/api/auth/google',
   },
 };

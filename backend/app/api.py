@@ -8,7 +8,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from rest_framework import status
-from rest_framework.exceptions import ParseError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -40,23 +39,24 @@ def current_user(request):
     )
 
 
-@api_view(["POST"])
+@require_POST
+@csrf_protect
 def register_validation(request):
     try:
-        payload = request.data
-    except ParseError:
-        return _invalid_json_body_response()
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return _invalid_json_body_json_response()
 
     if not isinstance(payload, dict):
-        return _invalid_json_body_response()
+        return _invalid_json_body_json_response()
 
     result = validate_auth_payload(payload.get("email"), payload.get("password"))
     if not result["is_valid"]:
-        return Response(result, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(result, status=status.HTTP_400_BAD_REQUEST)
 
     email = result["normalized"]["email"]
     if _email_is_registered(email):
-        return Response(
+        return JsonResponse(
             {
                 "is_valid": False,
                 "errors": [build_error("email", AuthErrorCode.EMAIL_ALREADY_REGISTERED)],
@@ -66,7 +66,7 @@ def register_validation(request):
         )
 
     user = _create_user(email, payload.get("password"))
-    return Response(
+    return JsonResponse(
         {
             "is_valid": True,
             "user_created": True,
@@ -129,17 +129,6 @@ def logout_session(request):
             "message": "تم تسجيل الخروج بنجاح.",
         },
         status=status.HTTP_200_OK,
-    )
-
-
-def _invalid_json_body_response():
-    return Response(
-        {
-            "is_valid": False,
-            "errors": [build_error("general", RequestErrorCode.INVALID_JSON_BODY)],
-            "normalized": {},
-        },
-        status=status.HTTP_400_BAD_REQUEST,
     )
 
 

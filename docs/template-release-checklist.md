@@ -30,6 +30,8 @@ Use this section as the top-level release gate:
 * [ ] Session/cookie auth behavior is intact.
 * [ ] Auth/security boundaries are documented.
 * [ ] Frontend auth session behavior is documented.
+* [ ] `LICENSE`, `SECURITY.md`, and `CHANGELOG.md` exist.
+* [ ] `CHANGELOG.md` is updated before release without marking unreleased work as released.
 * [ ] No secrets or local artifacts are tracked.
 * [ ] No domain-specific implementation was added to the base template.
 * [ ] Manual auth QA has been completed.
@@ -49,6 +51,9 @@ Verify:
 * [ ] `docs/api.md` documents current success and error response contracts.
 * [ ] `docs/template-usage.md` exists and explains safe downstream usage.
 * [ ] `docs/template-usage.md` documents auth/security boundaries and frontend auth session behavior.
+* [ ] `LICENSE` exists.
+* [ ] `SECURITY.md` exists and reflects template security expectations.
+* [ ] `CHANGELOG.md` exists and has an accurate `Unreleased` section before release.
 * [ ] `CODEX.md` is up to date if used as the working log.
 * [ ] Docs are internally linked where useful.
 * [ ] Docs state that backend settings read only the supported environment variables.
@@ -74,6 +79,8 @@ Verify:
 * [ ] SQLite database files are ignored and not tracked.
 * [ ] Virtual environments are ignored and not tracked.
 * [ ] `node_modules/` is ignored and not tracked.
+* [ ] No `package.json` or frontend package manager workflow was introduced unless intentionally approved.
+* [ ] No new dependencies were added unless intentionally approved.
 * [ ] Logs, cache files, coverage outputs, and generated artifacts are ignored and not tracked.
 * [ ] Frontend public assets are not accidentally ignored.
 * [ ] Documentation files are not accidentally ignored.
@@ -86,11 +93,13 @@ Verify:
 * [ ] Backend requirements install correctly from `backend/requirements.txt`.
 * [ ] Backend requirements are installed into the repository-root `.venv`.
 * [ ] Django system check passes.
+* [ ] Python dependency check passes with `.\.venv\Scripts\python.exe -m pip check`.
 * [ ] Migrations are in a known good state for local auth/session tables.
 * [ ] Django app test runner passes with `.\.venv\Scripts\python.exe backend\manage.py test app`.
 * [ ] Standalone unittest discovery passes with `.\.venv\Scripts\python.exe -m unittest discover backend`.
 * [ ] Supported backend env vars are documented.
 * [ ] Backend env defaults still support local development.
+* [ ] Development `manage.py check --deploy` warnings are understood and expected unless production settings are configured.
 * [ ] Register creates Django users using hashed passwords.
 * [ ] Register does not log users in automatically.
 * [ ] Session login behavior remains intact.
@@ -116,21 +125,35 @@ Verify:
 * [ ] Frontend auth session behavior is documented.
 * [ ] No token persistence was added.
 * [ ] No auth data persistence was added to `localStorage` or `sessionStorage`.
+* [ ] No unsupported frontend API placeholders exist for nonexistent backend endpoints.
+* [ ] No forgot-password or reset-password UI/API behavior exists unless a real backend endpoint is added and documented.
 * [ ] No redirects were added to the base auth flow.
 * [ ] No route guards or protected pages were added to the base template.
 * [ ] No frontend build tooling was introduced unintentionally.
+* [ ] No npm workflow was introduced unintentionally.
 
 ## API Checklist
 
 Verify:
 
 * [ ] Documented endpoints match implemented endpoints.
+* [ ] Official endpoints remain limited to:
+
+  * `GET /health/`
+  * `GET /api/health/`
+  * `GET /api/auth/csrf/`
+  * `POST /api/auth/register/`
+  * `POST /api/auth/login/`
+  * `GET /api/auth/me/`
+  * `POST /api/auth/logout/`
+
+* [ ] No forgot-password or reset-password endpoint is documented unless it is implemented.
 * [ ] Documented success response shapes match implemented response shapes.
 * [ ] Documented error response shapes and status codes match implemented behavior.
 * [ ] `GET /health/` works.
 * [ ] `GET /api/health/` works.
 * [ ] `GET /api/auth/csrf/` sets the CSRF cookie.
-* [ ] `POST /api/auth/register/` creates a user and does not log in automatically.
+* [ ] `POST /api/auth/register/` creates a user, requires CSRF, and does not log in automatically.
 * [ ] `POST /api/auth/login/` creates a session and requires CSRF.
 * [ ] `GET /api/auth/me/` returns the anonymous response shape.
 * [ ] `GET /api/auth/me/` returns the authenticated response shape.
@@ -155,6 +178,9 @@ Verify:
 * [ ] Backend validation remains authoritative.
 * [ ] Frontend validation is treated as UX only.
 * [ ] Login uses one generic invalid credentials error for unknown email and wrong password.
+* [ ] The starter is documented as development-friendly by default, not production-safe out of the box.
+* [ ] Consuming projects must set production values for `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CORS_ALLOWED_ORIGINS`, and `DJANGO_CSRF_TRUSTED_ORIGINS`.
+* [ ] `manage.py check --deploy` warnings such as `SECURE_HSTS_SECONDS`, `SECURE_SSL_REDIRECT`, development `SECRET_KEY`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, and `DEBUG=True` are expected for the development starter unless production settings are configured.
 
 ## Domain-Neutrality Checklist
 
@@ -264,6 +290,7 @@ Backend:
 .\.venv\Scripts\python.exe backend\manage.py check
 .\.venv\Scripts\python.exe backend\manage.py test app
 .\.venv\Scripts\python.exe -m unittest discover backend
+.\.venv\Scripts\python.exe -m pip check
 ```
 
 Use `backend\manage.py test app` from the repository root. Plain `backend\manage.py test` may complete while discovering zero tests and is not the documented release command.
@@ -336,7 +363,7 @@ These are future branch candidates only.
 | --- | --- | --- |
 | Backend env settings | Medium | Add deliberate environment parsing for Django settings without surprising runtime changes. |
 | Deployment docs | Low | Document production hosting, HTTPS, cookies, allowed hosts, CORS, and CSRF later. |
-| CI expansion | Medium | Add broader automated checks once the desired CI policy is clear. |
+| CI expansion | Medium | Broaden automated checks beyond the current official checks once the desired CI policy is clear. |
 | Optional OpenAPI/schema docs | Medium | Add machine-readable API docs if a future branch accepts the dependency/tooling. |
 | Frontend component docs | Low | Help downstream teams customize the static frontend safely. |
 | `backend/app` rename analysis | High | Evaluate clearer backend app naming without breaking imports or tests. |

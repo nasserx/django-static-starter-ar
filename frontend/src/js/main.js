@@ -23,13 +23,6 @@
       login: 'تسجيل الدخول',
       register: 'إنشاء حساب',
     },
-    forgotPassword: {
-      label: 'نسيت كلمة المرور؟',
-      loading: 'جارٍ الإرسال...',
-      missingEmail: 'أدخل بريدك الإلكتروني أولًا لإرسال رابط إعادة التعيين.',
-      success: 'أرسلنا رابط إعادة التعيين إن كان البريد مسجلًا.',
-      failure: 'تعذّر إرسال رابط إعادة التعيين. حاول مرة أخرى.',
-    },
     validation: {
       emailRequired: 'أدخل البريد الإلكتروني.',
       passwordRequired: 'أدخل كلمة المرور.',
@@ -576,7 +569,6 @@
     return (
       '<form class="auth-form' + (hidden ? '' : ' is-active') + '" id="' + panel.panelId + '" role="tabpanel" aria-labelledby="' + panel.tabId + '" data-auth-panel="' + name + '"' + (hidden ? ' hidden' : '') + ' novalidate>' +
       fieldMarkup +
-      (name === 'login' ? '<button class="auth-forgot-link" type="button" data-auth-forgot>' + AUTH_COPY.forgotPassword.label + '</button>' : '') +
       '<div class="auth-modal__error" id="' + panel.errorId + '" data-auth-error="' + name + '" hidden></div>' +
       '<button class="btn btn-primary auth-submit" type="submit">' + AUTH_COPY.titles[name] + '</button>' +
       '</form>'
@@ -979,37 +971,6 @@
     });
 
     bindPasswordToggles(modal);
-
-    const forgotButton = $('[data-auth-forgot]', modal);
-    if (forgotButton) {
-      forgotButton.addEventListener('click', async () => {
-        const form = $('[data-auth-panel="login"]', modal);
-        const emailInput = form ? $('input[name="email"]', form) : null;
-        const email = emailInput ? (emailInput.value || '').trim().toLowerCase() : '';
-
-        clearError('login');
-        setInputState(emailInput, null);
-
-        if (!hasValue(email)) {
-          showError('login', AUTH_COPY.forgotPassword.missingEmail);
-          setInputState(emailInput, 'error');
-          if (emailInput) emailInput.focus();
-          return;
-        }
-
-        setBusy(forgotButton, true, AUTH_COPY.forgotPassword.loading);
-
-        try {
-          const result = await apiPost('forgotPassword', { email });
-          if (!result.ok) throw new Error(result.error || 'forgot password failed');
-          setBusy(forgotButton, false);
-          showMessage('login', AUTH_COPY.forgotPassword.success, 'success');
-        } catch (_) {
-          setBusy(forgotButton, false);
-          showError('login', AUTH_COPY.forgotPassword.failure);
-        }
-      });
-    }
 
     bindAuthForm(modal, 'login', {
       loadingLabel: AUTH_COPY.loading.login,
