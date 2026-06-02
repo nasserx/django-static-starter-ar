@@ -6,6 +6,14 @@ This changelog tracks notable changes for the reusable Django and static fronten
 
 ### Added
 
+### Changed
+
+### Removed
+
+## v0.1.1 - Public Template Hardening
+
+### Added
+
 - Added an MIT `LICENSE` file.
 - Added `SECURITY.md` with vulnerability reporting guidance and production security expectations for consuming projects.
 

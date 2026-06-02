@@ -3,6 +3,8 @@
 Generic Arabic reusable starter template with a Django backend and a static
 HTML/CSS/JavaScript frontend.
 
+Latest release: **v0.1.1 — Public Template Hardening**.
+
 The default frontend/site name is **"منصتك"**. The visible frontend copy is
 generic placeholder content intended to be replaced by the user when starting a
 real project. The template is not tied to any specific domain, product type, or
@@ -25,6 +27,12 @@ For guidance on using this repository as a reusable starter, see
 
 For the starter-template readiness checklist, see
 [`docs/template-release-checklist.md`](./docs/template-release-checklist.md).
+
+Project trust and release files:
+
+- [`LICENSE`](./LICENSE)
+- [`SECURITY.md`](./SECURITY.md)
+- [`CHANGELOG.md`](./CHANGELOG.md)
 
 ## Frontend Template
 
@@ -97,6 +105,18 @@ http://127.0.0.1:8000/
 Current auth behavior uses Django sessions and cookies. The starter does not use
 JWTs, frontend token storage, route guards, protected pages, or redirects.
 
+Official backend endpoints are limited to:
+
+- `GET /health/`
+- `GET /api/health/`
+- `GET /api/auth/csrf/`
+- `POST /api/auth/register/`
+- `POST /api/auth/login/`
+- `GET /api/auth/me/`
+- `POST /api/auth/logout/`
+
+There is no official forgot-password or reset-password endpoint in the starter.
+
 ## Official Virtual Environment Workflow
 
 The supported documented Python workflow uses the repository-root `.venv`.
@@ -120,6 +140,12 @@ automatically by the project.
 No dependency is used to auto-load `.env` files. If you need environment values
 locally, export supported variables yourself before running Django or introduce a
 deliberate, documented change in a separate branch.
+
+## Security Notes
+
+The starter is development-friendly by default and is not production-safe out of
+the box. Review [`SECURITY.md`](./SECURITY.md) before deploying a downstream
+project.
 
 ## Project Layout
 
@@ -192,6 +218,7 @@ Run backend checks from the repository root:
 .\.venv\Scripts\python.exe backend\manage.py check
 .\.venv\Scripts\python.exe backend\manage.py test app
 .\.venv\Scripts\python.exe -m unittest discover backend
+.\.venv\Scripts\python.exe -m pip check
 ```
 
 Run frontend syntax and HTML checks from the `frontend/` directory:
