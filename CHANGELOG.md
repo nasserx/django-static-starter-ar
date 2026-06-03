@@ -6,6 +6,17 @@ This changelog tracks notable changes for the reusable Django and static fronten
 
 No unreleased changes.
 
+## v0.1.4 - Optional Security Settings Hardening
+
+### Added
+
+- Added optional environment-driven Django security settings for SSL redirect, secure session/CSRF cookies, HSTS, and referrer policy.
+
+### Changed
+
+- Preserved local-development-safe defaults while documenting the new optional hardening knobs.
+- Confirmed the frontend, runtime auth model, dependencies, and build workflow remain unchanged.
+
 ## v0.1.3 - Frontend Contract and Template Cleanup
 
 ### Changed
