@@ -10,26 +10,17 @@ generic placeholder content intended to be replaced by the user when starting a
 real project. The template is not tied to any specific domain, product type, or
 business model.
 
-For the current structure audit and future cleanup notes, see
-[`docs/template-structure.md`](./docs/template-structure.md).
+To start a new project from this template, see [the template usage guide](./docs/template-usage.md#starting-a-new-project-from-the-template).
 
-For environment file usage and current config behavior, see
-[`docs/environment.md`](./docs/environment.md).
+For the current backend, frontend, and documentation layout, see [the project structure guide](./docs/template-usage.md#project-structure).
 
-For local setup and day-to-day development commands, see
-[`docs/local-development.md`](./docs/local-development.md).
+For environment file usage and current config behavior, see [the environment guide](./docs/environment.md).
 
-For the current backend API contract, see
-[`docs/api.md`](./docs/api.md).
+For local setup and day-to-day development commands, see [the local development guide](./docs/local-development.md).
 
-For guidance on using this repository as a reusable starter, see
-[`docs/template-usage.md`](./docs/template-usage.md).
+For the current backend API contract, see [the API guide](./docs/api.md).
 
-To start a new project from this template, see
-[`docs/template-usage.md#starting-a-new-project-from-the-template`](./docs/template-usage.md#starting-a-new-project-from-the-template).
-
-For the starter-template readiness checklist, see
-[`docs/template-release-checklist.md`](./docs/template-release-checklist.md).
+For the starter-template readiness checklist, see [the template release checklist](./docs/template-release-checklist.md).
 
 Project trust and release files:
 
@@ -149,36 +140,6 @@ deliberate, documented change in a separate branch.
 The starter is development-friendly by default and is not production-safe out of
 the box. Review [`SECURITY.md`](./SECURITY.md) before deploying a downstream
 project.
-
-## Project Layout
-
-```text
-/
-├── backend/
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── app/
-│   ├── common/
-│   └── config/
-├── frontend/
-│   ├── index.html
-│   ├── public/
-│   │   └── assets/
-│   │       ├── icons/
-│   │       └── manifest.json
-│   └── src/
-│       ├── css/
-│       │   ├── tokens.css
-│       │   ├── layout.css
-│       │   └── components.css
-│       └── js/
-│           ├── config.js
-│           ├── theme.js
-│           └── main.js
-├── docs/
-├── README.md
-└── .env.example
-```
 
 ## Information Architecture
 

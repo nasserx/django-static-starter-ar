@@ -54,7 +54,7 @@ Recommended next steps:
 1. Create a new downstream repository or a new focused branch.
 2. Keep base template commits clean and domain-neutral.
 3. Rename project-level branding only in the downstream project if needed.
-4. Review [template-structure.md](./template-structure.md).
+4. Review [Project structure](#project-structure).
 5. Review [environment.md](./environment.md).
 6. Review [local-development.md](./local-development.md).
 7. Review [api.md](./api.md).
@@ -63,6 +63,85 @@ Recommended next steps:
 10. Run the standard backend, frontend, and repository checks before and after changes.
 
 Do not commit real secrets, local databases, virtual environments, caches, logs, or generated artifacts.
+
+## Project structure
+
+The starter is split into a Django backend, a static frontend, and documentation. It has no `package.json`, npm workflow, frontend framework, bundler, or frontend build step.
+
+### Backend structure
+
+```text
+backend/
+├── manage.py
+├── requirements.txt
+├── app/
+├── common/
+└── config/
+```
+
+Important backend areas:
+
+* `backend/config/` - Django project settings, URL routing, ASGI, and WSGI modules.
+* `backend/app/` - current starter app with health/auth API endpoints, validation helpers, app config, and tests.
+* `backend/common/` - shared backend utilities such as centralized error definitions.
+* `backend/requirements.txt` - Python backend dependencies.
+
+The official backend API contract is documented in [api.md](./api.md). Keep endpoint URL or response-shape changes scoped and documented with tests.
+
+### Frontend structure
+
+```text
+frontend/
+├── index.html
+├── public/
+│   └── assets/
+│       ├── icons/
+│       └── manifest.json
+└── src/
+    ├── css/
+    │   ├── tokens.css
+    │   ├── layout.css
+    │   └── components.css
+    └── js/
+        ├── config.js
+        ├── theme.js
+        └── main.js
+```
+
+Important frontend areas:
+
+* `frontend/index.html` - static HTML entry point.
+* `frontend/public/assets/` - local SVG icons and web manifest.
+* `frontend/src/css/` - design tokens, layout styles, and component styles.
+* `frontend/src/js/config.js` - backend API endpoint configuration and editable frontend copy.
+* `frontend/src/js/theme.js` - light/dark theme initialization and switching.
+* `frontend/src/js/main.js` - static UI behavior, auth API helpers, and memory-only auth state.
+
+Add frontend pages, components, or JavaScript modules downstream only when a real project needs them. Do not add build tooling to the base template unless a focused branch explicitly scopes that change.
+
+### Documentation structure
+
+Important documentation and project metadata:
+
+* `README.md` - concise human-facing entry point.
+* `docs/template-usage.md` - main guide for starting and extending a project from this template.
+* `docs/local-development.md` - local setup, run, check, and troubleshooting commands.
+* `docs/environment.md` - current environment/configuration behavior.
+* `docs/api.md` - official health and session-auth API contract.
+* `docs/template-release-checklist.md` - readiness checklist before reuse or release.
+* `SECURITY.md` - vulnerability reporting and security expectations for consuming projects.
+* `CHANGELOG.md` - release history.
+* `CODEX.md` - AI-agent working notes and implementation history.
+
+### Expected empty package marker files
+
+These empty Python package marker files are expected and should remain:
+
+* `backend/app/__init__.py`
+* `backend/common/__init__.py`
+* `backend/config/__init__.py`
+
+Unused empty placeholder modules have been removed. Add modules such as `models.py`, `services.py`, `selectors.py`, `serializers.py`, or app-level `urls.py` only when a real feature needs them.
 
 ## What To Customize Downstream
 
@@ -207,7 +286,7 @@ If the answer points to product-specific logic, put the work in a downstream bra
 For a new project based on this template:
 
 1. Clone or branch from the template.
-2. Read [template-structure.md](./template-structure.md).
+2. Read [Project structure](#project-structure).
 3. Read [environment.md](./environment.md).
 4. Read [local-development.md](./local-development.md).
 5. Read [api.md](./api.md).
