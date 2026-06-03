@@ -26,6 +26,22 @@ def _get_env_list(name, default):
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _get_env_non_negative_int(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+
+    try:
+        parsed = int(value.strip())
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a non-negative integer.") from exc
+
+    if parsed < 0:
+        raise ValueError(f"{name} must be a non-negative integer.")
+
+    return parsed
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "").strip() or "django-insecure-development-only-change-me"
@@ -110,3 +126,11 @@ LOCAL_FRONTEND_ORIGINS = [
 CORS_ALLOWED_ORIGINS = _get_env_list("DJANGO_CORS_ALLOWED_ORIGINS", LOCAL_FRONTEND_ORIGINS)
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = _get_env_list("DJANGO_CSRF_TRUSTED_ORIGINS", LOCAL_FRONTEND_ORIGINS)
+
+SECURE_SSL_REDIRECT = _get_env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
+SESSION_COOKIE_SECURE = _get_env_bool("DJANGO_SESSION_COOKIE_SECURE", False)
+CSRF_COOKIE_SECURE = _get_env_bool("DJANGO_CSRF_COOKIE_SECURE", False)
+SECURE_HSTS_SECONDS = _get_env_non_negative_int("DJANGO_SECURE_HSTS_SECONDS", 0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _get_env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
+SECURE_HSTS_PRELOAD = _get_env_bool("DJANGO_SECURE_HSTS_PRELOAD", False)
+SECURE_REFERRER_POLICY = os.environ.get("DJANGO_SECURE_REFERRER_POLICY", "").strip() or "same-origin"
