@@ -52,6 +52,22 @@ Supported variables:
 | `DJANGO_CORS_ALLOWED_ORIGINS` | Overrides `CORS_ALLOWED_ORIGINS` with a comma-separated list of frontend origins. | `DJANGO_CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500` | Local frontend origins for ports `3000`, `5173`, and `5500` |
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | Overrides `CSRF_TRUSTED_ORIGINS` with a comma-separated list of trusted frontend origins. | `DJANGO_CSRF_TRUSTED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500` | Local frontend origins for ports `3000`, `5173`, and `5500` |
 
+Optional security hardening variables:
+
+These settings are optional hardening knobs for consuming projects. Their defaults are development-friendly and do not make the starter production-ready by default.
+
+| Variable | Purpose | Example | Default when unset or blank |
+| --- | --- | --- | --- |
+| `DJANGO_SECURE_SSL_REDIRECT` | Overrides `SECURE_SSL_REDIRECT`. Enable only when Django is served over HTTPS or behind correctly configured HTTPS proxying. | `DJANGO_SECURE_SSL_REDIRECT=true` | `False` |
+| `DJANGO_SESSION_COOKIE_SECURE` | Overrides `SESSION_COOKIE_SECURE`. Requires HTTPS for browser session cookies. | `DJANGO_SESSION_COOKIE_SECURE=true` | `False` |
+| `DJANGO_CSRF_COOKIE_SECURE` | Overrides `CSRF_COOKIE_SECURE`. Requires HTTPS for the CSRF cookie. | `DJANGO_CSRF_COOKIE_SECURE=true` | `False` |
+| `DJANGO_SECURE_HSTS_SECONDS` | Overrides `SECURE_HSTS_SECONDS`. Must be a non-negative integer. `0` disables HSTS. | `DJANGO_SECURE_HSTS_SECONDS=31536000` | `0` |
+| `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS` | Overrides `SECURE_HSTS_INCLUDE_SUBDOMAINS`. Use only when HTTPS is correct for all subdomains. | `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=true` | `False` |
+| `DJANGO_SECURE_HSTS_PRELOAD` | Overrides `SECURE_HSTS_PRELOAD`. Use only when you understand the domain-wide preload consequences. | `DJANGO_SECURE_HSTS_PRELOAD=true` | `False` |
+| `DJANGO_SECURE_REFERRER_POLICY` | Overrides `SECURE_REFERRER_POLICY`. | `DJANGO_SECURE_REFERRER_POLICY=same-origin` | `same-origin` |
+
+Do not enable HSTS preload casually. Preload can affect the whole registered domain and may be difficult to reverse. Secure cookies and SSL redirect require HTTPS; enabling them on local HTTP development can break auth cookies or make the development server unreachable.
+
 Current unchanged development settings include:
 
 * SQLite database at `backend/db.sqlite3`.
@@ -132,4 +148,4 @@ Current safe pattern:
 
 ## Non-Goals
 
-This document does not add automatic `.env` loading, new dependencies, database environment settings, JWTs, token storage, redirects, route guards, protected pages, domain-specific features, frontend redesigns, new models, or migrations.
+This document does not add automatic `.env` loading, new dependencies, database environment settings, JWTs, token storage, auth redirects, route guards, protected pages, domain-specific features, frontend redesigns, new models, or migrations.

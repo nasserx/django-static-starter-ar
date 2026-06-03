@@ -179,8 +179,9 @@ Verify:
 * [ ] Frontend validation is treated as UX only.
 * [ ] Login uses one generic invalid credentials error for unknown email and wrong password.
 * [ ] The starter is documented as development-friendly by default, not production-safe out of the box.
-* [ ] Consuming projects must set production values for `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CORS_ALLOWED_ORIGINS`, and `DJANGO_CSRF_TRUSTED_ORIGINS`.
+* [ ] Consuming projects must set production values for `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CORS_ALLOWED_ORIGINS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, and the supported optional security hardening variables documented in `docs/environment.md`.
 * [ ] `manage.py check --deploy` warnings such as `SECURE_HSTS_SECONDS`, `SECURE_SSL_REDIRECT`, development `SECRET_KEY`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, and `DEBUG=True` are expected for the development starter unless production settings are configured.
+* [ ] Secure cookies and SSL redirect are enabled only for HTTPS deployments, and HSTS preload is enabled only after reviewing domain-wide consequences.
 
 ## Domain-Neutrality Checklist
 
