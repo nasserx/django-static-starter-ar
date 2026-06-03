@@ -42,7 +42,7 @@ Use this section as the top-level release gate:
 Verify:
 
 * [ ] `README.md` exists and points to current docs.
-* [ ] `docs/template-structure.md` exists and reflects the current structure.
+* [ ] `docs/template-usage.md#project-structure` reflects the current structure.
 * [ ] `docs/environment.md` exists and reflects current env behavior.
 * [ ] `docs/local-development.md` exists and includes current setup/check commands.
 * [ ] Backend commands use the repository-root `.venv` workflow.
