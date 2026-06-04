@@ -54,6 +54,16 @@ Highlights:
   `frontend/public/assets/icons/`; no external image assets or icon libraries
   are required.
 
+## Screenshots
+
+### Dark mode
+
+![Homepage dark mode](docs/images/screenshot-homepage-dark-v0.1.4.png)
+
+### Light mode
+
+![Homepage light mode](docs/images/screenshot-homepage-light-v0.1.4.png)
+
 ## Preview Locally
 
 Serve the frontend from the repository root:
