@@ -205,3 +205,7 @@ npx --yes html-validate@9 "*.html" "partials/*.html"
 
 `npx` is used only as an on-demand validation command. It does not add a
 `package.json`, install a project dependency, or introduce an npm build workflow.
+
+## النسخ ذات الصلة
+
+- النسخة الإنجليزية LTR: https://github.com/nasserx/django-static-starter-en
